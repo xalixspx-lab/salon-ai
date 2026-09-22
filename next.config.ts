@@ -1,4 +1,5 @@
 import createNextIntlPlugin from 'next-intl/plugin';
+import { withSentryConfig } from '@sentry/nextjs';
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
@@ -18,4 +19,14 @@ const nextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+export default withSentryConfig(withNextIntl(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: true,
+  widenClientFileUpload: true,
+  // مسار وسيط لتفادي حجب أدوات ABP لطلبات Sentry من العميل
+  tunnelRoute: '/monitoring',
+  disableLogger: true,
+  // تعطيل الرفع تلقائيًا إن لم يوجد رمز الدخول (تطوير محلي)
+  sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
+});

@@ -6,7 +6,7 @@ import { clientIp, limitOrResponse } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
   try {
-    const limited = limitOrResponse(`reset:ip:${clientIp(request)}`, 20, 60 * 60 * 1000);
+    const limited = await limitOrResponse(`reset:ip:${clientIp(request)}`, 20, 60 * 60 * 1000);
     if (limited) return limited;
 
     const body = await request.json();

@@ -16,7 +16,7 @@ import { createAppointmentGuarded, isOutsideHours, isSlotConflict } from '@/lib/
 // الاسم/الجوال فقط، حتى يظهر الحجز بسجل حجوزاته لاحقًا مهما كان الصالون.
 export async function POST(request: Request) {
   try {
-    const limited = limitOrResponse(`book:${clientIp(request)}`, 20, 60 * 60 * 1000);
+    const limited = await limitOrResponse(`book:${clientIp(request)}`, 20, 60 * 60 * 1000);
     if (limited) return limited;
 
     const body = await request.json();

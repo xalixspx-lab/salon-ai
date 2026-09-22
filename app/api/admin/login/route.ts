@@ -18,8 +18,8 @@ export async function POST(request: Request) {
     }
 
     const limited =
-      limitOrResponse(`login-admin:ip:${clientIp(request)}`, 40, 15 * 60 * 1000) ||
-      limitOrResponse(`login-admin:email:${email}`, 10, 15 * 60 * 1000);
+      (await limitOrResponse(`login-admin:ip:${clientIp(request)}`, 40, 15 * 60 * 1000)) ||
+      (await limitOrResponse(`login-admin:email:${email}`, 10, 15 * 60 * 1000));
     if (limited) return limited;
 
     const admin = await prisma.admin.findUnique({ where: { email } });

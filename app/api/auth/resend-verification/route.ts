@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       : await getCustomerSession().then((s) => s && { id: s.accountId });
   if (!subject) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-  const limited = limitOrResponse(`resend:${subject.id}`, 3, 60 * 60 * 1000);
+  const limited = await limitOrResponse(`resend:${subject.id}`, 3, 60 * 60 * 1000);
   if (limited) return limited;
 
   const account =

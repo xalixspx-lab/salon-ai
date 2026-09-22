@@ -40,7 +40,7 @@ async function resolveShortUrl(start: URL): Promise<URL | null> {
 }
 
 export async function POST(req: Request) {
-  const limited = limitOrResponse(`parse-location:${clientIp(req)}`, 30, 60 * 60 * 1000);
+  const limited = await limitOrResponse(`parse-location:${clientIp(req)}`, 30, 60 * 60 * 1000);
   if (limited) return limited;
 
   try {

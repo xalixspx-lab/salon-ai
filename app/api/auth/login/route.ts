@@ -18,8 +18,8 @@ export async function POST(request: Request) {
     }
 
     const limited =
-      limitOrResponse(`login-owner:ip:${clientIp(request)}`, 40, 15 * 60 * 1000) ||
-      limitOrResponse(`login-owner:email:${email}`, 10, 15 * 60 * 1000);
+      (await limitOrResponse(`login-owner:ip:${clientIp(request)}`, 40, 15 * 60 * 1000)) ||
+      (await limitOrResponse(`login-owner:email:${email}`, 10, 15 * 60 * 1000));
     if (limited) return limited;
 
     const owner = await prisma.owner.findUnique({ where: { email } });

@@ -7,7 +7,7 @@ import { createCustomerSession } from '@/lib/customerSession';
 
 export async function POST(request: Request) {
   try {
-    const limited = limitOrResponse(`register-customer:${clientIp(request)}`, 10, 60 * 60 * 1000);
+    const limited = await limitOrResponse(`register-customer:${clientIp(request)}`, 10, 60 * 60 * 1000);
     if (limited) return limited;
 
     const body = await request.json();

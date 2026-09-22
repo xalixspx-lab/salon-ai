@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'تخزين الصور غير مفعّل بعد على الخادم' }, { status: 503 });
   }
 
-  const limited = limitOrResponse(`logo:${session.tenantId}`, 20, 60 * 60 * 1000);
+  const limited = await limitOrResponse(`logo:${session.tenantId}`, 20, 60 * 60 * 1000);
   if (limited) return limited;
 
   const form = await request.formData().catch(() => null);

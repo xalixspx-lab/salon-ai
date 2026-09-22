@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   const guard = await requireAdmin({ allowMustChange: true });
   if ('response' in guard) return guard.response;
 
-  const limited = limitOrResponse(`admin-chpw:${guard.session.adminId}`, 10, 15 * 60 * 1000);
+  const limited = await limitOrResponse(`admin-chpw:${guard.session.adminId}`, 10, 15 * 60 * 1000);
   if (limited) return limited;
 
   const body = await request.json().catch(() => ({}));

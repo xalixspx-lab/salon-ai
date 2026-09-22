@@ -121,7 +121,7 @@ export async function GET(request: Request) {
 // يُرسل رابط تأكيد البريد بعد التسجيل، والتأكيد غير مفروض للدخول (تنبيه فقط).
 export async function POST(request: Request) {
   try {
-    const limited = limitOrResponse(`register-salon:${clientIp(request)}`, 10, 60 * 60 * 1000);
+    const limited = await limitOrResponse(`register-salon:${clientIp(request)}`, 10, 60 * 60 * 1000);
     if (limited) return limited;
 
     const body = await request.json();

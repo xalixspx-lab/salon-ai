@@ -16,8 +16,8 @@ export async function POST(request: Request) {
     }
 
     const limited =
-      limitOrResponse(`forgot:ip:${clientIp(request)}`, 10, 60 * 60 * 1000) ||
-      limitOrResponse(`forgot:email:${email}`, 3, 60 * 60 * 1000);
+      (await limitOrResponse(`forgot:ip:${clientIp(request)}`, 10, 60 * 60 * 1000)) ||
+      (await limitOrResponse(`forgot:email:${email}`, 3, 60 * 60 * 1000));
     if (limited) return limited;
 
     const account =

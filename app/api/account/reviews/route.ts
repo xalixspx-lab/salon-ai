@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   const session = await getCustomerSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-  const limited = limitOrResponse(`review:${session.accountId}`, 20, 60 * 60 * 1000);
+  const limited = await limitOrResponse(`review:${session.accountId}`, 20, 60 * 60 * 1000);
   if (limited) return limited;
 
   const body = await request.json().catch(() => ({}));
