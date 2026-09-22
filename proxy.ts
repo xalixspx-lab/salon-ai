@@ -48,5 +48,6 @@ export default function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)'],
+  // monitoring: مسار Sentry النفقي (tunnelRoute) يجب أن يمر كما هو بدون بادئة لغة
+  matcher: ['/((?!api|monitoring|_next|_vercel|.*\\..*).*)'],
 };
