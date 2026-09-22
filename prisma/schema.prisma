@@ -46,6 +46,7 @@ model Tenant {
   offers          Offer[]
   reviews         Review[]
   favorites       Favorite[]
+  photos          SalonPhoto[]
 
   @@map("tenants")
 }
@@ -307,4 +308,19 @@ model PlatformSetting {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
 
   @@map("platform_settings")
+}
+
+// معرض صور الصالون (متعدد) — منفصل عن الشعار الواحد (Tenant.logoUrl)
+model SalonPhoto {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  url          String
+  storagePath  String   @map("storage_path")
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([tenantId, sortOrder])
+  @@map("salon_photos")
 }

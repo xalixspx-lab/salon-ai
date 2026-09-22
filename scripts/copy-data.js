@@ -6,6 +6,7 @@
 // - لا يحذف شيئًا من المصدر ولا من الهدف، ويتجاهل السجلات الموجودة مسبقًا (آمن للإعادة).
 // - لا ينسخ حسابات الأدمن ولا رموز الاستعادة ولا سجل التدقيق (أنشئ الأدمن من جديد على الإنتاج).
 // - المفاتيح تُقرأ من متغيرات البيئة فقط ولا تُطبع.
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- سكربت CommonJS مستقل عن حزمة التطبيق
 const { PrismaClient } = require('@prisma/client');
 
 const source = process.env.SOURCE_URL;

@@ -198,6 +198,8 @@
     "changeLogo": "Change logo",
     "removeLogo": "Remove logo",
     "logoHint": "PNG, JPG or WebP, up to 2 MB. Square works best.",
+    "gallery": "Salon photo gallery",
+    "galleryHint": "Up to 12 photos shown on your public salon page (interior, services, team...).",
     "cancellationHours": "Customer cancel/reschedule deadline (hours before appointment)",
     "weeklyHours": "Weekly working hours",
     "weeklyHoursHint": "Used to show customers available slots and block bookings outside opening hours.",

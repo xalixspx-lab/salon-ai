@@ -47,6 +47,8 @@ export default async function SalonDetailPage({
   const tenant = await prisma.tenant.findUnique({ where: { id } });
   if (!tenant || !tenant.isPublished) notFound();
 
+  const photos = await prisma.salonPhoto.findMany({ where: { tenantId: tenant.id }, orderBy: { sortOrder: 'asc' } });
+
   const services = await prisma.service.findMany({
     where: { tenantId: tenant.id },
     orderBy: { createdAt: 'desc' },
@@ -177,6 +179,17 @@ export default async function SalonDetailPage({
           <div className="mb-8 bg-white p-2 rounded-lg shadow border border-gray-100">
             <SalonMap salons={mapSalons} />
           </div>
+        )}
+
+        {photos.length > 0 && (
+          <section className="mb-8">
+            <div className="grid grid-cols-3 gap-2">
+              {photos.map((p) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={p.id} src={p.url} alt={tenant.name} className="aspect-square w-full object-cover rounded-xl border border-gray-100" />
+              ))}
+            </div>
+          </section>
         )}
 
         <section>

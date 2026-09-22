@@ -3,6 +3,7 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import LogoUploader from '@/components/dashboard/LogoUploader';
+import GalleryManager from '@/components/dashboard/GalleryManager';
 import WeeklyHoursEditor, { initialHours } from '@/components/dashboard/WeeklyHoursEditor';
 import type { WeeklyHours } from '@/lib/schedule';
 
@@ -103,6 +104,8 @@ export default function SettingsPage() {
         {saved && <div className="p-3 bg-emerald-50 text-emerald-700 rounded text-sm">تم الحفظ بنجاح</div>}
 
         {!loading && <LogoUploader key={logoUrl ?? 'none'} initialUrl={logoUrl} />}
+
+        {!loading && <GalleryManager />}
 
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">{t('salonName')}</label>
