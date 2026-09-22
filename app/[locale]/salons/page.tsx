@@ -3,6 +3,7 @@ import { getRatings } from '@/lib/ratings';
 import Link from 'next/link';
 import SalonMap from '@/components/SalonMap';
 import SalonGrid from '@/components/SalonGrid';
+import PublicHeader from '@/components/PublicHeader';
 
 export default async function SalonsPage({
   params,
@@ -65,7 +66,9 @@ export default async function SalonsPage({
   }));
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 text-black">
+    <>
+      <PublicHeader locale={locale} />
+      <div className="max-w-4xl mx-auto mt-10 p-6 text-black">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">خريطة وقائمة الصالونات (Salon AI)</h1>
         <Link
@@ -114,6 +117,7 @@ export default async function SalonsPage({
       ) : (
         <SalonGrid locale={locale} salons={gridSalons} />
       )}
-    </div>
+      </div>
+    </>
   );
 }

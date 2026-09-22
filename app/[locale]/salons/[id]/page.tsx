@@ -7,6 +7,7 @@ import ServicesList from '@/components/ServicesList';
 import { DIRECT_OFFER_TYPES, describeOffer } from '@/lib/offers';
 import { getRatings } from '@/lib/ratings';
 import FavoriteButton from '@/components/FavoriteButton';
+import PublicHeader from '@/components/PublicHeader';
 
 export async function generateMetadata({
   params,
@@ -110,7 +111,9 @@ export default async function SalonDetailPage({
   ];
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6 md:p-12" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+    <>
+      <PublicHeader locale={locale} />
+      <main className="min-h-screen bg-gray-50 p-6 md:p-12" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
@@ -234,6 +237,7 @@ export default async function SalonDetailPage({
           )}
         </section>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

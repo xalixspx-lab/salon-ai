@@ -45,7 +45,9 @@
     "reviewPlaceholder": "Write your feedback (optional)",
     "submitReview": "Submit review",
     "favorites": "My favorite salons",
-    "noFavorites": "You have not saved any salons yet"
+    "noFavorites": "You have not saved any salons yet",
+    "navDiscover": "Discover salons",
+    "navForOwners": "For salon owners"
   },
   "Index": {
     "title": "Welcome to Salon AI",

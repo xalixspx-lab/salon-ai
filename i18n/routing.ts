@@ -6,7 +6,11 @@ import { createNavigation } from 'next-intl/navigation';
 // إضافة ملفات ترجمة فعلية لكل لغة جديدة.
 export const routing = defineRouting({
   locales: ['ar', 'en'],
-  defaultLocale: 'ar'
+  defaultLocale: 'ar',
+  // المنصة عربية أولًا: لا نعتمد على لغة المتصفح (Accept-Language) لتحديد
+  // اللغة الافتراضية — زائر جديد يرى العربية دائمًا، ويبدّل يدويًا إن أراد
+  // (عبر مبدّل اللغة)، ويُحترم اختياره بعدها عبر كوكي NEXT_LOCALE كالمعتاد.
+  localeDetection: false,
 });
 
 export const { Link, redirect, usePathname, useRouter } = createNavigation(routing);

@@ -45,7 +45,9 @@
     "reviewPlaceholder": "اكتب رأيك (اختياري)",
     "submitReview": "إرسال التقييم",
     "favorites": "صالوناتي المفضلة",
-    "noFavorites": "لم تضف أي صالون للمفضلة بعد"
+    "noFavorites": "لم تضف أي صالون للمفضلة بعد",
+    "navDiscover": "اكتشف الصالونات",
+    "navForOwners": "لأصحاب الصالونات"
   },
   "Index": {
     "title": "أهلاً بك في Salon AI",
