@@ -3,9 +3,9 @@ import { getRatings } from '@/lib/ratings';
 
 // قائمة الصالونات المنشورة بحقول عامة فقط (لا باقة ولا إعدادات داخلية). تستخدمها
 // الصفحة الرئيسية مباشرة بدل استدعاء الـ API الخاص بها عبر HTTP.
-export async function listPublicSalons(opts: { city?: string | null; take?: number } = {}) {
+export async function listPublicSalons(opts: { city?: string | null; take?: number; featuredOnly?: boolean } = {}) {
   const tenants = await prisma.tenant.findMany({
-    where: { isPublished: true, ...(opts.city ? { city: opts.city } : {}) },
+    where: { isPublished: true, ...(opts.city ? { city: opts.city } : {}), ...(opts.featuredOnly ? { isFeatured: true } : {}) },
     take: opts.take ?? 20,
     orderBy: { createdAt: 'desc' },
     select: {
@@ -20,6 +20,7 @@ export async function listPublicSalons(opts: { city?: string | null; take?: numb
       addressText: true,
       timezone: true,
       currency: true,
+      isFeatured: true,
     },
   });
 

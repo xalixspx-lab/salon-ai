@@ -42,6 +42,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       descriptionEn,
       phone,
       isPublished,
+      isFeatured,
       depositPercentage,
       minBookingNoticeHours,
       plan,
@@ -74,6 +75,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           : {}),
         ...(phone !== undefined ? { phone: phone || null } : {}),
         ...(isPublished !== undefined ? { isPublished: Boolean(isPublished) } : {}),
+        ...(isFeatured !== undefined ? { isFeatured: Boolean(isFeatured) } : {}),
         ...(depositPercentage !== undefined
           ? { depositPercentage: Math.max(0, Math.min(100, parseInt(depositPercentage, 10) || 0)) }
           : {}),

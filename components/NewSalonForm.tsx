@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import LocationPicker from '@/components/LocationPicker';
+import HoneypotField from '@/components/HoneypotField';
+import TurnstileWidget from '@/components/TurnstileWidget';
 
 export default function NewSalonForm() {
   const router = useRouter();
@@ -15,6 +17,8 @@ export default function NewSalonForm() {
   const [city, setCity] = useState('');
   const [lat, setLat] = useState<number | ''>('');
   const [lng, setLng] = useState<number | ''>('');
+  const [website, setWebsite] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -35,6 +39,8 @@ export default function NewSalonForm() {
           password,
           lat: lat !== '' ? lat : undefined,
           lng: lng !== '' ? lng : undefined,
+          website,
+          turnstileToken,
         }),
       });
 
@@ -65,6 +71,7 @@ export default function NewSalonForm() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        <HoneypotField value={website} onChange={setWebsite} />
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">اسم الصالون</label>
           <input
@@ -124,6 +131,8 @@ export default function NewSalonForm() {
           onLatChange={setLat}
           onLngChange={setLng}
         />
+
+        <TurnstileWidget onVerify={setTurnstileToken} />
 
         <button
           type="submit"

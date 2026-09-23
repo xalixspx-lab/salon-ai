@@ -34,7 +34,7 @@ export default function LogoUploader({ initialUrl }: { initialUrl: string | null
       <div className="flex items-center gap-4">
         <div className="h-20 w-20 rounded-2xl border border-stone-200 bg-stone-50 overflow-hidden flex items-center justify-center text-stone-300 text-2xl">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          {url ? <img src={url} alt="" className="h-full w-full object-cover" /> : '🖼️'}
+          {url ? <img src={url} alt={t('logo')} className="h-full w-full object-cover" /> : '🖼️'}
         </div>
         <div className="space-y-2">
           <label className={`inline-block cursor-pointer rounded-md bg-purple-600 px-3 py-1.5 text-sm text-white ${busy ? 'opacity-50' : ''}`}>

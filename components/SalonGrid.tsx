@@ -14,6 +14,7 @@ export interface SalonGridItem {
   latitude: number | string | null;
   longitude: number | string | null;
   hasActiveOffer?: boolean;
+  isFeatured?: boolean;
   logoUrl?: string | null;
   rating?: number | null;
   reviewCount?: number;
@@ -104,21 +105,30 @@ export default function SalonGrid({ locale, salons }: { locale: string; salons: 
             return (
               <div
                 key={salon.id}
-                className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow"
+                className={`bg-white rounded-2xl shadow-md p-6 border hover:shadow-lg transition-shadow ${
+                  salon.isFeatured ? 'border-amber-300 ring-1 ring-amber-200' : 'border-gray-100'
+                }`}
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex items-center gap-3 min-w-0">
                     {salon.logoUrl && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={salon.logoUrl} alt="" className="h-11 w-11 shrink-0 rounded-xl object-cover border border-gray-100" />
+                      <img src={salon.logoUrl} alt={salon.name} className="h-11 w-11 shrink-0 rounded-xl object-cover border border-gray-100" />
                     )}
                     <h3 className="text-xl font-bold text-gray-900 truncate">{salon.name}</h3>
                   </div>
-                  {salon.hasActiveOffer && (
-                    <span className="shrink-0 text-xs font-medium bg-rose-50 text-rose-700 px-2.5 py-1 rounded-full">
-                      🏷️ {t('hasOffer')}
-                    </span>
-                  )}
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    {salon.isFeatured && (
+                      <span className="text-xs font-medium bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full">
+                        ⭐ {t('featured')}
+                      </span>
+                    )}
+                    {salon.hasActiveOffer && (
+                      <span className="text-xs font-medium bg-rose-50 text-rose-700 px-2.5 py-1 rounded-full">
+                        🏷️ {t('hasOffer')}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-sm text-gray-500 mb-1">
                   {salon.addressText || salon.city || (locale === 'ar' ? 'موقع مميز في دول الخليج' : 'Prime GCC Location')}

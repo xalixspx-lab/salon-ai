@@ -9,6 +9,7 @@ import ReviewForm from '@/components/account/ReviewForm';
 import AppointmentActions from '@/components/account/AppointmentActions';
 import LogoutButton from '@/components/account/LogoutButton';
 import ChangePasswordCard from '@/components/account/ChangePasswordCard';
+import { tierFromVisitCount, TIER_LABEL } from '@/lib/loyalty';
 
 // نافذة الإلغاء/التعديل: قبل الموعد بعدد الساعات الذي حدده الصالون
 function isModifiable(start: Date, cancellationHours: number): boolean {
@@ -45,7 +46,8 @@ export default async function AccountPage({
     orderBy: { createdAt: 'desc' },
   });
 
-  const [appointments, offers, upcoming] = await Promise.all([
+  const [account, appointments, offers, upcoming] = await Promise.all([
+    prisma.customerAccount.findUnique({ where: { id: session.accountId }, select: { points: true } }),
     prisma.appointment.findMany({
       where: { customerId: { in: customerIds } },
       orderBy: { startTime: 'desc' },
@@ -80,6 +82,10 @@ export default async function AccountPage({
       : Promise.resolve([]),
   ]);
 
+  const completedVisits = appointments.filter((a) => a.status === 'COMPLETED').length;
+  const tier = tierFromVisitCount(completedVisits);
+  const tierLabel = TIER_LABEL[tier][locale === 'ar' ? 'ar' : 'en'];
+
   return (
     <main className="min-h-screen bg-gray-50 p-6 md:p-12" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-3xl mx-auto">
@@ -87,6 +93,16 @@ export default async function AccountPage({
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900 mb-1">{t('myAccount')}</h1>
             <p className="text-gray-500">{session.name} · <span dir="ltr">{session.email}</span></p>
+            <div className="flex items-center gap-2 mt-2">
+              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                tier === 'VIP' ? 'bg-amber-100 text-amber-800' : tier === 'REGULAR' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'
+              }`}>
+                {tier === 'VIP' ? '⭐ ' : ''}{tierLabel}
+              </span>
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">
+                {t('pointsLabel', { count: account?.points ?? 0 })}
+              </span>
+            </div>
           </div>
           <LogoutButton />
         </header>
@@ -161,6 +177,7 @@ export default async function AccountPage({
                     <th className="p-3">{t('service')}</th>
                     <th className="p-3">{t('date')}</th>
                     <th className="p-3">{t('amountPaid')}</th>
+                    <th className="p-3">{t('depositPaid')}</th>
                     <th className="p-3">{t('discount')}</th>
                     <th className="p-3">{t('status')}</th>
                     <th className="p-3">{t('actions')}</th>
@@ -175,6 +192,7 @@ export default async function AccountPage({
                         {a.startTime ? new Date(a.startTime).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US') : '—'}
                       </td>
                       <td className="p-3">{a.totalAmount ? String(a.totalAmount) : '—'}</td>
+                      <td className="p-3">{a.depositAmount ? String(a.depositAmount) : '—'}</td>
                       <td className="p-3">
                         {a.appliedOffer ? describeOffer(a.appliedOffer as any, locale, 'BHD') : (
                           <span className="text-gray-400">{t('noDiscount')}</span>

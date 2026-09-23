@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import HoneypotField from '@/components/HoneypotField';
+import TurnstileWidget from '@/components/TurnstileWidget';
 
 export default function AccountRegisterPage() {
   const t = useTranslations('Account');
@@ -13,6 +15,8 @@ export default function AccountRegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [website, setWebsite] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -25,7 +29,7 @@ export default function AccountRegisterPage() {
       const res = await fetch('/api/account/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, website, turnstileToken }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -48,6 +52,7 @@ export default function AccountRegisterPage() {
         {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <HoneypotField value={website} onChange={setWebsite} />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('yourName')}</label>
             <input value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-3 py-2 border rounded-md" />
@@ -60,6 +65,8 @@ export default function AccountRegisterPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('password')}</label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} dir="ltr" className="w-full px-3 py-2 border rounded-md text-left" />
           </div>
+
+          <TurnstileWidget onVerify={setTurnstileToken} />
 
           <button type="submit" disabled={loading} className="w-full bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 transition disabled:opacity-50">
             {loading ? '...' : t('createAccount')}

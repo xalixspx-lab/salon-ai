@@ -12,6 +12,7 @@ interface TenantRow {
   name: string;
   city: string | null;
   isPublished: boolean;
+  isFeatured: boolean;
   plan: string;
   trialEndsAt: string | null;
   createdAt: string | null;
@@ -100,6 +101,17 @@ export default function AdminSalonsPage() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ isPublished: !tenant.isPublished }),
+    });
+    await load();
+    setTogglingId(null);
+  };
+
+  const toggleFeatured = async (tenant: TenantRow) => {
+    setTogglingId(tenant.id);
+    await fetch(`/api/admin/salons/${tenant.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isFeatured: !tenant.isFeatured }),
     });
     await load();
     setTogglingId(null);
@@ -253,6 +265,15 @@ export default function AdminSalonsPage() {
                       }`}
                     >
                       {tenant.isPublished ? t('published') : t('unpublished')}
+                    </button>
+                    <button
+                      onClick={() => toggleFeatured(tenant)}
+                      disabled={togglingId === tenant.id}
+                      className={`ms-1 text-xs px-2 py-1 rounded-md font-medium disabled:opacity-50 ${
+                        tenant.isFeatured ? 'bg-amber-100 text-amber-800' : 'bg-slate-50 text-slate-500'
+                      }`}
+                    >
+                      {tenant.isFeatured ? '⭐ ' : ''}{t('featured')}
                     </button>
                   </td>
                   <td className="p-3">

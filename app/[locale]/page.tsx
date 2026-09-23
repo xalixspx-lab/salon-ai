@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import SalonGrid from '@/components/SalonGrid';
+import FeaturedSalonsStrip from '@/components/FeaturedSalonsStrip';
 import PublicHeader from '@/components/PublicHeader';
 import { listPublicSalons } from '@/lib/publicSalons';
 
@@ -21,6 +22,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   // استخدام getTranslations بدلاً من useTranslations في الـ Async Server Component
   const t = await getTranslations('Index');
   const salons = await getSalons();
+  const featuredSalons = salons.filter((s) => s.isFeatured);
 
   return (
     <>
@@ -35,6 +37,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           {t('description')}
         </p>
       </header>
+
+      {/* قسم الصالونات المميزة (تختارها الإدارة) */}
+      {featuredSalons.length > 0 && (
+        <section className="max-w-6xl mx-auto mb-10">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('featuredSalonsTitle')}</h2>
+          <FeaturedSalonsStrip locale={locale} salons={featuredSalons} />
+        </section>
+      )}
 
       {/* قسم استعراض الصالونات */}
       <section className="max-w-6xl mx-auto">

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { hasConflict } from '@/lib/availability';
 import { notifyBooking } from '@/lib/notify';
+import { awardCompletionPoints } from '@/lib/loyalty';
 
 const VALID_STATUSES = ['PENDING_DEPOSIT', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
 
@@ -45,6 +46,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     if (status === 'CANCELLED' && existing.status !== 'CANCELLED') {
       after(() => notifyBooking(id, 'cancelled', ['customer']));
+    }
+    if (status === 'CONFIRMED' && existing.status !== 'CONFIRMED') {
+      after(() => notifyBooking(id, 'confirmed', ['customer']));
+    }
+    if (status === 'COMPLETED' && existing.status !== 'COMPLETED') {
+      after(() => notifyBooking(id, 'completed', ['customer']));
+      after(() => awardCompletionPoints(existing.customerId));
     }
 
     return NextResponse.json({ success: true, data: appointment }, { status: 200 });

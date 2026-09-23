@@ -10,9 +10,17 @@ interface Row {
   email: string;
   emailVerifiedAt: string | null;
   suspendedAt: string | null;
+  points: number;
+  tier: 'NEW' | 'REGULAR' | 'VIP';
   createdAt: string;
   _count: { customers: number; reviews: number };
 }
+
+const TIER_LABEL: Record<Row['tier'], [string, string]> = {
+  NEW: ['جديد', 'New'],
+  REGULAR: ['دائم', 'Regular'],
+  VIP: ['⭐ مميز', '⭐ VIP'],
+};
 
 export default function AdminCustomersPage() {
   const params = useParams();
@@ -111,19 +119,23 @@ export default function AdminCustomersPage() {
               <th className="p-3">{L('الاسم', 'Name')}</th>
               <th className="p-3">{L('البريد', 'Email')}</th>
               <th className="p-3">{L('صالونات / تقييمات', 'Salons / reviews')}</th>
+              <th className="p-3">{L('التصنيف', 'Tier')}</th>
+              <th className="p-3">{L('النقاط', 'Points')}</th>
               <th className="p-3">{L('الحالة', 'Status')}</th>
               <th className="p-3">{L('إجراءات', 'Actions')}</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
-              <tr><td colSpan={5} className="p-6 text-center text-slate-400">—</td></tr>
+              <tr><td colSpan={7} className="p-6 text-center text-slate-400">—</td></tr>
             )}
             {rows.map((r) => (
               <tr key={r.id} className="border-b border-slate-100">
                 <td className="p-3 font-medium text-slate-900">{r.name}</td>
                 <td className="p-3" dir="ltr">{r.email}</td>
                 <td className="p-3">{r._count.customers} / {r._count.reviews}</td>
+                <td className="p-3 text-xs">{ar ? TIER_LABEL[r.tier][0] : TIER_LABEL[r.tier][1]}</td>
+                <td className="p-3 text-xs">{r.points}</td>
                 <td className="p-3 text-xs">
                   {r.suspendedAt ? <span className="text-red-700">{L('موقوف', 'Suspended')}</span> : r.emailVerifiedAt ? <span className="text-emerald-700">{L('مؤكد', 'Verified')}</span> : <span className="text-amber-700">{L('غير مؤكد', 'Unverified')}</span>}
                 </td>

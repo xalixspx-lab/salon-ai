@@ -6,6 +6,8 @@ import { sendVerificationEmail } from '@/lib/verification';
 import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/lib/password';
 import { createSession } from '@/lib/session';
+import { isHoneypotFilled } from '@/lib/honeypot';
+import { verifyTurnstileToken } from '@/lib/turnstile';
 
 // جلب الصالونات (المستأجرين)، مع دعم اختياري للبحث الجغرافي عبر PostGIS
 export async function GET(request: Request) {
@@ -125,6 +127,12 @@ export async function POST(request: Request) {
     if (limited) return limited;
 
     const body = await request.json();
+    if (isHoneypotFilled(body)) {
+      return NextResponse.json({ success: false, error: 'Failed to create salon' }, { status: 400 });
+    }
+    if (!(await verifyTurnstileToken(body.turnstileToken, clientIp(request)))) {
+      return NextResponse.json({ success: false, error: 'فشل التحقق من أنك لست روبوت' }, { status: 400 });
+    }
     const { name, city, addressText, lat, lng, ownerName, email, password } = body;
 
     if (!name || !city) {

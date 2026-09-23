@@ -32,6 +32,7 @@ model Tenant {
   cancellationHours Int         @default(24) @map("cancellation_hours")
   logoUrl         String?       @map("logo_url")
   logoPath        String?       @map("logo_path")
+  isFeatured      Boolean       @default(false) @map("is_featured")
   plan            String        @default("TRIAL") @db.VarChar(20)
   trialEndsAt     DateTime?     @map("trial_ends_at") @db.Timestamp(6)
   createdAt       DateTime?     @default(now()) @map("created_at") @db.Timestamp(6)
@@ -156,6 +157,7 @@ model CustomerAccount {
   passwordHash String     @map("password_hash") @db.VarChar(255)
   emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamp(6)
   suspendedAt  DateTime?  @map("suspended_at") @db.Timestamp(6)
+  points       Int        @default(0)
   createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamp(6)
 
   customers    Customer[]

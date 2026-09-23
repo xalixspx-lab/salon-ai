@@ -55,7 +55,7 @@ export default function DashboardShell({
           <div className="flex items-center gap-2 mt-1">
             {logoUrl && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt="" className="h-6 w-6 rounded-md object-cover" />
+              <img src={logoUrl} alt={tenantName} className="h-6 w-6 rounded-md object-cover" />
             )}
             <p className="text-xs text-stone-500 truncate">{tenantName}</p>
           </div>

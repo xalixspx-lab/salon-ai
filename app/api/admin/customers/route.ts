@@ -7,6 +7,7 @@ import { generateTempPassword } from '@/lib/tempPassword';
 import { logAdminAction } from '@/lib/audit';
 import { appOrigin, sendEmail, welcomeEmail } from '@/lib/email';
 import { localeFromRequest } from '@/lib/verification';
+import { tierFromVisitCount } from '@/lib/loyalty';
 
 export async function GET(request: Request) {
   const guard = await requireAdmin();
@@ -29,6 +30,7 @@ export async function GET(request: Request) {
         email: true,
         emailVerifiedAt: true,
         suspendedAt: true,
+        points: true,
         createdAt: true,
         _count: { select: { customers: true, reviews: true } },
       },
@@ -36,7 +38,12 @@ export async function GET(request: Request) {
     prisma.customerAccount.count({ where }),
   ]);
 
-  return NextResponse.json({ success: true, data: rows, total, page, pageSize: take });
+  const visitCounts = await Promise.all(
+    rows.map((r) => prisma.appointment.count({ where: { status: 'COMPLETED', customer: { accountId: r.id } } }))
+  );
+  const data = rows.map((r, i) => ({ ...r, tier: tierFromVisitCount(visitCounts[i]) }));
+
+  return NextResponse.json({ success: true, data, total, page, pageSize: take });
 }
 
 // إنشاء حساب عميل مباشرة من الأدمن — بكلمة مرور مؤقتة تُعرض مرة واحدة

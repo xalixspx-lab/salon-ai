@@ -54,11 +54,12 @@ export default function GalleryManager() {
         {photos.map((p) => (
           <div key={p.id} className="relative aspect-square rounded-xl overflow-hidden border border-stone-200 group">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={p.url} alt="" className="h-full w-full object-cover" />
+            <img src={p.url} alt={t('gallery')} className="h-full w-full object-cover" />
             <button
               type="button"
               onClick={() => remove(p.id)}
               disabled={busy}
+              aria-label={t('removePhoto')}
               className="absolute top-1 left-1 bg-black/60 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
             >
               ✕

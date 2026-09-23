@@ -51,11 +51,14 @@
     "changePassword": "Change password",
     "currentPassword": "Current password",
     "newPassword": "New password (8+ characters)",
-    "passwordChanged": "Password changed successfully"
+    "passwordChanged": "Password changed successfully",
+    "pointsLabel": "{count} loyalty points",
+    "depositPaid": "Deposit paid"
   },
   "Index": {
     "title": "Welcome to Salon AI",
-    "description": "High-performance geo-spatial marketplace for the GCC beauty sector"
+    "description": "High-performance geo-spatial marketplace for the GCC beauty sector",
+    "featuredSalonsTitle": "✨ Featured salons"
   },
   "Discovery": {
     "searchPlaceholder": "Search by salon name...",
@@ -66,7 +69,8 @@
     "distanceKm": "km",
     "noResults": "No salons match your search",
     "openInGoogleMaps": "Open in Google Maps ↗",
-    "hasOffer": "Offer"
+    "hasOffer": "Offer",
+    "featured": "Featured"
   },
   "Offers": {
     "title": "Offers & Discounts",
@@ -206,6 +210,7 @@
     "logoHint": "PNG, JPG or WebP, up to 2 MB. Square works best.",
     "gallery": "Salon photo gallery",
     "galleryHint": "Up to 12 photos shown on your public salon page (interior, services, team...).",
+    "removePhoto": "Remove photo",
     "cancellationHours": "Customer cancel/reschedule deadline (hours before appointment)",
     "weeklyHours": "Weekly working hours",
     "weeklyHoursHint": "Used to show customers available slots and block bookings outside opening hours.",
@@ -411,6 +416,7 @@
     "descriptionAr": "Description (Arabic)",
     "descriptionEn": "Description (English)",
     "logo": "Logo",
-    "welcomeEmailSentNote": "A welcome email with this password was also sent automatically."
+    "welcomeEmailSentNote": "A welcome email with this password was also sent automatically.",
+    "featured": "Featured"
   }
 }

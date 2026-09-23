@@ -4,6 +4,8 @@ import { sendVerificationEmail } from '@/lib/verification';
 import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/lib/password';
 import { createCustomerSession } from '@/lib/customerSession';
+import { isHoneypotFilled } from '@/lib/honeypot';
+import { verifyTurnstileToken } from '@/lib/turnstile';
 
 export async function POST(request: Request) {
   try {
@@ -11,6 +13,12 @@ export async function POST(request: Request) {
     if (limited) return limited;
 
     const body = await request.json();
+    if (isHoneypotFilled(body)) {
+      return NextResponse.json({ success: false, error: 'فشل إنشاء الحساب' }, { status: 400 });
+    }
+    if (!(await verifyTurnstileToken(body.turnstileToken, clientIp(request)))) {
+      return NextResponse.json({ success: false, error: 'فشل التحقق من أنك لست روبوت' }, { status: 400 });
+    }
     const { name, email, password } = body;
 
     if (!name || !email || !password) {
