@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, FormEvent } from 'react';
 import { useParams } from 'next/navigation';
 import ListToolbar from '@/components/admin/ListToolbar';
 
@@ -26,6 +26,9 @@ export default function AdminCustomersPage() {
   const [msg, setMsg] = useState('');
   const [deleting, setDeleting] = useState<Row | null>(null);
   const [confirmEmail, setConfirmEmail] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [temp, setTemp] = useState<{ email: string; password: string } | null>(null);
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/admin/customers?q=${encodeURIComponent(q)}&page=${page}`);
@@ -63,9 +66,40 @@ export default function AdminCustomersPage() {
     load();
   };
 
+  const addCustomer = async (e: FormEvent) => {
+    e.preventDefault();
+    setMsg('');
+    const res = await fetch('/api/admin/customers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newName, email: newEmail }),
+    });
+    const d = await res.json();
+    if (!res.ok) return setMsg(d.error || 'Failed');
+    setTemp({ email: d.data.email, password: d.tempPassword });
+    setNewName('');
+    setNewEmail('');
+    load();
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-900 mb-6">{L('حسابات العملاء', 'Customer accounts')}</h1>
+
+      {temp && (
+        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <p className="mb-1">{L('كلمة مرور مؤقتة (انسخها الآن، لن تظهر مرة أخرى):', "Temporary password (copy it now, it won't be shown again):")}</p>
+          <p className="font-mono text-base select-all" dir="ltr">{temp.email} — {temp.password}</p>
+          <button onClick={() => setTemp(null)} className="mt-2 text-xs underline">OK</button>
+        </div>
+      )}
+
+      <form onSubmit={addCustomer} className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+        <input value={newName} onChange={(e) => setNewName(e.target.value)} required placeholder={L('اسم العميل', 'Customer name')} className="px-3 py-2 border rounded-md text-black" />
+        <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} required dir="ltr" placeholder={L('البريد الإلكتروني', 'Email')} className="px-3 py-2 border rounded-md text-black text-left" />
+        <button className="bg-slate-900 text-white rounded-md px-4 py-2 text-sm">{L('+ إضافة عميل', '+ Add customer')}</button>
+      </form>
+
       <ListToolbar q={q} onQ={(v) => { setQ(v); setPage(1); }} exportType="customers" page={page} total={total} pageSize={pageSize} onPage={setPage} />
       {msg && <div className="mb-4 rounded bg-amber-50 border border-amber-200 p-3 text-sm text-amber-900 select-all">{msg}</div>}
 

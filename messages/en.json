@@ -383,6 +383,19 @@
     "resetPassword": "Reset Password",
     "resetPasswordConfirm": "This will generate a new password for this owner. Continue?",
     "newPasswordGenerated": "New password (copy it now, it won't be shown again):",
-    "back": "Back"
+    "back": "Back",
+    "actions": "Actions",
+    "suspend": "Suspend",
+    "reactivate": "Reactivate",
+    "suspended": "Suspended",
+    "verified": "Verified",
+    "unverified": "Unverified",
+    "resendVerification": "Resend verification",
+    "verificationSent": "Verification email sent",
+    "alreadyVerified": "Email already verified",
+    "deleteOwner": "Delete account",
+    "deleteOwnerWarning": "Deletes only this owner's login (the salon and its data stay intact). Type the email to confirm:",
+    "addSalon": "+ Add salon",
+    "database": "Database"
   }
 }

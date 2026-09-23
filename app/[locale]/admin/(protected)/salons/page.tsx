@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -29,6 +29,12 @@ export default function AdminSalonsPage() {
   const [deleting, setDeleting] = useState<TenantRow | null>(null);
   const [confirmName, setConfirmName] = useState('');
   const [deleteError, setDeleteError] = useState('');
+  const [newSalonName, setNewSalonName] = useState('');
+  const [newCity, setNewCity] = useState('');
+  const [newOwnerName, setNewOwnerName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [createError, setCreateError] = useState('');
+  const [temp, setTemp] = useState<{ email: string; password: string } | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -84,9 +90,44 @@ export default function AdminSalonsPage() {
     setTogglingId(null);
   };
 
+  const addSalon = async (e: FormEvent) => {
+    e.preventDefault();
+    setCreateError('');
+    const res = await fetch('/api/admin/salons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newSalonName, city: newCity, ownerName: newOwnerName, email: newEmail }),
+    });
+    const d = await res.json();
+    if (!res.ok) return setCreateError(d.error || 'Failed');
+    setTemp({ email: d.data.owner.email, password: d.tempPassword });
+    setNewSalonName('');
+    setNewCity('');
+    setNewOwnerName('');
+    setNewEmail('');
+    await load();
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-900 mb-6">{t('salons')}</h1>
+
+      {temp && (
+        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <p className="mb-1">{t('newPasswordGenerated')}</p>
+          <p className="font-mono text-base select-all" dir="ltr">{temp.email} — {temp.password}</p>
+          <button onClick={() => setTemp(null)} className="mt-2 text-xs underline">OK</button>
+        </div>
+      )}
+      {createError && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">{createError}</div>}
+
+      <form onSubmit={addSalon} className="mb-6 grid grid-cols-1 sm:grid-cols-5 gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+        <input value={newSalonName} onChange={(e) => setNewSalonName(e.target.value)} required placeholder={t('salonName')} className="px-3 py-2 border rounded-md text-black" />
+        <input value={newCity} onChange={(e) => setNewCity(e.target.value)} placeholder={t('city')} className="px-3 py-2 border rounded-md text-black" />
+        <input value={newOwnerName} onChange={(e) => setNewOwnerName(e.target.value)} required placeholder={t('ownerName')} className="px-3 py-2 border rounded-md text-black" />
+        <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} required dir="ltr" placeholder={t('ownerEmail')} className="px-3 py-2 border rounded-md text-black text-left" />
+        <button className="bg-slate-900 text-white rounded-md px-4 py-2 text-sm">{t('addSalon')}</button>
+      </form>
 
       <ListToolbar q={q} onQ={setQ} exportType="salons" />
 

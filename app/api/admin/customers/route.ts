@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/adminSession';
 import { listParams } from '@/lib/adminList';
+import { hashPassword } from '@/lib/password';
+import { generateTempPassword } from '@/lib/tempPassword';
+import { logAdminAction } from '@/lib/audit';
 
 export async function GET(request: Request) {
   const guard = await requireAdmin();
@@ -32,4 +35,29 @@ export async function GET(request: Request) {
   ]);
 
   return NextResponse.json({ success: true, data: rows, total, page, pageSize: take });
+}
+
+// إنشاء حساب عميل مباشرة من الأدمن — بكلمة مرور مؤقتة تُعرض مرة واحدة
+export async function POST(request: Request) {
+  const guard = await requireAdmin();
+  if ('response' in guard) return guard.response;
+
+  const body = await request.json().catch(() => ({}));
+  const name = typeof body.name === 'string' ? body.name.trim() : '';
+  const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+  if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return NextResponse.json({ success: false, error: 'الاسم والبريد الإلكتروني الصحيح مطلوبان' }, { status: 400 });
+  }
+  if (await prisma.customerAccount.findUnique({ where: { email } })) {
+    return NextResponse.json({ success: false, error: 'يوجد عميل بهذا البريد بالفعل' }, { status: 409 });
+  }
+
+  const tempPassword = generateTempPassword();
+  const account = await prisma.customerAccount.create({
+    data: { name, email, passwordHash: await hashPassword(tempPassword), emailVerifiedAt: new Date() },
+    select: { id: true, name: true, email: true },
+  });
+
+  await logAdminAction(guard.session, { action: 'CUSTOMER_CREATE', targetType: 'CUSTOMER', targetId: account.id, targetLabel: account.email });
+  return NextResponse.json({ success: true, data: account, tempPassword }, { status: 201 });
 }

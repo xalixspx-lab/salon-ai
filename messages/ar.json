@@ -383,6 +383,19 @@
     "resetPassword": "إعادة تعيين كلمة المرور",
     "resetPasswordConfirm": "هذا سيولّد كلمة مرور جديدة لهذا المالك. متابعة؟",
     "newPasswordGenerated": "كلمة المرور الجديدة (انسخها الآن، لن تظهر مرة أخرى):",
-    "back": "رجوع"
+    "back": "رجوع",
+    "actions": "إجراءات",
+    "suspend": "إيقاف",
+    "reactivate": "تفعيل",
+    "suspended": "موقوف",
+    "verified": "مؤكد",
+    "unverified": "غير مؤكد",
+    "resendVerification": "إعادة إرسال التأكيد",
+    "verificationSent": "تم إرسال بريد التأكيد",
+    "alreadyVerified": "البريد مؤكد بالفعل",
+    "deleteOwner": "حذف الحساب",
+    "deleteOwnerWarning": "حذف حساب دخول هذا المالك فقط (الصالون وبياناته تبقى قائمة). اكتب البريد للتأكيد:",
+    "addSalon": "+ إضافة صالون",
+    "database": "قاعدة البيانات"
   }
 }
