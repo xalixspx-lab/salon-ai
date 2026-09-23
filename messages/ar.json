@@ -47,7 +47,11 @@
     "favorites": "صالوناتي المفضلة",
     "noFavorites": "لم تضف أي صالون للمفضلة بعد",
     "navDiscover": "اكتشف الصالونات",
-    "navForOwners": "لأصحاب الصالونات"
+    "navForOwners": "لأصحاب الصالونات",
+    "changePassword": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة (8 أحرف على الأقل)",
+    "passwordChanged": "تم تغيير كلمة المرور بنجاح"
   },
   "Index": {
     "title": "أهلاً بك في Salon AI",
@@ -214,7 +218,11 @@
     "day5": "الجمعة",
     "day6": "السبت",
     "staffOwnHours": "ساعات دوام خاصة بهذا الموظف",
-    "followsSalonHours": "يتبع ساعات دوام الصالون."
+    "followsSalonHours": "يتبع ساعات دوام الصالون.",
+    "changePassword": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة (8 أحرف على الأقل)",
+    "passwordChanged": "تم تغيير كلمة المرور بنجاح"
   },
   "Analytics": {
     "title": "أداء الصالون",
@@ -396,6 +404,13 @@
     "deleteOwner": "حذف الحساب",
     "deleteOwnerWarning": "حذف حساب دخول هذا المالك فقط (الصالون وبياناته تبقى قائمة). اكتب البريد للتأكيد:",
     "addSalon": "+ إضافة صالون",
-    "database": "قاعدة البيانات"
+    "database": "قاعدة البيانات",
+    "cancel": "إلغاء",
+    "phone": "الهاتف",
+    "addressText": "العنوان التفصيلي",
+    "descriptionAr": "الوصف (عربي)",
+    "descriptionEn": "الوصف (إنجليزي)",
+    "logo": "الشعار",
+    "welcomeEmailSentNote": "أُرسلت رسالة ترحيب بكلمة المرور هذه إلى البريد الإلكتروني تلقائيًا."
   }
 }

@@ -7,6 +7,10 @@ const svcName = (n: unknown) => {
   const o = (n as Record<string, string> | null) || {};
   return o.ar || o.en || '';
 };
+const bilingual = (n: unknown) => {
+  const o = (n as Record<string, string> | null) || {};
+  return { ar: o.ar || '', en: o.en || '' };
+};
 
 // عارض بيانات خام للجداول التي لا تملك صفحة إدارة مخصصة (خدمات، موظفون،
 // عروض، صور معرض، باقات عميل) — للأدمن رؤية كاملة على كل بيانات المنصة.
@@ -38,6 +42,8 @@ export async function GET(request: Request) {
         id: s.id,
         tenant: s.tenant?.name || '—',
         name: svcName(s.name) || '—',
+        nameAr: bilingual(s.name).ar,
+        nameEn: bilingual(s.name).en,
         basePrice: s.basePrice?.toString() ?? null,
         baseDurationMinutes: s.baseDurationMinutes,
         pricingModel: s.pricingModel,
@@ -134,6 +140,8 @@ export async function GET(request: Request) {
         tenant: p.tenant?.name || '—',
         customer: p.customer?.name || '—',
         packageName: svcName(p.packageName) || '—',
+        packageNameAr: bilingual(p.packageName).ar,
+        packageNameEn: bilingual(p.packageName).en,
         price: p.price?.toString() ?? null,
         status: p.status,
         remainingSessions: p.remainingSessions,

@@ -5,6 +5,8 @@ import { listParams } from '@/lib/adminList';
 import { hashPassword } from '@/lib/password';
 import { generateTempPassword } from '@/lib/tempPassword';
 import { logAdminAction } from '@/lib/audit';
+import { appOrigin, sendEmail, welcomeEmail } from '@/lib/email';
+import { localeFromRequest } from '@/lib/verification';
 
 export async function GET(request: Request) {
   const guard = await requireAdmin();
@@ -59,5 +61,10 @@ export async function POST(request: Request) {
   });
 
   await logAdminAction(guard.session, { action: 'CUSTOMER_CREATE', targetType: 'CUSTOMER', targetId: account.id, targetLabel: account.email });
+
+  const locale = localeFromRequest(request);
+  const loginLink = `${appOrigin(request)}/${locale}/account/login`;
+  await sendEmail({ to: account.email, ...welcomeEmail('customer', tempPassword, loginLink, locale) }).catch((e) => console.error('welcome email failed', e));
+
   return NextResponse.json({ success: true, data: account, tempPassword }, { status: 201 });
 }

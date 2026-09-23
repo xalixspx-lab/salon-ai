@@ -90,6 +90,7 @@ export default function AdminCustomersPage() {
         <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
           <p className="mb-1">{L('كلمة مرور مؤقتة (انسخها الآن، لن تظهر مرة أخرى):', "Temporary password (copy it now, it won't be shown again):")}</p>
           <p className="font-mono text-base select-all" dir="ltr">{temp.email} — {temp.password}</p>
+          <p className="text-xs text-amber-700 mt-1">{L('أُرسلت رسالة ترحيب بكلمة المرور هذه إلى البريد الإلكتروني تلقائيًا.', 'A welcome email with this password was also sent automatically.')}</p>
           <button onClick={() => setTemp(null)} className="mt-2 text-xs underline">OK</button>
         </div>
       )}

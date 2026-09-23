@@ -7,7 +7,7 @@ export async function logAdminAction(
   admin: AdminSessionPayload,
   entry: {
     action: string;
-    targetType: 'SALON' | 'OWNER' | 'ADMIN' | 'CUSTOMER' | 'REVIEW' | 'BOOKING' | 'SETTINGS';
+    targetType: 'SALON' | 'OWNER' | 'ADMIN' | 'CUSTOMER' | 'REVIEW' | 'BOOKING' | 'SETTINGS' | 'SERVICE' | 'STAFF' | 'OFFER' | 'PHOTO' | 'PACKAGE';
     targetId?: string;
     targetLabel?: string;
     details?: Record<string, unknown>;

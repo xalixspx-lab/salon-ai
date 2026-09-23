@@ -8,6 +8,7 @@ import VerifyEmailBanner from '@/components/VerifyEmailBanner';
 import ReviewForm from '@/components/account/ReviewForm';
 import AppointmentActions from '@/components/account/AppointmentActions';
 import LogoutButton from '@/components/account/LogoutButton';
+import ChangePasswordCard from '@/components/account/ChangePasswordCard';
 
 // نافذة الإلغاء/التعديل: قبل الموعد بعدد الساعات الذي حدده الصالون
 function isModifiable(start: Date, cancellationHours: number): boolean {
@@ -204,6 +205,10 @@ export default async function AccountPage({
               </table>
             </div>
           )}
+        </section>
+
+        <section className="mt-8">
+          <ChangePasswordCard />
         </section>
       </div>
     </main>

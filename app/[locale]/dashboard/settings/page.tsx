@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import LogoUploader from '@/components/dashboard/LogoUploader';
 import GalleryManager from '@/components/dashboard/GalleryManager';
 import WeeklyHoursEditor, { initialHours } from '@/components/dashboard/WeeklyHoursEditor';
+import ChangePasswordCard from '@/components/dashboard/ChangePasswordCard';
 import type { WeeklyHours } from '@/lib/schedule';
 
 export default function SettingsPage() {
@@ -98,6 +99,10 @@ export default function SettingsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-stone-900 mb-6">{t('title')}</h1>
+
+      <div className="mb-6">
+        <ChangePasswordCard />
+      </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6 max-w-2xl space-y-4">
         {error && <div className="p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}

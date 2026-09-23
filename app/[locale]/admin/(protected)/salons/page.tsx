@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import ListToolbar from '@/components/admin/ListToolbar';
+import LocationPicker from '@/components/LocationPicker';
 
 interface TenantRow {
   id: string;
@@ -16,6 +17,19 @@ interface TenantRow {
   createdAt: string | null;
   owner: { email: string; name: string } | null;
 }
+
+const emptyForm = {
+  name: '',
+  city: '',
+  addressText: '',
+  phone: '',
+  descriptionAr: '',
+  descriptionEn: '',
+  lat: '' as number | '',
+  lng: '' as number | '',
+  ownerName: '',
+  email: '',
+};
 
 export default function AdminSalonsPage() {
   const t = useTranslations('Admin');
@@ -29,10 +43,11 @@ export default function AdminSalonsPage() {
   const [deleting, setDeleting] = useState<TenantRow | null>(null);
   const [confirmName, setConfirmName] = useState('');
   const [deleteError, setDeleteError] = useState('');
-  const [newSalonName, setNewSalonName] = useState('');
-  const [newCity, setNewCity] = useState('');
-  const [newOwnerName, setNewOwnerName] = useState('');
-  const [newEmail, setNewEmail] = useState('');
+
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
   const [temp, setTemp] = useState<{ email: string; password: string } | null>(null);
 
@@ -92,21 +107,35 @@ export default function AdminSalonsPage() {
 
   const addSalon = async (e: FormEvent) => {
     e.preventDefault();
+    setCreating(true);
     setCreateError('');
+
     const res = await fetch('/api/admin/salons', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newSalonName, city: newCity, ownerName: newOwnerName, email: newEmail }),
+      body: JSON.stringify(form),
     });
     const d = await res.json();
-    if (!res.ok) return setCreateError(d.error || 'Failed');
+    if (!res.ok) {
+      setCreating(false);
+      return setCreateError(d.error || 'Failed');
+    }
+
+    if (logoFile) {
+      const fd = new FormData();
+      fd.append('file', logoFile);
+      await fetch(`/api/admin/salons/${d.data.tenant.id}/logo`, { method: 'POST', body: fd }).catch(() => {});
+    }
+
     setTemp({ email: d.data.owner.email, password: d.tempPassword });
-    setNewSalonName('');
-    setNewCity('');
-    setNewOwnerName('');
-    setNewEmail('');
+    setForm(emptyForm);
+    setLogoFile(null);
+    setShowForm(false);
+    setCreating(false);
     await load();
   };
+
+  const input = 'px-3 py-2 border rounded-md text-black w-full';
 
   return (
     <div>
@@ -116,18 +145,60 @@ export default function AdminSalonsPage() {
         <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
           <p className="mb-1">{t('newPasswordGenerated')}</p>
           <p className="font-mono text-base select-all" dir="ltr">{temp.email} — {temp.password}</p>
+          <p className="text-xs text-amber-700 mt-1">{t('welcomeEmailSentNote')}</p>
           <button onClick={() => setTemp(null)} className="mt-2 text-xs underline">OK</button>
         </div>
       )}
-      {createError && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">{createError}</div>}
 
-      <form onSubmit={addSalon} className="mb-6 grid grid-cols-1 sm:grid-cols-5 gap-3 rounded-2xl border border-slate-200 bg-white p-4">
-        <input value={newSalonName} onChange={(e) => setNewSalonName(e.target.value)} required placeholder={t('salonName')} className="px-3 py-2 border rounded-md text-black" />
-        <input value={newCity} onChange={(e) => setNewCity(e.target.value)} placeholder={t('city')} className="px-3 py-2 border rounded-md text-black" />
-        <input value={newOwnerName} onChange={(e) => setNewOwnerName(e.target.value)} required placeholder={t('ownerName')} className="px-3 py-2 border rounded-md text-black" />
-        <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} required dir="ltr" placeholder={t('ownerEmail')} className="px-3 py-2 border rounded-md text-black text-left" />
-        <button className="bg-slate-900 text-white rounded-md px-4 py-2 text-sm">{t('addSalon')}</button>
-      </form>
+      <button
+        onClick={() => setShowForm((v) => !v)}
+        className="mb-4 bg-slate-900 text-white rounded-md px-4 py-2 text-sm"
+      >
+        {showForm ? t('cancel') : t('addSalon')}
+      </button>
+
+      {showForm && (
+        <form onSubmit={addSalon} className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 space-y-4 max-w-2xl">
+          {createError && <div className="p-3 bg-red-100 text-red-700 rounded text-sm">{createError}</div>}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input className={input} required placeholder={t('salonName')} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <input className={input} placeholder={t('phone')} dir="ltr" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          </div>
+
+          <input className={input} placeholder={t('addressText') || 'العنوان'} value={form.addressText} onChange={(e) => setForm({ ...form, addressText: e.target.value })} />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <textarea className={input} rows={2} placeholder={t('descriptionAr')} value={form.descriptionAr} onChange={(e) => setForm({ ...form, descriptionAr: e.target.value })} />
+            <textarea className={input} rows={2} dir="ltr" placeholder={t('descriptionEn')} value={form.descriptionEn} onChange={(e) => setForm({ ...form, descriptionEn: e.target.value })} />
+          </div>
+
+          <LocationPicker
+            city={form.city}
+            onCityChange={(v) => setForm({ ...form, city: v })}
+            lat={form.lat}
+            lng={form.lng}
+            onLatChange={(v) => setForm((f) => ({ ...f, lat: v }))}
+            onLngChange={(v) => setForm((f) => ({ ...f, lng: v }))}
+          />
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">{t('logo')}</label>
+            <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => setLogoFile(e.target.files?.[0] || null)} className="text-sm" />
+          </div>
+
+          <hr className="border-slate-100" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input className={input} required placeholder={t('ownerName')} value={form.ownerName} onChange={(e) => setForm({ ...form, ownerName: e.target.value })} />
+            <input type="email" className={input} required dir="ltr" placeholder={t('ownerEmail')} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          </div>
+
+          <button type="submit" disabled={creating} className="bg-slate-900 text-white rounded-md px-4 py-2 text-sm disabled:opacity-50">
+            {creating ? '...' : t('addSalon')}
+          </button>
+        </form>
+      )}
 
       <ListToolbar q={q} onQ={setQ} exportType="salons" />
 

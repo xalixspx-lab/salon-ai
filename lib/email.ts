@@ -25,6 +25,26 @@ export function appOrigin(request: Request): string {
   return process.env.APP_URL?.replace(/\/$/, '') || new URL(request.url).origin;
 }
 
+// رسالة ترحيب لحساب أنشأه الأدمن مباشرة (مالك صالون أو عميل)، تحمل كلمة
+// المرور المؤقتة نصًا ورابط تسجيل الدخول — لا يوجد رابط رمزي هنا، القيمة ذاتها بالنص.
+export function welcomeEmail(kind: 'owner' | 'customer', tempPassword: string, loginLink: string, locale: string) {
+  const ar = locale !== 'en';
+  const copy = {
+    owner: ar
+      ? { subject: 'تم إنشاء حساب صالونك — Salon AI', intro: 'أنشأ فريق Salon AI حساب صالونك. استخدم كلمة المرور المؤقتة التالية لتسجيل الدخول، ثم غيّرها من إعدادات لوحة التحكم.', cta: 'تسجيل الدخول' }
+      : { subject: 'Your salon account was created — Salon AI', intro: 'The Salon AI team created your salon account. Use the temporary password below to log in, then change it from your dashboard settings.', cta: 'Log in' },
+    customer: ar
+      ? { subject: 'تم إنشاء حسابك — Salon AI', intro: 'أنشأ فريق Salon AI حسابك. استخدم كلمة المرور المؤقتة التالية لتسجيل الدخول، ثم غيّرها من صفحة حسابك.', cta: 'تسجيل الدخول' }
+      : { subject: 'Your account was created — Salon AI', intro: 'The Salon AI team created your account. Use the temporary password below to log in, then change it from your account page.', cta: 'Log in' },
+  }[kind];
+  const label = ar ? 'كلمة المرور المؤقتة' : 'Temporary password';
+  return {
+    subject: copy.subject,
+    text: `${copy.intro}\n\n${label}: ${tempPassword}\n\n${loginLink}`,
+    html: `<div dir="${ar ? 'rtl' : 'ltr'}" style="font-family:sans-serif"><p>${copy.intro}</p><p style="font-size:12px;color:#888">${label}</p><p style="font-family:monospace;font-size:18px;background:#f4f4f5;padding:10px 14px;border-radius:8px;display:inline-block">${tempPassword}</p><p><a href="${loginLink}">${copy.cta}</a></p></div>`,
+  };
+}
+
 export function actionEmail(kind: 'reset' | 'verify', link: string, locale: string) {
   const ar = locale !== 'en';
   const copy = {

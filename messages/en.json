@@ -47,7 +47,11 @@
     "favorites": "My favorite salons",
     "noFavorites": "You have not saved any salons yet",
     "navDiscover": "Discover salons",
-    "navForOwners": "For salon owners"
+    "navForOwners": "For salon owners",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password (8+ characters)",
+    "passwordChanged": "Password changed successfully"
   },
   "Index": {
     "title": "Welcome to Salon AI",
@@ -214,7 +218,11 @@
     "day5": "Friday",
     "day6": "Saturday",
     "staffOwnHours": "Custom working hours for this staff member",
-    "followsSalonHours": "Follows the salon's working hours."
+    "followsSalonHours": "Follows the salon's working hours.",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password (8+ characters)",
+    "passwordChanged": "Password changed successfully"
   },
   "Analytics": {
     "title": "Salon performance",
@@ -396,6 +404,13 @@
     "deleteOwner": "Delete account",
     "deleteOwnerWarning": "Deletes only this owner's login (the salon and its data stay intact). Type the email to confirm:",
     "addSalon": "+ Add salon",
-    "database": "Database"
+    "database": "Database",
+    "cancel": "Cancel",
+    "phone": "Phone",
+    "addressText": "Detailed address",
+    "descriptionAr": "Description (Arabic)",
+    "descriptionEn": "Description (English)",
+    "logo": "Logo",
+    "welcomeEmailSentNote": "A welcome email with this password was also sent automatically."
   }
 }
