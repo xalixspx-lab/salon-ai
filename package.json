@@ -9,7 +9,8 @@
     "lint": "next lint",
     "postinstall": "prisma generate",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:isolation": "node scripts/isolation-test.mjs"
   },
   "dependencies": {
     "@prisma/client": "^5.19.0",

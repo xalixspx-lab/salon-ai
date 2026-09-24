@@ -9,6 +9,8 @@ import ReviewForm from '@/components/account/ReviewForm';
 import AppointmentActions from '@/components/account/AppointmentActions';
 import LogoutButton from '@/components/account/LogoutButton';
 import ChangePasswordCard from '@/components/account/ChangePasswordCard';
+import PrivacyCard from '@/components/account/PrivacyCard';
+import { CONSENT_TYPES, currentConsent } from '@/lib/legal';
 import { tierFromVisitCount, TIER_LABEL } from '@/lib/loyalty';
 
 // نافذة الإلغاء/التعديل: قبل الموعد بعدد الساعات الذي حدده الصالون
@@ -82,6 +84,7 @@ export default async function AccountPage({
       : Promise.resolve([]),
   ]);
 
+  const marketingConsent = await currentConsent(session.accountId, CONSENT_TYPES.MARKETING);
   const completedVisits = appointments.filter((a) => a.status === 'COMPLETED').length;
   const tier = tierFromVisitCount(completedVisits);
   const tierLabel = TIER_LABEL[tier][locale === 'ar' ? 'ar' : 'en'];
@@ -227,6 +230,10 @@ export default async function AccountPage({
 
         <section className="mt-8">
           <ChangePasswordCard />
+        </section>
+
+        <section className="mt-8">
+          <PrivacyCard initialMarketing={Boolean(marketingConsent?.granted)} />
         </section>
       </div>
     </main>

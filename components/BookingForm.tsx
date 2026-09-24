@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, FormEvent } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { describeOffer } from '@/lib/offers';
 import type { ApplicableOffer } from './ServicesList';
 
@@ -27,6 +27,8 @@ export default function BookingForm({
   service,
   currency,
   depositPercentage,
+  cancellationHours,
+  refundPercentAfterDeadline,
   offers,
   onClose,
 }: {
@@ -34,11 +36,15 @@ export default function BookingForm({
   service: ServiceOption;
   currency: string;
   depositPercentage: number;
+  cancellationHours: number;
+  refundPercentAfterDeadline: number;
   offers: ApplicableOffer[];
   onClose: () => void;
 }) {
   const t = useTranslations('SalonDetail');
   const accountT = useTranslations('Account');
+  const locale = useLocale();
+  const isAr = locale === 'ar';
 
   const [session, setSession] = useState<CustomerSessionInfo>({ loggedIn: false });
   const [staff, setStaff] = useState<StaffOption[]>([]);
@@ -274,6 +280,30 @@ export default function BookingForm({
                     })`
                   : t('noDepositNote')}
               </p>
+
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 space-y-1">
+                <p className="font-semibold">{isAr ? 'سياسة الإلغاء والاسترداد' : 'Cancellation & refund policy'}</p>
+                <p>
+                  {isAr
+                    ? `إلغاء أو تعديل مجاني حتى ${cancellationHours} ساعة قبل الموعد.`
+                    : `Free cancellation or change up to ${cancellationHours} hours before the appointment.`}
+                </p>
+                {depositPercentage > 0 && (
+                  <p>
+                    {isAr
+                      ? `بعد ذلك يُسترد ${refundPercentAfterDeadline}% من العربون. وإن ألغى الصالون يُسترد كاملًا.`
+                      : `After that, ${refundPercentAfterDeadline}% of the deposit is refunded. If the salon cancels, it is refunded in full.`}
+                  </p>
+                )}
+                <p>
+                  {isAr ? 'بتأكيد الحجز أنت توافق على ' : 'By confirming you agree to the '}
+                  <a href={`/${locale}/legal/refund`} target="_blank" className="underline">{isAr ? 'سياسة الاسترداد' : 'refund policy'}</a>
+                  {isAr ? ' و' : ', '}
+                  <a href={`/${locale}/legal/terms`} target="_blank" className="underline">{isAr ? 'شروط الاستخدام' : 'terms'}</a>
+                  {isAr ? ' و' : ' and '}
+                  <a href={`/${locale}/legal/privacy`} target="_blank" className="underline">{isAr ? 'سياسة الخصوصية' : 'privacy policy'}</a>.
+                </p>
+              </div>
 
               <div className="flex gap-2 pt-2">
                 <button

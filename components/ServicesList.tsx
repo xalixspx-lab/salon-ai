@@ -25,12 +25,16 @@ export default function ServicesList({
   services,
   currency,
   depositPercentage,
+  cancellationHours,
+  refundPercentAfterDeadline,
   offers,
 }: {
   tenantId: string;
   services: ServiceRow[];
   currency: string;
   depositPercentage: number;
+  cancellationHours: number;
+  refundPercentAfterDeadline: number;
   offers: ApplicableOffer[];
 }) {
   const t = useTranslations('SalonDetail');
@@ -76,6 +80,8 @@ export default function ServicesList({
           service={{ id: selected.id, displayName: selected.displayName, basePrice: selected.basePrice }}
           currency={currency}
           depositPercentage={depositPercentage}
+          cancellationHours={cancellationHours}
+          refundPercentAfterDeadline={refundPercentAfterDeadline}
           offers={offersForService(selected.id)}
           onClose={() => setSelected(null)}
         />

@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import LocationPicker from '@/components/LocationPicker';
 import HoneypotField from '@/components/HoneypotField';
 import TurnstileWidget from '@/components/TurnstileWidget';
+import LegalCheckbox from '@/components/LegalCheckbox';
 
 export default function NewSalonForm() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function NewSalonForm() {
   const [lat, setLat] = useState<number | ''>('');
   const [lng, setLng] = useState<number | ''>('');
   const [website, setWebsite] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -41,6 +43,7 @@ export default function NewSalonForm() {
           lng: lng !== '' ? lng : undefined,
           website,
           turnstileToken,
+          acceptTerms,
         }),
       });
 
@@ -131,6 +134,8 @@ export default function NewSalonForm() {
           onLatChange={setLat}
           onLngChange={setLng}
         />
+
+        <LegalCheckbox kind="salon" checked={acceptTerms} onChange={setAcceptTerms} />
 
         <TurnstileWidget onVerify={setTurnstileToken} />
 

@@ -8,6 +8,7 @@ import { hashPassword } from '@/lib/password';
 import { createSession } from '@/lib/session';
 import { isHoneypotFilled } from '@/lib/honeypot';
 import { verifyTurnstileToken } from '@/lib/turnstile';
+import { LEGAL_VERSION } from '@/lib/legal';
 
 // جلب الصالونات (المستأجرين)، مع دعم اختياري للبحث الجغرافي عبر PostGIS
 export async function GET(request: Request) {
@@ -135,6 +136,13 @@ export async function POST(request: Request) {
     }
     const { name, city, addressText, lat, lng, ownerName, email, password } = body;
 
+    if (body.acceptTerms !== true) {
+      return NextResponse.json(
+        { success: false, error: 'يجب الموافقة على اتفاقية الصالون وشروط الاستخدام وسياسة الخصوصية' },
+        { status: 400 }
+      );
+    }
+
     if (!name || !city) {
       return NextResponse.json(
         { success: false, error: 'Name and city are required' },
@@ -187,6 +195,15 @@ export async function POST(request: Request) {
           name: ownerName,
           email: normalizedEmail,
           passwordHash,
+        },
+      });
+
+      await tx.tenantAgreement.create({
+        data: {
+          tenantId: tenant.id,
+          acceptedByUserId: owner.id,
+          agreementVersion: LEGAL_VERSION,
+          ipAddress: clientIp(request).slice(0, 50),
         },
       });
 

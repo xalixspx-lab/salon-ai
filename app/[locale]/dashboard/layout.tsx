@@ -6,6 +6,7 @@ import { getPlatformSettings } from '@/lib/platformSettings';
 import ImpersonationBanner from '@/components/dashboard/ImpersonationBanner';
 import VerifyEmailBanner from '@/components/VerifyEmailBanner';
 import DashboardShell from '@/components/dashboard/DashboardShell';
+import { hasAcceptedTenantAgreement } from '@/lib/legal';
 
 export default async function DashboardLayout({
   children,
@@ -28,6 +29,10 @@ export default async function DashboardLayout({
 
   if (!tenant) {
     redirect(`/${locale}/login`);
+  }
+
+  if (!session.imp && !(await hasAcceptedTenantAgreement(session.tenantId))) {
+    redirect(`/${locale}/accept-terms?as=owner`);
   }
 
   const { announcement } = await getPlatformSettings();

@@ -3,6 +3,7 @@ import { getMessages, getTranslations } from 'next-intl/server';
 import type { Metadata, Viewport } from 'next';
 import { ReactNode } from 'react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import SiteFooter from '@/components/SiteFooter';
 import "../globals.css";
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
@@ -40,6 +41,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages} locale={locale}>
           <LanguageSwitcher />
           {children}
+          <SiteFooter />
         </NextIntlClientProvider>
       </body>
     </html>

@@ -3,51 +3,52 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   // اتصال مباشر (بدون pooler) لأوامر الهجرة على Supabase؛ اختياري محليًا
   directUrl = env("DIRECT_URL")
 }
 
 model Tenant {
-  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name            String        @db.VarChar(255)
-  city            String?       @db.VarChar(100)
-  subdomain       String?       @unique @db.VarChar(100)
-  customDomain    String?       @map("custom_domain") @db.VarChar(255)
-  defaultLanguage String?       @default("ar") @map("default_language") @db.VarChar(10)
-  timezone        String?       @default("Asia/Bahrain") @db.VarChar(50)
-  currency        String?       @default("BHD") @db.VarChar(10)
-  latitude        Decimal?      @db.Decimal(10, 8)
-  longitude       Decimal?      @db.Decimal(11, 8)
-  addressText     String?       @map("address_text")
-  bookingPolicy   String?       @default("DEPOSIT_REQUIRED") @map("booking_policy") @db.VarChar(50)
-  workingHoursText String?      @map("working_hours_text")
-  workingHours    Json?         @map("working_hours") @db.JsonB
-  description     Json?         @db.JsonB
-  phone           String?       @db.VarChar(50)
-  isPublished     Boolean       @default(true) @map("is_published")
-  depositPercentage Int         @default(30) @map("deposit_percentage")
-  minBookingNoticeHours Int     @default(2) @map("min_booking_notice_hours")
-  cancellationHours Int         @default(24) @map("cancellation_hours")
-  logoUrl         String?       @map("logo_url")
-  logoPath        String?       @map("logo_path")
-  isFeatured      Boolean       @default(false) @map("is_featured")
-  plan            String        @default("TRIAL") @db.VarChar(20)
-  trialEndsAt     DateTime?     @map("trial_ends_at") @db.Timestamp(6)
-  createdAt       DateTime?     @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt       DateTime?     @updatedAt @map("updated_at") @db.Timestamp(6)
+  id                         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                       String    @db.VarChar(255)
+  city                       String?   @db.VarChar(100)
+  subdomain                  String?   @unique @db.VarChar(100)
+  customDomain               String?   @map("custom_domain") @db.VarChar(255)
+  defaultLanguage            String?   @default("ar") @map("default_language") @db.VarChar(10)
+  timezone                   String?   @default("Asia/Bahrain") @db.VarChar(50)
+  currency                   String?   @default("BHD") @db.VarChar(10)
+  latitude                   Decimal?  @db.Decimal(10, 8)
+  longitude                  Decimal?  @db.Decimal(11, 8)
+  addressText                String?   @map("address_text")
+  bookingPolicy              String?   @default("DEPOSIT_REQUIRED") @map("booking_policy") @db.VarChar(50)
+  workingHoursText           String?   @map("working_hours_text")
+  workingHours               Json?     @map("working_hours") @db.JsonB
+  description                Json?     @db.JsonB
+  phone                      String?   @db.VarChar(50)
+  isPublished                Boolean   @default(true) @map("is_published")
+  depositPercentage          Int       @default(30) @map("deposit_percentage")
+  minBookingNoticeHours      Int       @default(2) @map("min_booking_notice_hours")
+  cancellationHours          Int       @default(24) @map("cancellation_hours")
+  refundPercentAfterDeadline Int       @default(0) @map("refund_percent_after_deadline")
+  logoUrl                    String?   @map("logo_url")
+  logoPath                   String?   @map("logo_path")
+  isFeatured                 Boolean   @default(false) @map("is_featured")
+  plan                       String    @default("TRIAL") @db.VarChar(20)
+  trialEndsAt                DateTime? @map("trial_ends_at") @db.Timestamp(6)
+  createdAt                  DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt                  DateTime? @updatedAt @map("updated_at") @db.Timestamp(6)
 
-  owner           Owner?
-  staff           Staff[]
-  customers       Customer[]
-  services        Service[]
-  appointments    Appointment[]
+  owner            Owner?
+  staff            Staff[]
+  customers        Customer[]
+  services         Service[]
+  appointments     Appointment[]
   customerPackages CustomerPackage[]
-  offers          Offer[]
-  reviews         Review[]
-  favorites       Favorite[]
-  photos          SalonPhoto[]
+  offers           Offer[]
+  reviews          Review[]
+  favorites        Favorite[]
+  photos           SalonPhoto[]
 
   @@map("tenants")
 }
@@ -64,25 +65,25 @@ model Offer {
   isActive           Boolean   @default(true) @map("is_active")
   createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
 
-  tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  appliesToService   Service?  @relation("OfferAppliesTo", fields: [appliesToServiceId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  freeService        Service?  @relation("OfferFreeService", fields: [freeServiceId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  appointments       Appointment[]
+  tenant           Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  appliesToService Service?      @relation("OfferAppliesTo", fields: [appliesToServiceId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  freeService      Service?      @relation("OfferFreeService", fields: [freeServiceId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  appointments     Appointment[]
 
   @@map("offers")
 }
 
 model Owner {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId     String   @unique @map("tenant_id") @db.Uuid
-  name         String   @db.VarChar(255)
-  email        String   @unique @db.VarChar(255)
-  passwordHash String   @map("password_hash") @db.VarChar(255)
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId        String    @unique @map("tenant_id") @db.Uuid
+  name            String    @db.VarChar(255)
+  email           String    @unique @db.VarChar(255)
+  passwordHash    String    @map("password_hash") @db.VarChar(255)
   emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamp(6)
-  suspendedAt  DateTime? @map("suspended_at") @db.Timestamp(6)
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  suspendedAt     DateTime? @map("suspended_at") @db.Timestamp(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
 
-  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("owners")
 }
@@ -105,25 +106,25 @@ model AuthToken {
 
 // حساب مالك المنصة — منفصل تمامًا عن Owner (لا يتبع لأي Tenant)
 model Admin {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String   @db.VarChar(255)
-  email        String   @unique @db.VarChar(255)
-  passwordHash String   @map("password_hash") @db.VarChar(255)
-  mustChangePassword Boolean @default(false) @map("must_change_password")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name               String   @db.VarChar(255)
+  email              String   @unique @db.VarChar(255)
+  passwordHash       String   @map("password_hash") @db.VarChar(255)
+  mustChangePassword Boolean  @default(false) @map("must_change_password")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamp(6)
 
   @@map("admins")
 }
 
 model Staff {
-  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId     String        @map("tenant_id") @db.Uuid
-  name         String        @db.VarChar(255)
-  role         String?       @db.VarChar(100)
-  phone        String?       @db.VarChar(50)
-  status       String        @default("ACTIVE") @db.VarChar(50)
-  workingHours Json?         @map("working_hours") @db.JsonB
-  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  name         String   @db.VarChar(255)
+  role         String?  @db.VarChar(100)
+  phone        String?  @db.VarChar(50)
+  status       String   @default("ACTIVE") @db.VarChar(50)
+  workingHours Json?    @map("working_hours") @db.JsonB
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
 
   tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   appointments Appointment[]
@@ -132,12 +133,12 @@ model Staff {
 }
 
 model Customer {
-  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId         String            @map("tenant_id") @db.Uuid
-  accountId        String?           @map("account_id") @db.Uuid
-  name             String            @db.VarChar(255)
-  phone            String?           @db.VarChar(50)
-  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamp(6)
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  accountId String?  @map("account_id") @db.Uuid
+  name      String   @db.VarChar(255)
+  phone     String?  @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
 
   tenant           Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   account          CustomerAccount?  @relation(fields: [accountId], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -151,89 +152,89 @@ model Customer {
 // صالون على حدة). شخص واحد يقدر يكون له أكثر من سجل Customer (وحد بكل
 // صالون حجز فيه)، كلها مرتبطة بنفس CustomerAccount عبر accountId.
 model CustomerAccount {
-  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String     @db.VarChar(255)
-  email        String     @unique @db.VarChar(255)
-  passwordHash String     @map("password_hash") @db.VarChar(255)
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String    @db.VarChar(255)
+  email           String    @unique @db.VarChar(255)
+  passwordHash    String    @map("password_hash") @db.VarChar(255)
   emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamp(6)
-  suspendedAt  DateTime?  @map("suspended_at") @db.Timestamp(6)
-  points       Int        @default(0)
-  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamp(6)
+  suspendedAt     DateTime? @map("suspended_at") @db.Timestamp(6)
+  points          Int       @default(0)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
 
-  customers    Customer[]
-  reviews      Review[]
-  favorites    Favorite[]
+  customers Customer[]
+  reviews   Review[]
+  favorites Favorite[]
 
   @@map("customer_accounts")
 }
 
 model Service {
-  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId          String?            @map("tenant_id") @db.Uuid
-  name              Json?              @db.JsonB
-  description       Json?              @db.JsonB
-  basePrice         Decimal?           @map("base_price") @db.Decimal(10, 2)
-  baseDurationMinutes Int?             @map("base_duration_minutes")
-  pricingModel      String?            @map("pricing_model") @db.VarChar(50)
-  visibilitySetting String?            @map("visibility_setting") @db.VarChar(50)
-  createdAt         DateTime?          @default(now()) @map("created_at") @db.Timestamp(6)
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId            String?   @map("tenant_id") @db.Uuid
+  name                Json?     @db.JsonB
+  description         Json?     @db.JsonB
+  basePrice           Decimal?  @map("base_price") @db.Decimal(10, 2)
+  baseDurationMinutes Int?      @map("base_duration_minutes")
+  pricingModel        String?   @map("pricing_model") @db.VarChar(50)
+  visibilitySetting   String?   @map("visibility_setting") @db.VarChar(50)
+  createdAt           DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
 
-  tenant            Tenant?            @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  options           ServiceOption[]
-  pricingRules      ServicePricingRule[]
-  appointments      Appointment[]
-  customerPackages  CustomerPackage[]
-  offersAppliesTo   Offer[]            @relation("OfferAppliesTo")
-  offersFree        Offer[]            @relation("OfferFreeService")
+  tenant           Tenant?              @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  options          ServiceOption[]
+  pricingRules     ServicePricingRule[]
+  appointments     Appointment[]
+  customerPackages CustomerPackage[]
+  offersAppliesTo  Offer[]              @relation("OfferAppliesTo")
+  offersFree       Offer[]              @relation("OfferFreeService")
 
   @@map("services")
 }
 
 model ServiceOption {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  serviceId   String?   @map("service_id") @db.Uuid
-  optionName  Json?     @map("option_name") @db.JsonB
-  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  serviceId  String?   @map("service_id") @db.Uuid
+  optionName Json?     @map("option_name") @db.JsonB
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
 
-  service     Service?  @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  service Service? @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("service_options")
 }
 
 model ServicePricingRule {
-  id                     String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  serviceId              String?   @map("service_id") @db.Uuid
-  optionValue            String?   @map("option_value") @db.VarChar(100)
-  additionalPrice        Decimal?  @map("additional_price") @db.Decimal(10, 2)
-  additionalDurationMins Int?      @map("additional_duration_minutes")
-  bufferTimeMins         Int?      @default(15) @map("buffer_time_minutes")
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  serviceId              String?  @map("service_id") @db.Uuid
+  optionValue            String?  @map("option_value") @db.VarChar(100)
+  additionalPrice        Decimal? @map("additional_price") @db.Decimal(10, 2)
+  additionalDurationMins Int?     @map("additional_duration_minutes")
+  bufferTimeMins         Int?     @default(15) @map("buffer_time_minutes")
 
-  service                Service?  @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  service Service? @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("service_pricing_rules")
 }
 
 model Appointment {
-  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId      String?   @map("tenant_id") @db.Uuid
-  customerId    String?   @map("customer_id") @db.Uuid
-  employeeId    String?   @map("employee_id") @db.Uuid
-  serviceId     String?   @map("service_id") @db.Uuid
-  appliedOfferId String?  @map("applied_offer_id") @db.Uuid
-  status        String?   @db.VarChar(50)
-  totalAmount   Decimal?  @map("total_amount") @db.Decimal(10, 2)
-  depositAmount Decimal?  @map("deposit_amount") @db.Decimal(10, 2)
-  paymentStatus String?   @map("payment_status") @db.VarChar(50)
-  startTime     DateTime? @map("start_time") @db.Timestamp(6)
-  endTime       DateTime? @map("end_time") @db.Timestamp(6)
-  holdExpiresAt DateTime? @map("hold_expires_at") @db.Timestamp(6)
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId       String?   @map("tenant_id") @db.Uuid
+  customerId     String?   @map("customer_id") @db.Uuid
+  employeeId     String?   @map("employee_id") @db.Uuid
+  serviceId      String?   @map("service_id") @db.Uuid
+  appliedOfferId String?   @map("applied_offer_id") @db.Uuid
+  status         String?   @db.VarChar(50)
+  totalAmount    Decimal?  @map("total_amount") @db.Decimal(10, 2)
+  depositAmount  Decimal?  @map("deposit_amount") @db.Decimal(10, 2)
+  paymentStatus  String?   @map("payment_status") @db.VarChar(50)
+  startTime      DateTime? @map("start_time") @db.Timestamp(6)
+  endTime        DateTime? @map("end_time") @db.Timestamp(6)
+  holdExpiresAt  DateTime? @map("hold_expires_at") @db.Timestamp(6)
 
-  review        Review?
-  appliedOffer  Offer?    @relation(fields: [appliedOfferId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  tenant        Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  service       Service?  @relation(fields: [serviceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  customer      Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  employee      Staff?    @relation(fields: [employeeId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  review       Review?
+  appliedOffer Offer?    @relation(fields: [appliedOfferId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  tenant       Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  service      Service?  @relation(fields: [serviceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  customer     Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  employee     Staff?    @relation(fields: [employeeId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   @@map("appointments")
 }
@@ -251,37 +252,38 @@ model CustomerPackage {
   expiresAt         DateTime? @map("expires_at") @db.Date
   createdAt         DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
 
-  tenant            Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  service           Service?  @relation(fields: [serviceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  customer          Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  tenant   Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  service  Service?  @relation(fields: [serviceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   @@map("customer_packages")
 }
+
 // تقييم صالون بعد موعد مكتمل — تقييم واحد لكل موعد
 model Review {
-  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId      String         @map("tenant_id") @db.Uuid
-  accountId     String         @map("account_id") @db.Uuid
-  appointmentId String         @unique @map("appointment_id") @db.Uuid
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId      String   @map("tenant_id") @db.Uuid
+  accountId     String   @map("account_id") @db.Uuid
+  appointmentId String   @unique @map("appointment_id") @db.Uuid
   rating        Int
   comment       String?
-  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(6)
 
-  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  account       CustomerAccount @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  appointment   Appointment    @relation(fields: [appointmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  account     CustomerAccount @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  appointment Appointment     @relation(fields: [appointmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([tenantId, createdAt(sort: Desc)])
   @@map("reviews")
 }
 
 model Favorite {
-  accountId String          @map("account_id") @db.Uuid
-  tenantId  String          @map("tenant_id") @db.Uuid
-  createdAt DateTime        @default(now()) @map("created_at") @db.Timestamp(6)
+  accountId String   @map("account_id") @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
 
-  account   CustomerAccount @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  tenant    Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  account CustomerAccount @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenant  Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([accountId, tenantId])
   @@map("favorites")
@@ -314,15 +316,44 @@ model PlatformSetting {
 
 // معرض صور الصالون (متعدد) — منفصل عن الشعار الواحد (Tenant.logoUrl)
 model SalonPhoto {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId     String   @map("tenant_id") @db.Uuid
-  url          String
-  storagePath  String   @map("storage_path")
-  sortOrder    Int      @default(0) @map("sort_order")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  url         String
+  storagePath String   @map("storage_path")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
 
-  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([tenantId, sortOrder])
   @@map("salon_photos")
+}
+
+// سجل موافقة كل صالون على نسخة اتفاقية الصالون (PRD §7.5). بلا FK عن قصد: يبقى
+// كدليل قانوني حتى لو حُذف الصالون لاحقًا.
+model TenantAgreement {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId         String   @map("tenant_id") @db.Uuid
+  agreementVersion String   @map("agreement_version") @db.VarChar(20)
+  acceptedAt       DateTime @default(now()) @map("accepted_at") @db.Timestamp(6)
+  acceptedByUserId String?  @map("accepted_by_user_id") @db.Uuid
+  ipAddress        String?  @map("ip_address") @db.VarChar(50)
+
+  @@index([tenantId, agreementVersion])
+  @@map("tenant_agreements")
+}
+
+// سجل موافقات حماية البيانات للعملاء (PDPL/GDPR — PRD §7.1). آخر سطر لكل نوع هو
+// الحالة الفعلية؛ الأسطر السابقة تبقى كتاريخ. بلا FK لنفس سبب الجدول أعلاه.
+model ConsentLog {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  accountId   String   @map("account_id") @db.Uuid
+  consentType String   @map("consent_type") @db.VarChar(50)
+  granted     Boolean
+  version     String?  @db.VarChar(20)
+  ipAddress   String?  @map("ip_address") @db.VarChar(50)
+  recordedAt  DateTime @default(now()) @map("recorded_at") @db.Timestamp(6)
+
+  @@index([accountId, consentType, recordedAt(sort: Desc)])
+  @@map("consent_logs")
 }

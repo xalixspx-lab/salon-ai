@@ -1,0 +1,27 @@
+name: ZAP baseline scan
+
+# فحص سلبي (passive) فقط ضد الموقع الحي: لا يرسل حمولات هجومية ولا يعدّل بيانات.
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  zap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: OWASP ZAP baseline (passive)
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: 'https://salon-ai.co/ar'
+          allow_issue_writing: false
+          fail_action: false
+          cmd_options: '-a'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-report
+          path: report_html.html

@@ -5,7 +5,10 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import ListToolbar from '@/components/admin/ListToolbar';
 
-type ModelKey = 'services' | 'staff' | 'offers' | 'photos' | 'packages';
+type ModelKey = 'services' | 'staff' | 'offers' | 'photos' | 'packages' | 'agreements' | 'consents';
+
+// سجلات قانونية: للقراءة فقط
+const READ_ONLY: ModelKey[] = ['agreements', 'consents'];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Row = Record<string, any>;
@@ -33,6 +36,8 @@ export default function AdminDatabasePage() {
     { key: 'offers', label: L('العروض', 'Offers') },
     { key: 'photos', label: L('صور المعرض', 'Gallery photos') },
     { key: 'packages', label: L('باقات العملاء', 'Customer packages') },
+    { key: 'agreements', label: L('موافقات الصالونات', 'Salon agreements') },
+    { key: 'consents', label: L('موافقات العملاء', 'Customer consents') },
   ];
 
   const columns: Record<ModelKey, { key: string; label: string }[]> = {
@@ -75,6 +80,20 @@ export default function AdminDatabasePage() {
       { key: 'remainingSessions', label: L('الجلسات المتبقية', 'Sessions left') },
       { key: 'expiresAt', label: L('تنتهي في', 'Expires') },
     ],
+    agreements: [
+      { key: 'tenant', label: L('الصالون', 'Salon') },
+      { key: 'agreementVersion', label: L('نسخة الاتفاقية', 'Version') },
+      { key: 'acceptedAt', label: L('تاريخ الموافقة', 'Accepted at') },
+      { key: 'ipAddress', label: 'IP' },
+    ],
+    consents: [
+      { key: 'customer', label: L('العميل', 'Customer') },
+      { key: 'consentType', label: L('نوع الموافقة', 'Type') },
+      { key: 'granted', label: L('ممنوحة', 'Granted') },
+      { key: 'version', label: L('النسخة', 'Version') },
+      { key: 'recordedAt', label: L('التاريخ', 'Recorded at') },
+      { key: 'ipAddress', label: 'IP' },
+    ],
   };
 
   const load = useCallback(async () => {
@@ -96,7 +115,7 @@ export default function AdminDatabasePage() {
 
   const fmt = (key: string, v: unknown) => {
     if (v === null || v === undefined || v === '') return '—';
-    if (key === 'createdAt' || key === 'endsAt' || key === 'expiresAt') {
+    if (key === 'createdAt' || key === 'endsAt' || key === 'expiresAt' || key === 'acceptedAt' || key === 'recordedAt') {
       const d = new Date(v as string);
       return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString(ar ? 'ar-SA' : 'en-US');
     }
@@ -263,24 +282,26 @@ export default function AdminDatabasePage() {
               {columns[model].map((c) => (
                 <th key={c.key} className="p-3">{c.label}</th>
               ))}
-              <th className="p-3">{L('إجراءات', 'Actions')}</th>
+              {!READ_ONLY.includes(model) && <th className="p-3">{L('إجراءات', 'Actions')}</th>}
             </tr>
           </thead>
           <tbody>
             {!loading && rows.length === 0 && (
-              <tr><td colSpan={columns[model].length + 1} className="p-6 text-center text-slate-400">—</td></tr>
+              <tr><td colSpan={columns[model].length + (READ_ONLY.includes(model) ? 0 : 1)} className="p-6 text-center text-slate-400">—</td></tr>
             )}
             {rows.map((r) => (
               <tr key={r.id} className="border-b border-slate-100">
                 {columns[model].map((c) => (
                   <td key={c.key} className="p-3 max-w-xs truncate">{fmt(c.key, r[c.key])}</td>
                 ))}
+                {!READ_ONLY.includes(model) && (
                 <td className="p-3">
                   <div className="flex gap-3 text-xs">
                     <button onClick={() => startEdit(r)} className="text-blue-600 hover:underline">{L('تعديل', 'Edit')}</button>
                     <button onClick={() => remove(r)} className="text-red-600 hover:underline">{L('حذف', 'Delete')}</button>
                   </div>
                 </td>
+                )}
               </tr>
             ))}
           </tbody>

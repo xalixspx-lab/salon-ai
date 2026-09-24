@@ -6,6 +6,7 @@ import { hashPassword } from '@/lib/password';
 import { createCustomerSession } from '@/lib/customerSession';
 import { isHoneypotFilled } from '@/lib/honeypot';
 import { verifyTurnstileToken } from '@/lib/turnstile';
+import { CONSENT_TYPES, recordConsent } from '@/lib/legal';
 
 export async function POST(request: Request) {
   try {
@@ -20,6 +21,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'فشل التحقق من أنك لست روبوت' }, { status: 400 });
     }
     const { name, email, password } = body;
+
+    if (body.acceptTerms !== true) {
+      return NextResponse.json(
+        { success: false, error: 'يجب الموافقة على شروط الاستخدام وسياسة الخصوصية' },
+        { status: 400 }
+      );
+    }
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -49,6 +57,12 @@ export async function POST(request: Request) {
     const account = await prisma.customerAccount.create({
       data: { name, email: normalizedEmail, passwordHash },
     });
+
+    const ip = clientIp(request);
+    await recordConsent({ accountId: account.id, type: CONSENT_TYPES.DATA_PROCESSING, granted: true, ip });
+    if (body.marketingOptIn === true) {
+      await recordConsent({ accountId: account.id, type: CONSENT_TYPES.MARKETING, granted: true, ip });
+    }
 
     await sendVerificationEmail(request, 'customer', account.id, account.email).catch((e) => console.error('verification email failed', e));
     await createCustomerSession({ accountId: account.id, email: account.email, name: account.name });

@@ -30,6 +30,7 @@ export default function SettingsPage() {
   const [depositPercentage, setDepositPercentage] = useState('30');
   const [minBookingNoticeHours, setMinBookingNoticeHours] = useState('2');
   const [cancellationHours, setCancellationHours] = useState('24');
+  const [refundPercentAfterDeadline, setRefundPercentAfterDeadline] = useState('0');
 
   useEffect(() => {
     (async () => {
@@ -51,6 +52,7 @@ export default function SettingsPage() {
         setDepositPercentage(String(tenant.depositPercentage ?? 30));
         setMinBookingNoticeHours(String(tenant.minBookingNoticeHours ?? 2));
         setCancellationHours(String(tenant.cancellationHours ?? 24));
+        setRefundPercentAfterDeadline(String(tenant.refundPercentAfterDeadline ?? 0));
       }
       setLoading(false);
     })();
@@ -80,6 +82,7 @@ export default function SettingsPage() {
           depositPercentage,
           minBookingNoticeHours,
           cancellationHours,
+          refundPercentAfterDeadline,
         }),
       });
       const data = await res.json();
@@ -176,6 +179,11 @@ export default function SettingsPage() {
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">{t('cancellationHours')}</label>
           <input type="number" min={0} value={cancellationHours} onChange={(e) => setCancellationHours(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-1">{t('refundPercentAfterDeadline')}</label>
+          <input type="number" min={0} max={100} value={refundPercentAfterDeadline} onChange={(e) => setRefundPercentAfterDeadline(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+          <p className="text-xs text-stone-500 mt-1">{t('refundPercentHint')}</p>
         </div>
 
         <div className="flex items-start gap-3 p-3 bg-stone-50 rounded-md border border-stone-200">

@@ -202,6 +202,8 @@ export default async function SalonDetailPage({
             services={serviceRows}
             currency={tenant.currency || 'BHD'}
             depositPercentage={tenant.depositPercentage}
+            cancellationHours={tenant.cancellationHours}
+            refundPercentAfterDeadline={tenant.refundPercentAfterDeadline}
             offers={offers
               .filter((o) => DIRECT_OFFER_TYPES.includes(o.type))
               .map((o) => ({

@@ -211,6 +211,8 @@
     "gallery": "Salon photo gallery",
     "galleryHint": "Up to 12 photos shown on your public salon page (interior, services, team...).",
     "removePhoto": "Remove photo",
+    "refundPercentAfterDeadline": "Deposit refund after the cancellation window (%)",
+    "refundPercentHint": "Platform minimum: full deposit refund when cancelled within the window. This percentage is shown to customers before booking.",
     "cancellationHours": "Customer cancel/reschedule deadline (hours before appointment)",
     "weeklyHours": "Weekly working hours",
     "weeklyHoursHint": "Used to show customers available slots and block bookings outside opening hours.",

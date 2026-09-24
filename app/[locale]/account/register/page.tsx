@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import HoneypotField from '@/components/HoneypotField';
 import TurnstileWidget from '@/components/TurnstileWidget';
+import LegalCheckbox from '@/components/LegalCheckbox';
 
 export default function AccountRegisterPage() {
   const t = useTranslations('Account');
@@ -16,6 +17,8 @@ export default function AccountRegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [website, setWebsite] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,7 +32,7 @@ export default function AccountRegisterPage() {
       const res = await fetch('/api/account/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, website, turnstileToken }),
+        body: JSON.stringify({ name, email, password, website, turnstileToken, acceptTerms, marketingOptIn }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -65,6 +68,12 @@ export default function AccountRegisterPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('password')}</label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} dir="ltr" className="w-full px-3 py-2 border rounded-md text-left" />
           </div>
+
+          <LegalCheckbox kind="customer" checked={acceptTerms} onChange={setAcceptTerms} />
+          <label className="flex items-start gap-2 text-sm text-gray-600">
+            <input type="checkbox" checked={marketingOptIn} onChange={(e) => setMarketingOptIn(e.target.checked)} className="mt-1" />
+            <span>{locale === 'ar' ? 'أرغب باستلام العروض والتحديثات (اختياري)' : 'I would like to receive offers and updates (optional)'}</span>
+          </label>
 
           <TurnstileWidget onVerify={setTurnstileToken} />
 

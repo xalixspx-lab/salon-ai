@@ -152,5 +152,52 @@ export async function GET(request: Request) {
     });
   }
 
-  return NextResponse.json({ success: false, error: 'model must be services|staff|offers|photos|packages' }, { status: 400 });
+  // سجلات قانونية للقراءة فقط (أدلة موافقة) — لا تعديل ولا حذف
+  if (model === 'agreements') {
+    const [rows, total] = await Promise.all([
+      prisma.tenantAgreement.findMany({ orderBy: { acceptedAt: 'desc' }, take, skip }),
+      prisma.tenantAgreement.count(),
+    ]);
+    const tenants = await prisma.tenant.findMany({ where: { id: { in: rows.map((r) => r.tenantId) } }, select: { id: true, name: true } });
+    const names = new Map(tenants.map((t) => [t.id, t.name]));
+    return NextResponse.json({
+      success: true,
+      total,
+      page,
+      pageSize: take,
+      data: rows.map((r) => ({
+        id: r.id,
+        tenant: names.get(r.tenantId) || '(محذوف)',
+        agreementVersion: r.agreementVersion,
+        acceptedAt: r.acceptedAt,
+        ipAddress: r.ipAddress,
+      })),
+    });
+  }
+
+  if (model === 'consents') {
+    const [rows, total] = await Promise.all([
+      prisma.consentLog.findMany({ orderBy: { recordedAt: 'desc' }, take, skip }),
+      prisma.consentLog.count(),
+    ]);
+    const accounts = await prisma.customerAccount.findMany({ where: { id: { in: rows.map((r) => r.accountId) } }, select: { id: true, email: true } });
+    const emails = new Map(accounts.map((a) => [a.id, a.email]));
+    return NextResponse.json({
+      success: true,
+      total,
+      page,
+      pageSize: take,
+      data: rows.map((r) => ({
+        id: r.id,
+        customer: emails.get(r.accountId) || '(محذوف)',
+        consentType: r.consentType,
+        granted: r.granted,
+        version: r.version,
+        recordedAt: r.recordedAt,
+        ipAddress: r.ipAddress,
+      })),
+    });
+  }
+
+  return NextResponse.json({ success: false, error: 'model must be services|staff|offers|photos|packages|agreements|consents' }, { status: 400 });
 }
