@@ -48,7 +48,6 @@ jobs:
       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
       DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
       SESSION_SECRET: ci-only-secret-not-used-in-production-0123456789
-      NODE_ENV: production
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -60,6 +59,6 @@ jobs:
       - run: npx next build
       - name: Start server and run the isolation test
         run: |
-          npx next start -p 3000 &
+          NODE_ENV=production npx next start -p 3000 &
           for i in $(seq 1 40); do curl -sf http://localhost:3000/api/health && break || sleep 2; done
           BASE_URL=http://localhost:3000 node scripts/isolation-test.mjs
