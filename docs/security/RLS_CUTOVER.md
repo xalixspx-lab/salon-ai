@@ -5,10 +5,10 @@
 الجاهز والمُختبَر محليًا بدور غير superuser: `scripts/rls-setup.mjs` (دور التطبيق + السياسات)، `scripts/copy-db.mjs` (نسخ مع مطابقة أعداد الصفوف)، `lib/prisma.ts` + `lib/tenantScope.ts` (تقييد مسارات المالك)، و`tests/rls.integration.test.ts` مع `scripts/isolation-test.mjs` (50 فحصًا) يعملان في CI بهذا الدور.
 
 ## كيف يعمل
-- دور `salon_app` بلا `BYPASSRLS`، وله `app.bypass='on'` افتراضيًا على مستوى الدور: المسارات العامة (السوق، التسجيل، الأدمن) تعمل كما هي.
-- كل مسار مالك مغلَّف بـ `withTenantScope`. عند `TENANT_RLS=on` تُنفَّذ عملياته في معاملة تضبط `app.bypass='off'` و`app.tenant_id`، فتقتصر السياسات على صفوف صالونه.
+- دور `salon_app` بلا `BYPASSRLS`. السياسات لا تقيّد الصفوف إلا عندما يُضبط `app.tenant_id`، فالمسارات العامة (السوق، التسجيل، الأدمن) تعمل كما هي.
+- كل مسار مالك مغلَّف بـ `withTenantScope`. عند `TENANT_RLS=on` تُنفَّذ عملياته في معاملة تضبط `app.tenant_id`، فتقتصر السياسات على صفوف صالونه.
 - بدون `TENANT_RLS=on` لا يتغير شيء (لذلك يمكن نشر الكود قبل النقل).
-- حدود: صفحات لوحة المالك المولَّدة على الخادم (`app/[locale]/dashboard/*/page.tsx` و`layout.tsx`) وحجز `createAppointmentGuarded` (معاملة Serializable) تعمل بمسار `bypass`، وتعتمد على شروط `tenantId` في كودها كما كانت.
+- حدود: صفحات لوحة المالك المولَّدة على الخادم (`app/[locale]/dashboard/*/page.tsx` و`layout.tsx`) وحجز `createAppointmentGuarded` (معاملة Serializable) تعمل دون سياق مستأجر (فلا تقيّدها القاعدة)، وتعتمد على شروط `tenantId` في كودها كما كانت.
 
 ## الخطوات
 1. **[منك]** أضف إلى `.env` المحلي سطرًا واحدًا (لا تلصقه في المحادثة):

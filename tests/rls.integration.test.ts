@@ -17,7 +17,7 @@ d('database-level tenant isolation (RLS)', () => {
     const mod = await import('@/lib/prisma');
     prisma = mod.prisma;
     tenantStore = mod.tenantStore;
-    // خارج أي نطاق: الدور الافتراضي app.bypass='on' فالإنشاء مسموح
+    // خارج أي نطاق لا يُضبط app.tenant_id فالسياسات لا تقيّد الصفوف (مسارات المنصة)
     a = (await prisma.tenant.create({ data: { name: 'RLS_T_A' } })).id;
     b = (await prisma.tenant.create({ data: { name: 'RLS_T_B' } })).id;
     await prisma.staff.create({ data: { tenantId: a, name: 'rls_staff_a' } });

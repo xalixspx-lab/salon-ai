@@ -19,10 +19,10 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prismaBase = base;
 // عزل المستأجرين داخل قاعدة البيانات (Row-Level Security) — الطبقة الثانية.
 //
 // عند تفعيل TENANT_RLS=on وربط التطبيق بدور قاعدة بيانات لا يتجاوز RLS، تُنفَّذ كل عمليات
-// النماذج داخل withTenantScope() في معاملة تضبط app.tenant_id وتوقف app.bypass، فترى
+// النماذج داخل withTenantScope() في معاملة تضبط app.tenant_id، فترى
 // سياسات القاعدة صفوف هذا المستأجر فقط حتى لو نسي كود المسار شرط tenantId.
-// خارج هذا النطاق (السوق العام، الأدمن، مهام الخلفية) يبقى الدور الافتراضي app.bypass='on'
-// كما هو مضبوط على الدور نفسه، فلا يتغير سلوكها. راجع docs/security/RLS_CUTOVER.md.
+// خارج هذا النطاق (السوق العام، الأدمن، مهام الخلفية) لا يُضبط app.tenant_id فلا تُقيَّد
+// الصفوف ويبقى سلوكها كما هو. راجع docs/security/RLS_CUTOVER.md.
 // ---------------------------------------------------------------------------
 const RLS_ON = process.env.TENANT_RLS === 'on';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -41,7 +41,7 @@ function scopedFor(tenantId: string): PrismaClient {
         $allModels: {
           async $allOperations({ args, query }) {
             const [, result] = await base.$transaction([
-              base.$executeRaw`SELECT set_config('app.bypass', 'off', true), set_config('app.tenant_id', ${tenantId}, true)`,
+              base.$executeRaw`SELECT set_config('app.tenant_id', ${tenantId}, true)`,
               query(args),
             ]);
             return result;

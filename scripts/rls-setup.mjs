@@ -1,6 +1,6 @@
 // يجهّز قاعدة PostgreSQL (Supabase أو غيرها) لعزل المستأجرين عبر Row-Level Security:
-//  1) ينشئ دور تطبيق بلا BYPASSRLS ويجعل app.bypass='on' افتراضيًا له (المسارات العامة
-//     والأدمن تعمل كما هي، ومسارات المالك تُقيَّد بالسياق عبر lib/prisma.ts).
+//  1) ينشئ دور تطبيق بلا BYPASSRLS. السياسات تقيّد الصفوف فقط عندما يُضبط app.tenant_id
+//     (مسارات المالك عبر lib/prisma.ts)؛ بدونه تبقى المسارات العامة والأدمن كما هي.
 //  2) يفعّل RLS على كل الجداول: جداول المستأجر تُقيَّد بـ tenant_id، وغيرها متاحة لدور
 //     التطبيق فقط (مهم على Supabase: واجهة PostgREST العامة يجب ألا ترى شيئًا).
 //  3) يسحب صلاحيات anon/authenticated إن وُجدا.
@@ -36,7 +36,6 @@ async function main() {
       ALTER ROLE ${APP_ROLE} WITH LOGIN PASSWORD '${APP_PASSWORD}' NOBYPASSRLS;
     END IF;
   END $$`);
-  await run(`ALTER ROLE ${APP_ROLE} SET app.bypass = 'on'`);
   await run(`GRANT USAGE ON SCHEMA public TO ${APP_ROLE}`);
   await run(`GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${APP_ROLE}`);
   await run(`GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ${APP_ROLE}`);
@@ -61,7 +60,7 @@ async function main() {
     await run(`DROP POLICY IF EXISTS tenant_isolation ON "${table}"`);
     await run(`DROP POLICY IF EXISTS app_full_access ON "${table}"`);
     if (tenantKey) {
-      const cond = `current_setting('app.bypass', true) = 'on' OR ${tenantKey} = NULLIF(current_setting('app.tenant_id', true), '')::uuid`;
+      const cond = `NULLIF(current_setting('app.tenant_id', true), '') IS NULL OR ${tenantKey} = NULLIF(current_setting('app.tenant_id', true), '')::uuid`;
       await run(`CREATE POLICY tenant_isolation ON "${table}" TO ${APP_ROLE} USING (${cond}) WITH CHECK (${cond})`);
     } else {
       await run(`CREATE POLICY app_full_access ON "${table}" TO ${APP_ROLE} USING (true) WITH CHECK (true)`);
