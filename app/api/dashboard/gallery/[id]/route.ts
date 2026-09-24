@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { deleteFile } from '@/lib/storage';
+import { withTenantScope } from '@/lib/tenantScope';
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function DELETEHandler(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
@@ -15,3 +16,5 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   await deleteFile(photo.storagePath);
   return NextResponse.json({ success: true });
 }
+
+export const DELETE = withTenantScope(DELETEHandler);

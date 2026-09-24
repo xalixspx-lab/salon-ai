@@ -3,8 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { hashPassword, verifyPassword } from '@/lib/password';
 import { limitOrResponse } from '@/lib/rateLimit';
+import { withTenantScope } from '@/lib/tenantScope';
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
@@ -30,3 +31,5 @@ export async function POST(request: Request) {
   await prisma.owner.update({ where: { id: owner.id }, data: { passwordHash: await hashPassword(next) } });
   return NextResponse.json({ success: true });
 }
+
+export const POST = withTenantScope(POSTHandler);

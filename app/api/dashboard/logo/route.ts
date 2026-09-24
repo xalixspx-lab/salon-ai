@@ -5,11 +5,12 @@ import { getSession } from '@/lib/session';
 import { limitOrResponse } from '@/lib/rateLimit';
 import { sniffImage } from '@/lib/imageSniff';
 import { deleteFile, isStorageConfigured, uploadPublicFile } from '@/lib/storage';
+import { withTenantScope } from '@/lib/tenantScope';
 
 const MAX_BYTES = 2 * 1024 * 1024;
 
 // رفع شعار الصالون (PNG/JPG/WebP حتى 2MB). المسار يبدأ دائمًا بـ tenantId من الجلسة.
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE() {
+async function DELETEHandler() {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
@@ -57,3 +58,6 @@ export async function DELETE() {
   if (tenant?.logoPath) await deleteFile(tenant.logoPath);
   return NextResponse.json({ success: true });
 }
+
+export const POST = withTenantScope(POSTHandler);
+export const DELETE = withTenantScope(DELETEHandler);

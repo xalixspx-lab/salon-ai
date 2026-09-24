@@ -31,7 +31,7 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
 
   isolation:
-    name: Tenant isolation test (real DB + running server)
+    name: Tenant isolation (app checks + database RLS)
     runs-on: ubuntu-latest
     needs: verify
     services:
@@ -45,9 +45,12 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U ci" --health-interval 5s --health-timeout 5s --health-retries 10
     env:
+      # اتصال المشرف (superuser) للهجرة وإعداد RLS فقط
       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
       DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
       SESSION_SECRET: ci-only-secret-not-used-in-production-0123456789
+      # اتصال التطبيق: دور عادي لا يتجاوز RLS
+      APP_DB_URL: postgresql://salon_app:ci-app-pw@localhost:5432/ci
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -56,9 +59,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx prisma db push --skip-generate --accept-data-loss
+      - name: Enable row-level security with a non-superuser app role
+        run: ADMIN_URL="$DATABASE_URL" APP_ROLE=salon_app APP_PASSWORD=ci-app-pw node scripts/rls-setup.mjs
+      - name: Database-level isolation test (RLS)
+        run: RLS_TEST_URL="$APP_DB_URL" npx vitest run tests/rls.integration.test.ts
       - run: npx next build
-      - name: Start server and run the isolation test
+      - name: Start server (RLS on) and run the HTTP isolation test
         run: |
-          NODE_ENV=production npx next start -p 3000 &
+          DATABASE_URL="$APP_DB_URL" TENANT_RLS=on NODE_ENV=production npx next start -p 3000 &
           for i in $(seq 1 40); do curl -sf http://localhost:3000/api/health && break || sleep 2; done
           BASE_URL=http://localhost:3000 node scripts/isolation-test.mjs

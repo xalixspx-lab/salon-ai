@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { createAppointmentGuarded, isSlotConflict } from '@/lib/availability';
+import { withTenantScope } from '@/lib/tenantScope';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
 // إنشاء حجز يدويًا من لوحة تحكم صاحب الصالون (وليس من العميل مباشرة).
 // tenantId يُؤخذ من الجلسة دائمًا، ونتحقق أن العميل/الخدمة/الموظف المختارين
 // يتبعون فعليًا لنفس الصالون قبل الربط بينهم.
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -114,3 +115,6 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const GET = withTenantScope(GETHandler);
+export const POST = withTenantScope(POSTHandler);

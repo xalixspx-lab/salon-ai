@@ -4,8 +4,9 @@ import { getSession } from '@/lib/session';
 import { isPaidPlan } from '@/lib/plans';
 import { resolveSubscription } from '@/lib/subscription';
 import { getPlatformSettings } from '@/lib/platformSettings';
+import { withTenantScope } from '@/lib/tenantScope';
 
-export async function GET() {
+async function GETHandler() {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
@@ -22,7 +23,7 @@ export async function GET() {
 
 // اختيار باقة. لا توجد بوابة دفع بعد: الاختيار يُطبَّق مباشرة (وضع الهيكل).
 // عند ربط الدفع الفعلي يجب أن يمر هذا المسار عبر تأكيد الدفع قبل تغيير الباقة.
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
@@ -38,3 +39,6 @@ export async function POST(request: Request) {
   });
   return NextResponse.json({ success: true, data: resolveSubscription(tenant) });
 }
+
+export const GET = withTenantScope(GETHandler);
+export const POST = withTenantScope(POSTHandler);

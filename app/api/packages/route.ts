@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
+import { withTenantScope } from '@/lib/tenantScope';
 
 // باقات الجلسات لعملاء صالون. للمالك فقط: tenantId يُؤخذ من الجلسة دائمًا، ولا
 // يُقبل من العميل (كانت هذه النقطة مفتوحة بدون مصادقة).
 
 // GET: باقات عملاء صالوني
-export async function GET() {
+async function GETHandler() {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -17,7 +18,7 @@ export async function GET() {
 }
 
 // POST: تخصيص باقة جديدة لعميل من عملاء صالوني
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -59,3 +60,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'Failed to create package' }, { status: 500 });
   }
 }
+
+export const GET = withTenantScope(GETHandler);
+export const POST = withTenantScope(POSTHandler);

@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { clientIp } from '@/lib/rateLimit';
 import { hasAcceptedTenantAgreement, recordTenantAgreement } from '@/lib/legal';
+import { withTenantScope } from '@/lib/tenantScope';
 
 // موافقة المالك على نسخة الاتفاقية الحالية (حسابات أنشأها الأدمن، أو بعد تعديل النسخة)
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   // الأدمن الذي يدخل بدل المالك لا يوافق نيابة عنه
@@ -18,3 +19,5 @@ export async function POST(request: Request) {
   }
   return NextResponse.json({ success: true });
 }
+
+export const POST = withTenantScope(POSTHandler);

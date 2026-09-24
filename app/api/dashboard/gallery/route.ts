@@ -5,11 +5,12 @@ import { getSession } from '@/lib/session';
 import { limitOrResponse } from '@/lib/rateLimit';
 import { sniffImage } from '@/lib/imageSniff';
 import { isStorageConfigured, uploadPublicFile } from '@/lib/storage';
+import { withTenantScope } from '@/lib/tenantScope';
 
 const MAX_BYTES = 4 * 1024 * 1024;
 const MAX_PHOTOS = 12;
 
-export async function GET() {
+async function GETHandler() {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
@@ -21,7 +22,7 @@ export async function GET() {
 }
 
 // رفع صورة لمعرض الصالون (حتى 12 صورة، PNG/JPG/WebP حتى 4MB)
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
@@ -70,3 +71,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'فشل رفع الصورة' }, { status: 502 });
   }
 }
+
+export const GET = withTenantScope(GETHandler);
+export const POST = withTenantScope(POSTHandler);

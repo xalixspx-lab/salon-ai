@@ -3,13 +3,14 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { Prisma } from '@prisma/client';
 import { parseWeeklyHours } from '@/lib/schedule';
+import { withTenantScope } from '@/lib/tenantScope';
 
 async function assertOwnedByTenant(id: string, tenantId: string) {
   const member = await prisma.staff.findUnique({ where: { id } });
   return member && member.tenantId === tenantId;
 }
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function PATCHHandler(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -59,7 +60,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function DELETEHandler(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -73,3 +74,6 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   await prisma.staff.delete({ where: { id } });
   return NextResponse.json({ success: true }, { status: 200 });
 }
+
+export const PATCH = withTenantScope(PATCHHandler);
+export const DELETE = withTenantScope(DELETEHandler);

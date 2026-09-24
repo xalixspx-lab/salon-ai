@@ -4,10 +4,11 @@ import { getSession } from '@/lib/session';
 import { hasConflict } from '@/lib/availability';
 import { notifyBooking } from '@/lib/notify';
 import { awardCompletionPoints } from '@/lib/loyalty';
+import { withTenantScope } from '@/lib/tenantScope';
 
 const VALID_STATUSES = ['PENDING_DEPOSIT', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function PATCHHandler(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -64,3 +65,5 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     );
   }
 }
+
+export const PATCH = withTenantScope(PATCHHandler);
