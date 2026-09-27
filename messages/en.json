@@ -60,7 +60,25 @@
   "Index": {
     "title": "Welcome to Salon AI",
     "description": "High-performance geo-spatial marketplace for the GCC beauty sector",
-    "featuredSalonsTitle": "✨ Featured salons"
+    "featuredSalonsTitle": "✨ Featured salons",
+    "heroBadge": "Smart salon booking",
+    "heroTitleHighlight": "Your glow-up",
+    "heroTitleRest": "starts with one booking",
+    "heroSubtitle": "Discover trusted salons near you, compare prices and ratings, and book your appointment in seconds — no phone calls needed.",
+    "ctaDiscover": "Discover salons",
+    "ctaOwner": "List your salon for free",
+    "feature1Title": "Instant booking",
+    "feature1Desc": "Pick the service, staff and time that suit you, and book directly — no waiting on the phone.",
+    "feature2Title": "Loyalty points",
+    "feature2Desc": "Earn points on every visit and redeem them for discounts on your next one.",
+    "feature3Title": "Exclusive offers",
+    "feature3Desc": "See your favorite salons' latest offers first, right from your account.",
+    "feature4Title": "Automatic reminders",
+    "feature4Desc": "We remind you before your appointment, so you never miss a booking again.",
+    "availableSalonsTitle": "Available salons near you",
+    "ownerBannerTitle": "Own a salon?",
+    "ownerBannerDesc": "Join Salon AI for free and manage your bookings, staff and offers from one dashboard.",
+    "ownerBannerButton": "List your salon now"
   },
   "Discovery": {
     "searchPlaceholder": "Search by salon name...",
