@@ -3,7 +3,13 @@ import { clientIp, limitOrResponse } from '@/lib/rateLimit';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword } from '@/lib/password';
 import { createSession } from '@/lib/session';
+import { createCustomerSession } from '@/lib/customerSession';
 
+// دخول موحّد لصاحب الصالون والعميل: يتعرّف على نوع الحساب من البريد نفسه
+// فلا يحتاج الزائر معرفة أي رابط يستخدم. الأدمن مستثنى عمدًا (يبقى منفصلاً
+// بقرار أمني — لا يُكشف من نموذج عام أن بريدًا معينًا هو حساب أدمن).
+// كل بريد ينتمي لجهة واحدة فقط (صاحب صالون أو عميل)، يُمنع تكراره عبر
+// الجدولين عند التسجيل، فلا حاجة لتجربة كلمة المرور على الجدولين معًا.
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -18,33 +24,36 @@ export async function POST(request: Request) {
     }
 
     const limited =
-      (await limitOrResponse(`login-owner:ip:${clientIp(request)}`, 40, 15 * 60 * 1000)) ||
-      (await limitOrResponse(`login-owner:email:${email}`, 10, 15 * 60 * 1000));
+      (await limitOrResponse(`login:ip:${clientIp(request)}`, 40, 15 * 60 * 1000)) ||
+      (await limitOrResponse(`login:email:${email}`, 10, 15 * 60 * 1000));
     if (limited) return limited;
 
+    const invalidCreds = () =>
+      NextResponse.json({ success: false, error: 'بيانات الدخول غير صحيحة' }, { status: 401 });
+
     const owner = await prisma.owner.findUnique({ where: { email } });
-    if (!owner) {
-      return NextResponse.json(
-        { success: false, error: 'بيانات الدخول غير صحيحة' },
-        { status: 401 }
-      );
+    if (owner) {
+      if (owner.suspendedAt) {
+        return NextResponse.json({ success: false, error: 'هذا الحساب موقوف، تواصل مع إدارة المنصة' }, { status: 403 });
+      }
+      if (!(await verifyPassword(password, owner.passwordHash))) return invalidCreds();
+
+      await createSession({ ownerId: owner.id, tenantId: owner.tenantId, email: owner.email });
+      return NextResponse.json({ success: true, role: 'owner' }, { status: 200 });
     }
 
-    if (owner.suspendedAt) {
-      return NextResponse.json({ success: false, error: 'هذا الحساب موقوف، تواصل مع إدارة المنصة' }, { status: 403 });
+    const account = await prisma.customerAccount.findUnique({ where: { email } });
+    if (account) {
+      if (account.suspendedAt) {
+        return NextResponse.json({ success: false, error: 'هذا الحساب موقوف، تواصل مع إدارة المنصة' }, { status: 403 });
+      }
+      if (!(await verifyPassword(password, account.passwordHash))) return invalidCreds();
+
+      await createCustomerSession({ accountId: account.id, email: account.email, name: account.name });
+      return NextResponse.json({ success: true, role: 'customer' }, { status: 200 });
     }
 
-    const valid = await verifyPassword(password, owner.passwordHash);
-    if (!valid) {
-      return NextResponse.json(
-        { success: false, error: 'بيانات الدخول غير صحيحة' },
-        { status: 401 }
-      );
-    }
-
-    await createSession({ ownerId: owner.id, tenantId: owner.tenantId, email: owner.email });
-
-    return NextResponse.json({ success: true }, { status: 200 });
+    return invalidCreds();
   } catch (error: any) {
     console.error('Login error:', error);
     return NextResponse.json(

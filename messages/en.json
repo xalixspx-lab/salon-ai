@@ -2,7 +2,9 @@
   "Account": {
     "registerTitle": "Create an Account",
     "registerSubtitle": "Register to track your bookings and get offers just for you.",
-    "loginTitle": "Customer Login",
+    "loginTitle": "Sign In",
+    "loginSubtitle": "For Salon AI customers and salon owners — your email decides where you land.",
+    "registerSalonLink": "Salon owner? Register your salon here",
     "yourName": "Your name",
     "email": "Email",
     "password": "Password",

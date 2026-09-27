@@ -174,6 +174,16 @@ export async function POST(request: Request) {
       );
     }
 
+    // بريد حساب العميل منفصل دائمًا عن بريد صاحب الصالون (يسمح بدخول موحّد
+    // يتعرّف على نوع الحساب من البريد وحده دون التباس)
+    const existingCustomer = await prisma.customerAccount.findUnique({ where: { email: normalizedEmail } });
+    if (existingCustomer) {
+      return NextResponse.json(
+        { success: false, error: 'هذا البريد مسجَّل كحساب عميل بالفعل، استخدم بريدًا آخر لتسجيل صالونك' },
+        { status: 409 }
+      );
+    }
+
     const passwordHash = await hashPassword(password);
     const { trialDays } = await getPlatformSettings();
 

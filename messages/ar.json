@@ -2,7 +2,9 @@
   "Account": {
     "registerTitle": "إنشاء حساب",
     "registerSubtitle": "سجّل حساب لتتبع حجوزاتك وتصلك العروض الخاصة بك.",
-    "loginTitle": "تسجيل دخول العميل",
+    "loginTitle": "تسجيل الدخول",
+    "loginSubtitle": "لعملاء Salon AI وأصحاب الصالونات — بريدك يحدد وجهتك تلقائيًا.",
+    "registerSalonLink": "صاحب صالون؟ سجّل صالونك من هنا",
     "yourName": "اسمك",
     "email": "البريد الإلكتروني",
     "password": "كلمة المرور",

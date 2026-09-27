@@ -50,10 +50,13 @@ function Card({ locale, title, children }: { locale: string; title: string; chil
   );
 }
 
-const loginPath = (locale: string, audience: Audience) =>
-  audience === 'owner' ? `/${locale}/login` : audience === 'admin' ? `/${locale}/admin/login` : `/${locale}/account/login`;
+const loginPath = (locale: string, audience?: Audience) =>
+  audience === 'admin' ? `/${locale}/admin/login` : `/${locale}/login`;
 
-export function ForgotPasswordForm({ locale, audience }: { locale: string; audience: Audience }) {
+// audience اختياري هنا: نموذج الدخول الموحّد (صاحب صالون/عميل) لا يعرف نوع
+// الحساب مسبقًا، فيُترك فارغًا والخادم يتعرّف عليه من البريد. الأدمن وحده
+// يمرّ صراحة لأن صفحته منفصلة عمدًا.
+export function ForgotPasswordForm({ locale, audience }: { locale: string; audience?: Audience }) {
   const c = copy[locale === 'en' ? 'en' : 'ar'];
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -68,7 +71,7 @@ export function ForgotPasswordForm({ locale, audience }: { locale: string; audie
       const res = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, audience }),
+        body: JSON.stringify(audience ? { email, audience } : { email }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || c.fail);

@@ -60,6 +60,10 @@ export async function POST(request: Request) {
   if (await prisma.customerAccount.findUnique({ where: { email } })) {
     return NextResponse.json({ success: false, error: 'يوجد عميل بهذا البريد بالفعل' }, { status: 409 });
   }
+  // بريد حساب العميل منفصل دائمًا عن بريد صاحب الصالون (يسمح بدخول موحّد)
+  if (await prisma.owner.findUnique({ where: { email } })) {
+    return NextResponse.json({ success: false, error: 'هذا البريد مسجَّل كحساب صاحب صالون بالفعل' }, { status: 409 });
+  }
 
   const tempPassword = generateTempPassword();
   const account = await prisma.customerAccount.create({

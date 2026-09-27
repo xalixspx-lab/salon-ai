@@ -31,6 +31,7 @@ export default async function PublicHeader({ locale }: { locale: string }) {
             </>
           ) : (
             <>
+              {/* نموذج دخول واحد يتعرّف تلقائيًا هل الداخل عميل أو صاحب صالون */}
               <Link href={`/${locale}/account/login`} className="text-gray-600 hover:text-gray-900">
                 {t('login')}
               </Link>
@@ -42,10 +43,6 @@ export default async function PublicHeader({ locale }: { locale: string }) {
               </Link>
             </>
           )}
-
-          <Link href={`/${locale}/login`} className="text-gray-400 hover:text-gray-600 text-xs border-s border-gray-200 ps-3">
-            {t('navForOwners')}
-          </Link>
         </nav>
       </div>
     </header>
