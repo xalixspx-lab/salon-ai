@@ -68,7 +68,7 @@ jobs:
         run: |
           DATABASE_URL="$APP_DB_URL" TENANT_RLS=on NODE_ENV=production npx next start -p 3000 &
           for i in $(seq 1 40); do curl -sf http://localhost:3000/api/health && break || sleep 2; done
-          BASE_URL=http://localhost:3000 node scripts/isolation-test.mj
+          BASE_URL=http://localhost:3000 node scripts/isolation-test.mjs
   deploy:
     name: Deploy to production (only after every check passes)
     runs-on: ubuntu-latest
