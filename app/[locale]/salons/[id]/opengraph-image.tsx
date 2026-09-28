@@ -36,7 +36,7 @@ export default async function OpengraphImage({ params }: { params: Promise<{ id:
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #7c3aed, #c026d3 55%, #f43f5e)',
+          background: 'linear-gradient(135deg, #1d4ed8, #1e3a8a 60%, #172554)',
         }}
       >
         <div style={{ fontSize: 120, fontWeight: 800, color: 'white' }}>Salon AI</div>

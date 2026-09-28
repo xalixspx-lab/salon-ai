@@ -11,7 +11,7 @@ const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').re
 
 // viewportFit: cover يجعل الصفحة تحترم منطقة النتوء/شريط الرجوع على الجوال في
 // وضع التطبيق المثبّت (standalone)
-export const viewport: Viewport = { themeColor: '#7c3aed', viewportFit: 'cover' };
+export const viewport: Viewport = { themeColor: '#1d4ed8', viewportFit: 'cover' };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;

@@ -10,6 +10,25 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* هوية العلامة: أزرق ملكي + لمسة ذهبية (استبدلت البنفسجي/الوردي السابق).
+     Tailwind v4 يولّد تلقائيًا bg-brand-600 وtext-brand-600 وما شابه من هذه
+     المتغيرات، فأي صفحة جديدة تستخدم برجاء استخدام هذه الأسماء لا قيم لونية
+     حرفية، حتى تُغيَّر الهوية مستقبلًا من مكان واحد فقط. */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #1d4ed8;
+  --color-brand-700: #1e40af;
+  --color-brand-800: #1e3a8a;
+  --color-brand-900: #172554;
+
+  --color-gold-300: #fde68a;
+  --color-gold-400: #fbbf24;
+  --color-gold-500: #d4af37;
+  --color-gold-600: #b8942a;
 }
 
 @media (prefers-color-scheme: dark) {
