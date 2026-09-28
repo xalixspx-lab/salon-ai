@@ -162,6 +162,8 @@ model CustomerAccount {
   // كود إحالة قصير قابل للمشاركة (رابط تسجيل صديق)، فريد لكل حساب
   referralCode        String    @unique @map("referral_code") @db.VarChar(16)
   referredByAccountId String?   @map("referred_by_account_id") @db.Uuid
+  // آخر رسالة "اشتقنا لك" أُرسلت للحساب — تمنع تكرارها قبل مرور المدة
+  lastMarketingEmailAt DateTime? @map("last_marketing_email_at") @db.Timestamp(6)
   createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
 
   // العلاقة الذاتية: من دعا هذا الحساب، ومن دعاهم هذا الحساب

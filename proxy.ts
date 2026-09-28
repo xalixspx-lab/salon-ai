@@ -20,6 +20,8 @@ function buildCsp(nonce: string): string {
     // تحدي Cloudflare Turnstile يُعرض داخل iframe من نطاقهم؛ بلا هذا السطر
     // default-src يحجبه فيبقى السكربت محمَّلاً بلا واجهة عمل فعلية
     "frame-src https://challenges.cloudflare.com",
+    // خدمة العمل (PWA): بلا تحديد صريح قد يحجبها 'strict-dynamic' في script-src
+    "worker-src 'self'",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",

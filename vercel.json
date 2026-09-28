@@ -3,5 +3,6 @@
   "framework": "nextjs",
   "installCommand": "npm ci",
   "buildCommand": "npx prisma generate && next build",
-  "regions": ["bom1"]
+  "regions": ["bom1"],
+  "crons": [{ "path": "/api/cron/marketing-emails", "schedule": "0 7 * * *" }]
 }
