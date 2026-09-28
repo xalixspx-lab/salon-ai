@@ -55,7 +55,18 @@
     "newPassword": "New password (8+ characters)",
     "passwordChanged": "Password changed successfully",
     "pointsLabel": "{count} loyalty points",
-    "depositPaid": "Deposit paid"
+    "depositPaid": "Deposit paid",
+    "invitedNotice": "You were invited by a friend — you'll both get bonus points after your first completed visit",
+    "loyaltyTitle": "My points",
+    "loyaltyHowItWorks": "You earn {points} points automatically with every completed visit",
+    "loyaltyNextTier": "{visits} more visits to reach {tier}",
+    "loyaltyMaxTier": "Top tier — enjoy the perks",
+    "inviteTitle": "Invite a friend",
+    "inviteDesc": "Share your code — you both get {points} points after your friend's first completed visit",
+    "inviteCopyLink": "Copy invite link",
+    "inviteLinkCopied": "Copied ✓",
+    "inviteShareWhatsapp": "Share on WhatsApp",
+    "inviteWhatsappText": "Try Salon AI! Register with this link and we'll both get loyalty points: {link}"
   },
   "Index": {
     "title": "Welcome to Salon AI",
@@ -218,6 +229,10 @@
   },
   "Settings": {
     "title": "Salon Settings",
+    "bookingLinkTitle": "Your salon's booking link",
+    "bookingLinkDesc": "This link opens your salon's page on Salon AI directly — paste it into your free Google Business Profile's \"Book online\" field, or share it on Instagram and WhatsApp. Anyone who clicks it books with us directly, never on an external site.",
+    "bookingLinkCopy": "Copy link",
+    "bookingLinkCopied": "Copied ✓",
     "salonName": "Salon Name",
     "city": "City",
     "workingHours": "Working Hours",

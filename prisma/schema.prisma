@@ -152,14 +152,21 @@ model Customer {
 // صالون على حدة). شخص واحد يقدر يكون له أكثر من سجل Customer (وحد بكل
 // صالون حجز فيه)، كلها مرتبطة بنفس CustomerAccount عبر accountId.
 model CustomerAccount {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name            String    @db.VarChar(255)
-  email           String    @unique @db.VarChar(255)
-  passwordHash    String    @map("password_hash") @db.VarChar(255)
-  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamp(6)
-  suspendedAt     DateTime? @map("suspended_at") @db.Timestamp(6)
-  points          Int       @default(0)
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String    @db.VarChar(255)
+  email               String    @unique @db.VarChar(255)
+  passwordHash        String    @map("password_hash") @db.VarChar(255)
+  emailVerifiedAt     DateTime? @map("email_verified_at") @db.Timestamp(6)
+  suspendedAt         DateTime? @map("suspended_at") @db.Timestamp(6)
+  points              Int       @default(0)
+  // كود إحالة قصير قابل للمشاركة (رابط تسجيل صديق)، فريد لكل حساب
+  referralCode        String    @unique @map("referral_code") @db.VarChar(16)
+  referredByAccountId String?   @map("referred_by_account_id") @db.Uuid
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+
+  // العلاقة الذاتية: من دعا هذا الحساب، ومن دعاهم هذا الحساب
+  referredBy CustomerAccount?  @relation("Referrals", fields: [referredByAccountId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  referrals  CustomerAccount[] @relation("Referrals")
 
   customers Customer[]
   reviews   Review[]

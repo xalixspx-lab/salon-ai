@@ -8,6 +8,7 @@ import { logAdminAction } from '@/lib/audit';
 import { appOrigin, sendEmail, welcomeEmail } from '@/lib/email';
 import { localeFromRequest } from '@/lib/verification';
 import { tierFromVisitCount } from '@/lib/loyalty';
+import { generateUniqueReferralCode } from '@/lib/referral';
 
 export async function GET(request: Request) {
   const guard = await requireAdmin();
@@ -66,8 +67,9 @@ export async function POST(request: Request) {
   }
 
   const tempPassword = generateTempPassword();
+  const referralCode = await generateUniqueReferralCode();
   const account = await prisma.customerAccount.create({
-    data: { name, email, passwordHash: await hashPassword(tempPassword), emailVerifiedAt: new Date() },
+    data: { name, email, passwordHash: await hashPassword(tempPassword), emailVerifiedAt: new Date(), referralCode },
     select: { id: true, name: true, email: true },
   });
 

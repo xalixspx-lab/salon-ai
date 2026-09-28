@@ -10,8 +10,11 @@ import AppointmentActions from '@/components/account/AppointmentActions';
 import ChangePasswordCard from '@/components/account/ChangePasswordCard';
 import PrivacyCard from '@/components/account/PrivacyCard';
 import PublicHeader from '@/components/PublicHeader';
+import LoyaltyCard from '@/components/account/LoyaltyCard';
+import InviteFriendsCard from '@/components/account/InviteFriendsCard';
 import { CONSENT_TYPES, currentConsent } from '@/lib/legal';
-import { tierFromVisitCount, TIER_LABEL } from '@/lib/loyalty';
+import { tierFromVisitCount } from '@/lib/loyalty';
+import { TIER_LABEL, TIER_THRESHOLDS, POINTS_PER_COMPLETED_VISIT } from '@/lib/loyaltyConstants';
 
 // نافذة الإلغاء/التعديل: قبل الموعد بعدد الساعات الذي حدده الصالون
 function isModifiable(start: Date, cancellationHours: number): boolean {
@@ -49,7 +52,7 @@ export default async function AccountPage({
   });
 
   const [account, appointments, offers, upcoming] = await Promise.all([
-    prisma.customerAccount.findUnique({ where: { id: session.accountId }, select: { points: true } }),
+    prisma.customerAccount.findUnique({ where: { id: session.accountId }, select: { points: true, referralCode: true } }),
     prisma.appointment.findMany({
       where: { customerId: { in: customerIds } },
       orderBy: { startTime: 'desc' },
@@ -87,29 +90,36 @@ export default async function AccountPage({
   const marketingConsent = await currentConsent(session.accountId, CONSENT_TYPES.MARKETING);
   const completedVisits = appointments.filter((a) => a.status === 'COMPLETED').length;
   const tier = tierFromVisitCount(completedVisits);
-  const tierLabel = TIER_LABEL[tier][locale === 'ar' ? 'ar' : 'en'];
+  const nextTierKey = tier === 'NEW' ? 'REGULAR' : tier === 'REGULAR' ? 'VIP' : null;
+  const nextThreshold = nextTierKey ? TIER_THRESHOLDS[nextTierKey] : null;
+  const visitsToNextTier = nextThreshold !== null ? Math.max(0, nextThreshold - completedVisits) : 0;
+  const nextTierLabel = nextTierKey ? TIER_LABEL[nextTierKey][locale === 'ar' ? 'ar' : 'en'] : '';
 
   return (
     <>
       <PublicHeader locale={locale} />
       <main className="min-h-screen bg-gray-50 p-6 md:p-12" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-3xl mx-auto">
-        <header className="flex flex-wrap justify-between items-start gap-3 mb-8">
-          <div>
-            <h1 className="text-3xl font-extrabold text-gray-900 mb-1">{t('myAccount')}</h1>
-            <p className="text-gray-500 break-all sm:break-normal">{session.name} · <span dir="ltr">{session.email}</span></p>
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                tier === 'VIP' ? 'bg-amber-100 text-amber-800' : tier === 'REGULAR' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'
-              }`}>
-                {tier === 'VIP' ? '⭐ ' : ''}{tierLabel}
-              </span>
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">
-                {t('pointsLabel', { count: account?.points ?? 0 })}
-              </span>
-            </div>
-          </div>
+        <header className="mb-6">
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-1">{t('myAccount')}</h1>
+          <p className="text-gray-500 break-all sm:break-normal">{session.name} · <span dir="ltr">{session.email}</span></p>
         </header>
+
+        <div className="grid sm:grid-cols-2 gap-4 mb-8">
+          <LoyaltyCard
+            points={account?.points ?? 0}
+            tier={tier}
+            completedVisits={completedVisits}
+            locale={locale}
+            labels={{
+              title: t('loyaltyTitle'),
+              howItWorks: t('loyaltyHowItWorks', { points: POINTS_PER_COMPLETED_VISIT }),
+              nextTier: nextTierKey ? t('loyaltyNextTier', { visits: visitsToNextTier, tier: nextTierLabel }) : '',
+              maxTier: t('loyaltyMaxTier'),
+            }}
+          />
+          {account?.referralCode && <InviteFriendsCard referralCode={account.referralCode} />}
+        </div>
 
         <VerifyEmailBanner audience="customer" />
 

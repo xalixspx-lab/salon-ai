@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import HoneypotField from '@/components/HoneypotField';
 import TurnstileWidget from '@/components/TurnstileWidget';
@@ -11,6 +11,8 @@ export default function AccountRegisterPage() {
   const t = useTranslations('Account');
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
+  const ref = searchParams.get('ref') || '';
   const locale = typeof params.locale === 'string' ? params.locale : 'ar';
 
   const [name, setName] = useState('');
@@ -32,7 +34,7 @@ export default function AccountRegisterPage() {
       const res = await fetch('/api/account/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, website, turnstileToken, acceptTerms, marketingOptIn }),
+        body: JSON.stringify({ name, email, password, website, turnstileToken, acceptTerms, marketingOptIn, ref }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -50,7 +52,13 @@ export default function AccountRegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white shadow-md rounded-lg border border-gray-100 p-8 text-black">
         <h1 className="text-2xl font-bold mb-1 text-gray-800">{t('registerTitle')}</h1>
-        <p className="text-sm text-gray-500 mb-6">{t('registerSubtitle')}</p>
+        <p className="text-sm text-gray-500 mb-4">{t('registerSubtitle')}</p>
+
+        {ref && (
+          <div className="mb-4 flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5 text-sm text-violet-800">
+            🎁 {t('invitedNotice')}
+          </div>
+        )}
 
         {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
 

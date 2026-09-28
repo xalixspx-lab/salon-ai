@@ -7,6 +7,7 @@ import { createCustomerSession } from '@/lib/customerSession';
 import { isHoneypotFilled } from '@/lib/honeypot';
 import { verifyTurnstileToken } from '@/lib/turnstile';
 import { CONSENT_TYPES, recordConsent } from '@/lib/legal';
+import { generateUniqueReferralCode } from '@/lib/referral';
 
 export async function POST(request: Request) {
   try {
@@ -63,9 +64,21 @@ export async function POST(request: Request) {
       );
     }
 
+    // كود دعوة صديق اختياري في الرابط (?ref=CODE): كود غير صالح أو ذاتي
+    // يُتجاهل بصمت بدل إفشال التسجيل — الإحالة ميزة إضافية لا شرط تسجيل
+    let referredByAccountId: string | null = null;
+    if (typeof body.ref === 'string' && body.ref.trim()) {
+      const referrer = await prisma.customerAccount.findUnique({
+        where: { referralCode: body.ref.trim().toUpperCase() },
+        select: { id: true },
+      });
+      if (referrer) referredByAccountId = referrer.id;
+    }
+
     const passwordHash = await hashPassword(password);
+    const referralCode = await generateUniqueReferralCode();
     const account = await prisma.customerAccount.create({
-      data: { name, email: normalizedEmail, passwordHash },
+      data: { name, email: normalizedEmail, passwordHash, referralCode, referredByAccountId },
     });
 
     const ip = clientIp(request);

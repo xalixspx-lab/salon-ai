@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { hasConflict } from '@/lib/availability';
 import { notifyBooking } from '@/lib/notify';
-import { awardCompletionPoints } from '@/lib/loyalty';
+import { awardCompletionPoints, awardReferralBonusIfEligible } from '@/lib/loyalty';
 import { withTenantScope } from '@/lib/tenantScope';
 
 const VALID_STATUSES = ['PENDING_DEPOSIT', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
@@ -54,6 +54,7 @@ async function PATCHHandler(request: Request, { params }: { params: Promise<{ id
     if (status === 'COMPLETED' && existing.status !== 'COMPLETED') {
       after(() => notifyBooking(id, 'completed', ['customer']));
       after(() => awardCompletionPoints(existing.customerId));
+      after(() => awardReferralBonusIfEligible(existing.customerId));
     }
 
     return NextResponse.json({ success: true, data: appointment }, { status: 200 });

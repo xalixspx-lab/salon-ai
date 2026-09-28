@@ -55,7 +55,18 @@
     "newPassword": "كلمة المرور الجديدة (8 أحرف على الأقل)",
     "passwordChanged": "تم تغيير كلمة المرور بنجاح",
     "pointsLabel": "{count} نقطة ولاء",
-    "depositPaid": "العربون المدفوع"
+    "depositPaid": "العربون المدفوع",
+    "invitedNotice": "أتيت بدعوة من صديق — ستحصلان معًا على نقاط بعد أول زيارة مكتملة لك",
+    "loyaltyTitle": "نقاطي",
+    "loyaltyHowItWorks": "تكسب {points} نقطة تلقائيًا مع كل زيارة مكتملة",
+    "loyaltyNextTier": "{visits} زيارة أخرى للوصول لتصنيف {tier}",
+    "loyaltyMaxTier": "أعلى تصنيف — استمر في الاستمتاع بمزاياه",
+    "inviteTitle": "ادعُ صديقًا",
+    "inviteDesc": "شارك كودك، ويحصل كل منكما على {points} نقطة بعد أول زيارة مكتملة لصديقك",
+    "inviteCopyLink": "نسخ رابط الدعوة",
+    "inviteLinkCopied": "تم النسخ ✓",
+    "inviteShareWhatsapp": "مشاركة عبر واتساب",
+    "inviteWhatsappText": "جرّب Salon AI! سجّل من هذا الرابط وسنحصل كلانا على نقاط ولاء: {link}"
   },
   "Index": {
     "title": "أهلاً بك في Salon AI",
@@ -218,6 +229,10 @@
   },
   "Settings": {
     "title": "إعدادات الصالون",
+    "bookingLinkTitle": "رابط حجز صالونك",
+    "bookingLinkDesc": "هذا الرابط يفتح صفحة صالونك على Salon AI مباشرة — الصقه في خانة \"الحجز أونلاين\" في حساب Google Business المجاني الخاص بك، أو شاركه في إنستغرام وواتساب. أي زائر يضغطه يحجز عندنا مباشرة، لا في أي موقع خارجي.",
+    "bookingLinkCopy": "نسخ الرابط",
+    "bookingLinkCopied": "تم النسخ ✓",
     "salonName": "اسم الصالون",
     "city": "المدينة",
     "workingHours": "ساعات العمل",

@@ -6,6 +6,7 @@ import LogoUploader from '@/components/dashboard/LogoUploader';
 import GalleryManager from '@/components/dashboard/GalleryManager';
 import WeeklyHoursEditor, { initialHours } from '@/components/dashboard/WeeklyHoursEditor';
 import ChangePasswordCard from '@/components/dashboard/ChangePasswordCard';
+import BookingLinkCard from '@/components/dashboard/BookingLinkCard';
 import type { WeeklyHours } from '@/lib/schedule';
 
 export default function SettingsPage() {
@@ -31,6 +32,7 @@ export default function SettingsPage() {
   const [minBookingNoticeHours, setMinBookingNoticeHours] = useState('2');
   const [cancellationHours, setCancellationHours] = useState('24');
   const [refundPercentAfterDeadline, setRefundPercentAfterDeadline] = useState('0');
+  const [tenantId, setTenantId] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -38,6 +40,7 @@ export default function SettingsPage() {
       const data = await res.json();
       if (data.success) {
         const tenant = data.data;
+        setTenantId(tenant.id || '');
         setName(tenant.name || '');
         setCity(tenant.city || '');
         setWorkingHoursText(tenant.workingHoursText || '');
@@ -102,6 +105,8 @@ export default function SettingsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-stone-900 mb-6">{t('title')}</h1>
+
+      {tenantId && <BookingLinkCard tenantId={tenantId} />}
 
       <div className="mb-6">
         <ChangePasswordCard />

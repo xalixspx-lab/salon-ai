@@ -34,7 +34,10 @@ export async function generateMetadata({
     title: tenant.name,
     description: text.slice(0, 160),
     alternates: { languages: { ar: `/ar/salons/${id}`, en: `/en/salons/${id}` } },
+    // og:image تأتي تلقائيًا من opengraph-image.tsx بجانب هذا الملف (صورة
+    // حقيقية إن وُجدت، وإلا بطاقة مصمَّمة باسم الصالون) — لا حاجة لتكرارها هنا
     openGraph: { title: tenant.name, description: text.slice(0, 160), type: 'website' },
+    twitter: { card: 'summary_large_image', title: tenant.name, description: text.slice(0, 160) },
   };
 }
 
@@ -78,10 +81,18 @@ export default async function SalonDetailPage({
   ]);
   const rating = ratingMap.get(tenant.id);
 
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://salon-ai.co').replace(/\/$/, '');
+  const salonImage = tenant.logoUrl || photos[0]?.url || null;
+  const prices = services.map((s) => (s.basePrice ? Number(s.basePrice) : null)).filter((p): p is number => p !== null);
+  const priceRange = prices.length > 0 ? `${Math.min(...prices)}-${Math.max(...prices)} ${tenant.currency || 'BHD'}` : undefined;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'HairSalon',
     name: tenant.name,
+    url: `${siteUrl}/${locale}/salons/${tenant.id}`,
+    ...(salonImage ? { image: salonImage } : {}),
+    ...(priceRange ? { priceRange } : {}),
     ...(tenant.phone ? { telephone: tenant.phone } : {}),
     address: { '@type': 'PostalAddress', addressLocality: tenant.city ?? undefined, streetAddress: tenant.addressText ?? undefined },
     ...(tenant.latitude && tenant.longitude

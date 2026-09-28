@@ -1,8 +1,7 @@
 import { prisma } from '@/lib/prisma';
+import { REFERRAL_BONUS_POINTS, POINTS_PER_COMPLETED_VISIT } from '@/lib/loyaltyConstants';
 
-// سياسة نقاط بسيطة وموحّدة بغض النظر عن عملة كل صالون: نقاط ثابتة لكل زيارة
-// مكتملة، بدل ربطها بالمبلغ (يختلف معناه بين الصالونات بعملات مختلفة).
-export const POINTS_PER_COMPLETED_VISIT = 10;
+export * from '@/lib/loyaltyConstants';
 
 // تُمنح النقاط فقط لحساب عميل مسجّل (accountId) — الحجوزات كضيف لا تُحتسب
 // لأنه لا يوجد حساب لعرض النقاط فيه أصلًا.
@@ -20,17 +19,38 @@ export async function awardCompletionPoints(customerId: string | null) {
   }
 }
 
-export type CustomerTier = 'NEW' | 'REGULAR' | 'VIP';
+// مكافأة الإحالة: نقاط لكل من الداعي والمدعو، تُمنح مرة واحدة فقط عند أول
+// حجز مكتمل للمدعو — نتحقق من ذلك بعدّ حجوزاته المكتملة بدل علامة/حقل منفصل،
+// فالعدّاد نفسه لا يعود أبدًا لقيمة 1 بعد أول مرة (ضمانة عدم تكرار طبيعية).
+export async function awardReferralBonusIfEligible(customerId: string | null) {
+  if (!customerId) return;
+  try {
+    const customer = await prisma.customer.findUnique({ where: { id: customerId }, select: { accountId: true } });
+    if (!customer?.accountId) return;
 
-// تصنيف مبني على عدد الزيارات المكتملة عبر كل الصالونات (وليس صالون واحد)
-export function tierFromVisitCount(completedVisits: number): CustomerTier {
-  if (completedVisits >= 10) return 'VIP';
-  if (completedVisits >= 2) return 'REGULAR';
-  return 'NEW';
+    const account = await prisma.customerAccount.findUnique({
+      where: { id: customer.accountId },
+      select: { referredByAccountId: true },
+    });
+    if (!account?.referredByAccountId) return;
+
+    const linked = await prisma.customer.findMany({ where: { accountId: customer.accountId }, select: { id: true } });
+    const completedCount = await prisma.appointment.count({
+      where: { customerId: { in: linked.map((c) => c.id) }, status: 'COMPLETED' },
+    });
+    if (completedCount !== 1) return; // ليست أول زيارة مكتملة للمدعو
+
+    await prisma.$transaction([
+      prisma.customerAccount.update({
+        where: { id: customer.accountId },
+        data: { points: { increment: REFERRAL_BONUS_POINTS } },
+      }),
+      prisma.customerAccount.update({
+        where: { id: account.referredByAccountId },
+        data: { points: { increment: REFERRAL_BONUS_POINTS } },
+      }),
+    ]);
+  } catch (error) {
+    console.error('awardReferralBonusIfEligible failed:', error);
+  }
 }
-
-export const TIER_LABEL: Record<CustomerTier, { ar: string; en: string }> = {
-  NEW: { ar: 'عميل جديد', en: 'New customer' },
-  REGULAR: { ar: 'عميل دائم', en: 'Regular customer' },
-  VIP: { ar: 'عميل مميز (VIP)', en: 'VIP customer' },
-};
