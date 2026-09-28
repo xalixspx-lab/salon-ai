@@ -68,4 +68,22 @@ jobs:
         run: |
           DATABASE_URL="$APP_DB_URL" TENANT_RLS=on NODE_ENV=production npx next start -p 3000 &
           for i in $(seq 1 40); do curl -sf http://localhost:3000/api/health && break || sleep 2; done
-          BASE_URL=http://localhost:3000 node scripts/isolation-test.mjs
+          BASE_URL=http://localhost:3000 node scripts/isolation-test.mj
+  deploy:
+    name: Deploy to production (only after every check passes)
+    runs-on: ubuntu-latest
+    needs: [verify, isolation]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
+    env:
+      VERCEL_ORG_ID: team_oyvd739xiFSpQIdAHLo7WAGn
+      VERCEL_PROJECT_ID: prj_eBuzrzjYx1wnrdPLoro90qkBN4bz
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Deploy to Vercel production
+        run: npx --yes vercel@60 deploy --prod --yes --token "${{ secrets.VERCEL_TOKEN }}"
