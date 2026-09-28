@@ -92,7 +92,7 @@ export default function ClientsPage() {
         <h1 className="text-2xl font-bold text-stone-900">{t('title')}</h1>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-purple-700 transition"
+          className="bg-brand-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-brand-700 transition"
         >
           + {t('newClient')}
         </button>
@@ -112,7 +112,7 @@ export default function ClientsPage() {
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="submit" disabled={saving} className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50">
+            <button type="submit" disabled={saving} className="bg-brand-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50">
               {saving ? '...' : common('save')}
             </button>
             <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="bg-stone-100 text-stone-700 px-4 py-2 rounded-md text-sm">
@@ -142,11 +142,11 @@ export default function ClientsPage() {
               {clients.map((c) => (
                 <tr key={c.id} className="border-b border-stone-100">
                   <td className="p-3 font-medium text-stone-900">
-                    <Link href={`/${locale}/dashboard/clients/${c.id}`} className="hover:text-purple-700 hover:underline">{c.name}</Link>
+                    <Link href={`/${locale}/dashboard/clients/${c.id}`} className="hover:text-brand-700 hover:underline">{c.name}</Link>
                   </td>
                   <td className="p-3" dir="ltr">{c.phone || '—'}</td>
                   <td className="p-3">
-                    <span className="bg-purple-50 text-purple-700 text-xs px-2 py-1 rounded-full font-medium">
+                    <span className="bg-brand-50 text-brand-700 text-xs px-2 py-1 rounded-full font-medium">
                       {c.totalVisits}
                     </span>
                   </td>
@@ -154,7 +154,7 @@ export default function ClientsPage() {
                     {c.lastVisit ? new Date(c.lastVisit).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US') : '—'}
                   </td>
                   <td className="p-3 flex gap-3">
-                    <button onClick={() => openEdit(c)} className="text-purple-600 hover:underline">{common('edit')}</button>
+                    <button onClick={() => openEdit(c)} className="text-brand-600 hover:underline">{common('edit')}</button>
                     <button onClick={() => handleDelete(c.id)} className="text-red-500 hover:underline">{common('delete')}</button>
                   </td>
                 </tr>

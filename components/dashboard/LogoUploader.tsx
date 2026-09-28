@@ -37,7 +37,7 @@ export default function LogoUploader({ initialUrl }: { initialUrl: string | null
           {url ? <img src={url} alt={t('logo')} className="h-full w-full object-cover" /> : '🖼️'}
         </div>
         <div className="space-y-2">
-          <label className={`inline-block cursor-pointer rounded-md bg-purple-600 px-3 py-1.5 text-sm text-white ${busy ? 'opacity-50' : ''}`}>
+          <label className={`inline-block cursor-pointer rounded-md bg-brand-600 px-3 py-1.5 text-sm text-white ${busy ? 'opacity-50' : ''}`}>
             {busy ? '...' : url ? t('changeLogo') : t('uploadLogo')}
             <input
               type="file"

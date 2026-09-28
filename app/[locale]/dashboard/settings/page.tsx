@@ -205,7 +205,7 @@ export default function SettingsPage() {
           </label>
         </div>
 
-        <button type="submit" disabled={saving} className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50">
+        <button type="submit" disabled={saving} className="bg-brand-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50">
           {saving ? '...' : t('saveChanges')}
         </button>
       </form>

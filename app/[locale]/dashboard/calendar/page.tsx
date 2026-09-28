@@ -130,7 +130,7 @@ export default function CalendarPage() {
           </select>
           <div className="flex rounded-md border overflow-hidden text-sm">
             {(['week', 'month'] as const).map((v) => (
-              <button key={v} onClick={() => setView(v)} className={`px-3 py-1.5 ${view === v ? 'bg-purple-600 text-white' : 'bg-white text-stone-700'}`}>
+              <button key={v} onClick={() => setView(v)} className={`px-3 py-1.5 ${view === v ? 'bg-brand-600 text-white' : 'bg-white text-stone-700'}`}>
                 {t(v)}
               </button>
             ))}
@@ -142,7 +142,7 @@ export default function CalendarPage() {
         <button onClick={() => step(-1)} className="px-3 py-1.5 border rounded-md text-sm bg-white">{t('prev')}</button>
         <div className="flex items-center gap-3">
           <span className="font-semibold text-stone-800">{title}</span>
-          <button onClick={() => setAnchor(today)} className="text-xs text-purple-600 underline">{t('today')}</button>
+          <button onClick={() => setAnchor(today)} className="text-xs text-brand-600 underline">{t('today')}</button>
         </div>
         <button onClick={() => step(1)} className="px-3 py-1.5 border rounded-md text-sm bg-white">{t('next')}</button>
       </div>
@@ -150,8 +150,8 @@ export default function CalendarPage() {
       {view === 'week' ? (
         <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
           {days.map((d) => (
-            <div key={d} className={`rounded-xl border p-2 min-h-32 bg-white ${d === today ? 'border-purple-400' : 'border-stone-200'}`}>
-              <p className={`text-xs font-semibold mb-2 ${d === today ? 'text-purple-700' : 'text-stone-500'}`}>{dayLabel(d)}</p>
+            <div key={d} className={`rounded-xl border p-2 min-h-32 bg-white ${d === today ? 'border-brand-400' : 'border-stone-200'}`}>
+              <p className={`text-xs font-semibold mb-2 ${d === today ? 'text-brand-700' : 'text-stone-500'}`}>{dayLabel(d)}</p>
               <div className="space-y-1.5">
                 {(byDay.get(d) || []).map((a) => <ApptCard key={a.id} a={a} />)}
               </div>
@@ -173,11 +173,11 @@ export default function CalendarPage() {
                 <button
                   key={d}
                   onClick={() => setSelectedDay(d)}
-                  className={`rounded-lg border p-1.5 min-h-16 text-start ${inMonth ? 'bg-white' : 'bg-stone-50 text-stone-400'} ${d === today ? 'border-purple-400' : 'border-stone-200'} ${selectedDay === d ? 'ring-2 ring-purple-300' : ''}`}
+                  className={`rounded-lg border p-1.5 min-h-16 text-start ${inMonth ? 'bg-white' : 'bg-stone-50 text-stone-400'} ${d === today ? 'border-brand-400' : 'border-stone-200'} ${selectedDay === d ? 'ring-2 ring-brand-300' : ''}`}
                 >
                   <div className="text-xs font-medium">{Number(d.slice(8))}</div>
                   {list.length > 0 && (
-                    <div className="mt-1 inline-block rounded-full bg-purple-100 text-purple-800 text-[10px] font-semibold px-1.5">{list.length}</div>
+                    <div className="mt-1 inline-block rounded-full bg-brand-100 text-brand-800 text-[10px] font-semibold px-1.5">{list.length}</div>
                   )}
                 </button>
               );

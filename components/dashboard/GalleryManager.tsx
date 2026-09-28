@@ -67,7 +67,7 @@ export default function GalleryManager() {
           </div>
         ))}
         {photos.length < 12 && (
-          <label className={`aspect-square rounded-xl border-2 border-dashed border-stone-300 flex items-center justify-center text-2xl text-stone-400 cursor-pointer hover:border-purple-400 ${busy ? 'opacity-50' : ''}`}>
+          <label className={`aspect-square rounded-xl border-2 border-dashed border-stone-300 flex items-center justify-center text-2xl text-stone-400 cursor-pointer hover:border-brand-400 ${busy ? 'opacity-50' : ''}`}>
             +
             <input
               type="file"

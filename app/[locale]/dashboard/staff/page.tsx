@@ -101,7 +101,7 @@ export default function StaffPage() {
         <h1 className="text-2xl font-bold text-stone-900">{t('title')}</h1>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-purple-700 transition"
+          className="bg-brand-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-brand-700 transition"
         >
           + {t('newStaff')}
         </button>
@@ -149,7 +149,7 @@ export default function StaffPage() {
             </div>
           )}
           <div className="flex gap-2">
-            <button type="submit" disabled={saving} className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50">
+            <button type="submit" disabled={saving} className="bg-brand-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50">
               {saving ? '...' : common('save')}
             </button>
             <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="bg-stone-100 text-stone-700 px-4 py-2 rounded-md text-sm">
@@ -187,7 +187,7 @@ export default function StaffPage() {
                     </span>
                   </td>
                   <td className="p-3 flex gap-3">
-                    <button onClick={() => openEdit(s)} className="text-purple-600 hover:underline">{common('edit')}</button>
+                    <button onClick={() => openEdit(s)} className="text-brand-600 hover:underline">{common('edit')}</button>
                     <button onClick={() => handleDelete(s.id)} className="text-red-500 hover:underline">{common('delete')}</button>
                   </td>
                 </tr>

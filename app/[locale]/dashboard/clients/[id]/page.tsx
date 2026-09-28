@@ -71,7 +71,7 @@ export default async function ClientDetailPage({
 
   return (
     <div>
-      <Link href={`/${locale}/dashboard/clients`} className="text-sm text-purple-600 hover:underline">
+      <Link href={`/${locale}/dashboard/clients`} className="text-sm text-brand-600 hover:underline">
         ← {t('back')}
       </Link>
       <div className="flex flex-wrap items-center gap-3 mt-3 mb-6">

@@ -136,7 +136,7 @@ export default function BookingsPage() {
         <h1 className="text-2xl font-bold text-stone-900">{t('title')}</h1>
         <button
           onClick={() => { setShowForm(true); setError(''); }}
-          className="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-purple-700 transition"
+          className="bg-brand-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-brand-700 transition"
         >
           + {t('newBooking')}
         </button>
@@ -179,7 +179,7 @@ export default function BookingsPage() {
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="submit" disabled={saving} className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50">
+            <button type="submit" disabled={saving} className="bg-brand-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50">
               {saving ? '...' : common('save')}
             </button>
             <button type="button" onClick={() => setShowForm(false)} className="bg-stone-100 text-stone-700 px-4 py-2 rounded-md text-sm">

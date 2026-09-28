@@ -114,7 +114,7 @@ export default async function DashboardOverviewPage({
       ) : (
         <div className="mb-8 rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-sm text-stone-600">
           {t('analyticsLocked')}{' '}
-          <Link href={`/${locale}/dashboard/subscription`} className="font-semibold text-purple-700 underline">
+          <Link href={`/${locale}/dashboard/subscription`} className="font-semibold text-brand-700 underline">
             {t('viewPlans')}
           </Link>
         </div>

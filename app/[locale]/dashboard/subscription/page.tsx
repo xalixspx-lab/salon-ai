@@ -70,7 +70,7 @@ export default function SubscriptionPage() {
           const current = sub.plan === key;
           const tooManyStaff = p.maxStaff !== null && sub.staffCount > p.maxStaff;
           return (
-            <div key={key} className={`rounded-2xl border bg-white p-6 shadow-sm ${current ? 'border-purple-500 ring-2 ring-purple-200' : 'border-stone-200'}`}>
+            <div key={key} className={`rounded-2xl border bg-white p-6 shadow-sm ${current ? 'border-brand-500 ring-2 ring-brand-200' : 'border-stone-200'}`}>
               <h2 className="text-lg font-bold text-stone-900">{t(`plan_${key}`)}</h2>
               <p className="mt-2 text-3xl font-extrabold text-stone-900">
                 {sub.prices?.[key] ?? p.priceBhdMonthly} <span className="text-sm font-medium text-stone-500">{common('currency')} / {t('perMonth')}</span>
@@ -85,7 +85,7 @@ export default function SubscriptionPage() {
               <button
                 disabled={current || busy !== null}
                 onClick={() => choose(key)}
-                className="mt-5 w-full rounded-md bg-purple-600 py-2 text-sm font-medium text-white disabled:bg-stone-200 disabled:text-stone-500"
+                className="mt-5 w-full rounded-md bg-brand-600 py-2 text-sm font-medium text-white disabled:bg-stone-200 disabled:text-stone-500"
               >
                 {current ? t('currentPlan') : busy === key ? '...' : t('choose')}
               </button>

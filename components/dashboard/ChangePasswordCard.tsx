@@ -43,7 +43,7 @@ export default function ChangePasswordCard() {
           <label className="block text-sm font-medium text-stone-700 mb-1">{t('newPassword')}</label>
           <input type="password" minLength={8} value={next} onChange={(e) => setNext(e.target.value)} required dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
         </div>
-        <button disabled={busy} className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50">
+        <button disabled={busy} className="bg-brand-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50">
           {busy ? '...' : t('changePassword')}
         </button>
       </form>

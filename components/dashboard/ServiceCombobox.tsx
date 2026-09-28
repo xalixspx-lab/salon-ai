@@ -68,7 +68,7 @@ export default function ServiceCombobox({
           <button
             type="button"
             onClick={() => { setCustomMode(false); onChange('', ''); }}
-            className="text-xs text-purple-600 hover:underline mt-1"
+            className="text-xs text-brand-600 hover:underline mt-1"
           >
             {locale === 'ar' ? '← اختيار من القائمة بدلًا من ذلك' : '← Pick from the list instead'}
           </button>
@@ -108,7 +108,7 @@ export default function ServiceCombobox({
           <button
             type="button"
             onClick={() => { setCustomMode(true); setOpen(false); }}
-            className="w-full text-right px-3 py-2 text-sm font-medium text-purple-600 hover:bg-purple-50 border-b border-stone-100"
+            className="w-full text-right px-3 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50 border-b border-stone-100"
           >
             ✎ {locale === 'ar' ? 'خدمة مخصصة (إدخال يدوي)' : 'Custom service (manual entry)'}
           </button>
@@ -131,7 +131,7 @@ export default function ServiceCombobox({
                       key={item.ar}
                       type="button"
                       onClick={() => selectItem(item.ar, item.en)}
-                      className="w-full text-right px-4 py-2 text-sm text-stone-700 hover:bg-purple-50"
+                      className="w-full text-right px-4 py-2 text-sm text-stone-700 hover:bg-brand-50"
                     >
                       {locale === 'ar' ? item.ar : item.en}
                     </button>

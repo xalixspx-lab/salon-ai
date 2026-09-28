@@ -70,7 +70,7 @@ export default async function AnalyticsPanel({
               <div key={s.label} className="flex-1 flex flex-col items-center justify-end h-full">
                 <span className="text-[10px] text-stone-500 mb-1">{s.revenue > 0 ? s.revenue.toFixed(0) : ''}</span>
                 <div
-                  className="w-full rounded-t-md bg-purple-500/80"
+                  className="w-full rounded-t-md bg-brand-500/80"
                   style={{ height: `${Math.max(2, (s.revenue / maxRevenue) * 100)}%` }}
                 />
                 <span className="text-[11px] text-stone-500 mt-1">{monthName(s.label)}</span>
