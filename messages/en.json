@@ -90,7 +90,14 @@
     "noResults": "No salons match your search",
     "openInGoogleMaps": "Open in Google Maps ↗",
     "hasOffer": "Offer",
-    "featured": "Featured"
+    "featured": "Featured",
+    "pageTitle": "Discover salons",
+    "pageSubtitle": "Browse trusted salons near you and book in seconds",
+    "addSalonButton": "+ List your salon",
+    "filterByCity": "Filter by city:",
+    "allCities": "All",
+    "mapSectionTitle": "📍 Interactive map",
+    "emptyState": "No salons match your search, or none added yet."
   },
   "Offers": {
     "title": "Offers & Discounts",

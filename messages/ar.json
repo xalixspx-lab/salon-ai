@@ -90,7 +90,14 @@
     "noResults": "لا توجد نتائج مطابقة لبحثك",
     "openInGoogleMaps": "فتح في خرائط قوقل ↗",
     "hasOffer": "عرض",
-    "featured": "مميز"
+    "featured": "مميز",
+    "pageTitle": "اكتشف الصالونات",
+    "pageSubtitle": "تصفّح صالونات موثوقة قريبة منك واحجز خلال ثوانٍ",
+    "addSalonButton": "+ سجّل صالونك",
+    "filterByCity": "فلترة حسب المدينة:",
+    "allCities": "الكل",
+    "mapSectionTitle": "📍 الخريطة التفاعلية",
+    "emptyState": "لا توجد صالونات مطابقة للبحث أو مضافة حتى الآن."
   },
   "Offers": {
     "title": "العروض والخصومات",

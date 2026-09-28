@@ -7,9 +7,9 @@ import { describeOffer } from '@/lib/offers';
 import VerifyEmailBanner from '@/components/VerifyEmailBanner';
 import ReviewForm from '@/components/account/ReviewForm';
 import AppointmentActions from '@/components/account/AppointmentActions';
-import LogoutButton from '@/components/account/LogoutButton';
 import ChangePasswordCard from '@/components/account/ChangePasswordCard';
 import PrivacyCard from '@/components/account/PrivacyCard';
+import PublicHeader from '@/components/PublicHeader';
 import { CONSENT_TYPES, currentConsent } from '@/lib/legal';
 import { tierFromVisitCount, TIER_LABEL } from '@/lib/loyalty';
 
@@ -90,13 +90,15 @@ export default async function AccountPage({
   const tierLabel = TIER_LABEL[tier][locale === 'ar' ? 'ar' : 'en'];
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6 md:p-12" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+    <>
+      <PublicHeader locale={locale} />
+      <main className="min-h-screen bg-gray-50 p-6 md:p-12" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-3xl mx-auto">
-        <header className="flex justify-between items-start mb-8">
+        <header className="flex flex-wrap justify-between items-start gap-3 mb-8">
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900 mb-1">{t('myAccount')}</h1>
-            <p className="text-gray-500">{session.name} · <span dir="ltr">{session.email}</span></p>
-            <div className="flex items-center gap-2 mt-2">
+            <p className="text-gray-500 break-all sm:break-normal">{session.name} · <span dir="ltr">{session.email}</span></p>
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                 tier === 'VIP' ? 'bg-amber-100 text-amber-800' : tier === 'REGULAR' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'
               }`}>
@@ -107,7 +109,6 @@ export default async function AccountPage({
               </span>
             </div>
           </div>
-          <LogoutButton />
         </header>
 
         <VerifyEmailBanner audience="customer" />
@@ -236,6 +237,7 @@ export default async function AccountPage({
           <PrivacyCard initialMarketing={Boolean(marketingConsent?.granted)} />
         </section>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

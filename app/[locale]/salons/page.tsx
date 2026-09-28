@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { getRatings } from '@/lib/ratings';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import SalonMap from '@/components/SalonMap';
 import SalonGrid from '@/components/SalonGrid';
 import PublicHeader from '@/components/PublicHeader';
@@ -14,6 +15,7 @@ export default async function SalonsPage({
 }) {
   const { locale } = await params;
   const { city: selectedCity } = await searchParams;
+  const t = await getTranslations('Discovery');
 
   // جلب الصالونات (المستأجرين) المنشورة فقط، مع تطبيق الفلتر إذا تم تحديد المدينة
   const tenants = await prisma.tenant.findMany({
@@ -68,56 +70,65 @@ export default async function SalonsPage({
   return (
     <>
       <PublicHeader locale={locale} />
-      <div className="max-w-4xl mx-auto mt-10 p-6 text-black">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">خريطة وقائمة الصالونات (Salon AI)</h1>
-        <Link
-          href={`/${locale}/salons/new`}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-        >
-          + إضافة صالون جديد
-        </Link>
-      </div>
-
-      {/* أزرار الفلترة حسب المدينة */}
-      <div className="mb-6 flex gap-2 items-center flex-wrap">
-        <span className="text-sm font-semibold text-gray-600">فلترة حسب المدينة:</span>
-        <Link
-          href={`/${locale}/salons`}
-          className={`px-3 py-1 rounded-full text-sm transition ${
-            !selectedCity ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
-        >
-          الكل
-        </Link>
-        {cities.map((city) => (
-          <Link
-            key={city}
-            href={`/${locale}/salons?city=${encodeURIComponent(city)}`}
-            className={`px-3 py-1 rounded-full text-sm transition ${
-              selectedCity === city ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {city}
-          </Link>
-        ))}
-      </div>
-
-      {/* عرض الخريطة التفاعلية */}
-      <div className="mb-8 bg-white p-2 rounded-lg shadow border border-gray-100">
-        <h2 className="text-lg font-semibold mb-3 px-2 text-gray-700">📍 الخريطة التفاعلية للصالونات</h2>
-        <SalonMap salons={mapSalons} />
-      </div>
-
-      {/* قائمة البطاقات مع البحث والأقرب لي */}
-      {tenants.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-          <p className="text-gray-500 mb-2">لا توجد صالونات مطابقة للبحث أو مضافة حتى الآن.</p>
+      <main dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="bg-gradient-to-b from-violet-50 via-white to-white px-4 sm:px-6 pt-10 pb-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-wrap items-start justify-between gap-4 mb-2">
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">{t('pageTitle')}</h1>
+                <p className="text-gray-600">{t('pageSubtitle')}</p>
+              </div>
+              <Link
+                href={`/${locale}/salons/new`}
+                className="shrink-0 bg-gray-900 text-white px-5 py-2.5 rounded-full font-semibold hover:bg-gray-800 transition"
+              >
+                {t('addSalonButton')}
+              </Link>
+            </div>
+          </div>
         </div>
-      ) : (
-        <SalonGrid locale={locale} salons={gridSalons} />
-      )}
-      </div>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+          {/* أزرار الفلترة حسب المدينة */}
+          <div className="mb-6 flex gap-2 items-center flex-wrap">
+            <span className="text-sm font-semibold text-gray-500">{t('filterByCity')}</span>
+            <Link
+              href={`/${locale}/salons`}
+              className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition ${
+                !selectedCity ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {t('allCities')}
+            </Link>
+            {cities.map((city) => (
+              <Link
+                key={city}
+                href={`/${locale}/salons?city=${encodeURIComponent(city)}`}
+                className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition ${
+                  selectedCity === city ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {city}
+              </Link>
+            ))}
+          </div>
+
+          {/* عرض الخريطة التفاعلية */}
+          <div className="mb-8 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
+            <h2 className="text-lg font-semibold mb-3 px-2 pt-2 text-gray-700">{t('mapSectionTitle')}</h2>
+            <SalonMap salons={mapSalons} />
+          </div>
+
+          {/* قائمة البطاقات مع البحث والأقرب لي */}
+          {tenants.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-200">
+              <p className="text-gray-500">{t('emptyState')}</p>
+            </div>
+          ) : (
+            <SalonGrid locale={locale} salons={gridSalons} />
+          )}
+        </div>
+      </main>
     </>
   );
 }

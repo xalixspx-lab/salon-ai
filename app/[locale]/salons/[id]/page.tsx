@@ -113,42 +113,47 @@ export default async function SalonDetailPage({
   return (
     <>
       <PublicHeader locale={locale} />
-      <main className="min-h-screen bg-gray-50 p-6 md:p-12" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+      <main className="min-h-screen bg-gray-50" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
-      <div className="max-w-3xl mx-auto">
-        <header className="mb-8">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-            <div className="flex items-center gap-3">
-              {tenant.logoUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={tenant.logoUrl} alt={tenant.name} className="h-16 w-16 rounded-2xl object-cover border border-gray-100" />
-              )}
-              <h1 className="text-3xl font-extrabold text-gray-900">{tenant.name}</h1>
+      <div className="bg-gradient-to-b from-violet-50 via-white to-white px-4 sm:px-6 pt-10 pb-8">
+        <div className="max-w-3xl mx-auto">
+          <header>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+              <div className="flex items-center gap-3">
+                {tenant.logoUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={tenant.logoUrl} alt={tenant.name} className="h-16 w-16 rounded-2xl object-cover border border-gray-100 shadow-sm" />
+                )}
+                <h1 className="text-3xl font-extrabold text-gray-900">{tenant.name}</h1>
+              </div>
+              <FavoriteButton tenantId={tenant.id} />
             </div>
-            <FavoriteButton tenantId={tenant.id} />
-          </div>
-          {rating && (
-            <p className="text-amber-600 text-sm mb-1">
-              ★ {rating.avg} <span className="text-gray-400">({rating.count})</span>
+            {rating && (
+              <p className="text-amber-600 text-sm mb-1">
+                ★ {rating.avg} <span className="text-gray-400">({rating.count})</span>
+              </p>
+            )}
+            <p className="text-gray-600">
+              {tenant.addressText || tenant.city || (locale === 'ar' ? 'موقع مميز في دول الخليج' : 'Prime GCC Location')}
             </p>
-          )}
-          <p className="text-gray-600">
-            {tenant.addressText || tenant.city || (locale === 'ar' ? 'موقع مميز في دول الخليج' : 'Prime GCC Location')}
-          </p>
-          {tenant.phone && (
-            <p className="text-gray-500 text-sm mt-1" dir="ltr">
-              📞 {tenant.phone}
-            </p>
-          )}
-          {(() => {
-            const description = (tenant.description as Record<string, string> | null) || {};
-            const text = description[locale] || description.ar || description.en;
-            return text ? <p className="text-gray-700 mt-4 leading-relaxed">{text}</p> : null;
-          })()}
-        </header>
+            {tenant.phone && (
+              <p className="text-gray-500 text-sm mt-1" dir="ltr">
+                📞 {tenant.phone}
+              </p>
+            )}
+            {(() => {
+              const description = (tenant.description as Record<string, string> | null) || {};
+              const text = description[locale] || description.ar || description.en;
+              return text ? <p className="text-gray-700 mt-4 leading-relaxed">{text}</p> : null;
+            })()}
+          </header>
+        </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-12 -mt-2">
 
         {offers.length > 0 && (
           <div className="mb-8 space-y-2">
@@ -179,14 +184,14 @@ export default async function SalonDetailPage({
         )}
 
         {(tenant.latitude && tenant.longitude) && (
-          <div className="mb-8 bg-white p-2 rounded-lg shadow border border-gray-100">
+          <div className="mb-8 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
             <SalonMap salons={mapSalons} />
           </div>
         )}
 
         {photos.length > 0 && (
           <section className="mb-8">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {photos.map((p) => (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img key={p.id} src={p.url} alt={tenant.name} className="aspect-square w-full object-cover rounded-xl border border-gray-100" />
@@ -195,7 +200,7 @@ export default async function SalonDetailPage({
           </section>
         )}
 
-        <section>
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
           <h2 className="text-xl font-bold text-gray-800 mb-4">{t('services')}</h2>
           <ServicesList
             tenantId={tenant.id}
@@ -217,14 +222,14 @@ export default async function SalonDetailPage({
           />
         </section>
 
-        <section className="mt-10">
+        <section className="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
           <h2 className="text-xl font-bold text-gray-800 mb-4">{t('reviews')}</h2>
           {reviews.length === 0 ? (
             <p className="text-gray-400 text-sm">{t('noReviews')}</p>
           ) : (
             <div className="space-y-3">
               {reviews.map((r) => (
-                <div key={r.id} className="bg-white rounded-xl border border-gray-100 p-4">
+                <div key={r.id} className="bg-gray-50 rounded-xl border border-gray-100 p-4">
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium text-gray-900">{r.account.name}</span>
                     <span className="text-amber-500" dir="ltr">
