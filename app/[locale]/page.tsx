@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import SalonGrid from '@/components/SalonGrid';
+import SalonMap from '@/components/SalonMap';
 import FeaturedSalonsStrip from '@/components/FeaturedSalonsStrip';
 import PublicHeader from '@/components/PublicHeader';
 import { listPublicSalons } from '@/lib/publicSalons';
@@ -32,6 +33,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const t = await getTranslations('Index');
   const salons = await getSalons();
   const featuredSalons = salons.filter((s) => s.isFeatured);
+  const mapSalons = salons.map((s) => ({ id: s.id, name: s.name, city: s.city, lat: s.latitude, lng: s.longitude }));
 
   return (
     <>
@@ -110,9 +112,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </section>
           )}
 
-          {/* قسم استعراض الصالونات */}
+          {/* قسم استعراض الصالونات: خريطة تفاعلية (نقطة لكل صالون + رابط خرائط
+              قوقل) فوق القائمة، حتى تكون نتيجة "الأقرب لي" مرئية وليست رقمًا
+              نصيًا فقط */}
           <section className="max-w-6xl mx-auto">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('availableSalonsTitle')}</h2>
+            {mapSalons.some((s) => s.lat && s.lng) && (
+              <div className="mb-6 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
+                <SalonMap salons={mapSalons} />
+              </div>
+            )}
             <SalonGrid locale={locale} salons={salons} />
           </section>
         </div>
