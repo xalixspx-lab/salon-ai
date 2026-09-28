@@ -17,6 +17,9 @@ function buildCsp(nonce: string): string {
     "font-src 'self' data:",
     // بحث المدينة (Nominatim) من نموذج تسجيل صالون جديد + استدعاءات الموقع نفسه
     "connect-src 'self' https://nominatim.openstreetmap.org",
+    // تحدي Cloudflare Turnstile يُعرض داخل iframe من نطاقهم؛ بلا هذا السطر
+    // default-src يحجبه فيبقى السكربت محمَّلاً بلا واجهة عمل فعلية
+    "frame-src https://challenges.cloudflare.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
