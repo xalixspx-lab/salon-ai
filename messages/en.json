@@ -16,6 +16,8 @@
     "registerLink": "Register now",
     "loginLink": "Log in",
     "myAccount": "My Account",
+    "welcomeBadge": "Welcome back",
+    "welcomeBack": "Hi, {name} 👋",
     "notifications": "Notifications",
     "noNotifications": "No new notifications",
     "upcomingReminder": "You have an upcoming appointment",

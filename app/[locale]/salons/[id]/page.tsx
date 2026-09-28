@@ -129,7 +129,7 @@ export default async function SalonDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
-      <div className="bg-gradient-to-b from-violet-50 via-white to-white px-4 sm:px-6 pt-10 pb-8">
+      <div className="bg-gradient-to-b from-brand-50 via-white to-white px-4 sm:px-6 pt-10 pb-8">
         <div className="max-w-3xl mx-auto">
           <header>
             <div className="flex flex-wrap items-center justify-between gap-3 mb-2">

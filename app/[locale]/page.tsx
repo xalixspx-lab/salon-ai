@@ -18,10 +18,10 @@ async function getSalons() {
 }
 
 const FEATURES = [
-  { key: 'feature1', emoji: '⚡', gradient: 'from-violet-500 to-fuchsia-500' },
-  { key: 'feature2', emoji: '🎁', gradient: 'from-amber-400 to-rose-500' },
-  { key: 'feature3', emoji: '🏷️', gradient: 'from-fuchsia-500 to-rose-500' },
-  { key: 'feature4', emoji: '🔔', gradient: 'from-sky-500 to-violet-500' },
+  { key: 'feature1', emoji: '⚡', gradient: 'from-brand-500 to-brand-700' },
+  { key: 'feature2', emoji: '🎁', gradient: 'from-gold-400 to-gold-600' },
+  { key: 'feature3', emoji: '🏷️', gradient: 'from-brand-600 to-gold-500' },
+  { key: 'feature4', emoji: '🔔', gradient: 'from-brand-400 to-brand-600' },
 ] as const;
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
@@ -40,23 +40,23 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <PublicHeader locale={locale} />
       <main dir={dir}>
         {/* واجهة استقبال — عنوان جذاب، شارة، ودعوتان للفعل (اكتشف/سجّل صالونك) */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-violet-50 via-white to-white">
+        <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white">
           <div
             aria-hidden
-            className="pointer-events-none absolute -top-24 -start-24 h-72 w-72 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400 opacity-25 blur-3xl"
+            className="pointer-events-none absolute -top-24 -start-24 h-72 w-72 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 opacity-20 blur-3xl"
           />
           <div
             aria-hidden
-            className="pointer-events-none absolute top-24 -end-24 h-72 w-72 rounded-full bg-gradient-to-br from-amber-300 to-rose-400 opacity-25 blur-3xl"
+            className="pointer-events-none absolute top-24 -end-24 h-72 w-72 rounded-full bg-gradient-to-br from-gold-300 to-gold-500 opacity-25 blur-3xl"
           />
 
           <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-16 sm:pb-20 text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-100 text-violet-700 text-xs font-semibold px-3 py-1.5 mb-6">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 text-brand-700 text-xs font-semibold px-3 py-1.5 mb-6">
               ✨ {t('heroBadge')}
             </span>
 
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-gray-900 mb-5 leading-tight">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 via-fuchsia-600 to-rose-500">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-600 via-brand-700 to-gold-500">
                 {t('heroTitleHighlight')}
               </span>{' '}
               {t('heroTitleRest')}
@@ -128,7 +128,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         {/* دعوة ختامية لأصحاب الصالونات */}
         <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-l from-violet-600 via-fuchsia-600 to-rose-500 px-6 sm:px-12 py-12 text-center text-white">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-l from-brand-700 via-brand-600 to-gold-500 px-6 sm:px-12 py-12 text-center text-white">
             <div
               aria-hidden
               className="pointer-events-none absolute -bottom-16 -start-16 h-56 w-56 rounded-full bg-white/10 blur-3xl"

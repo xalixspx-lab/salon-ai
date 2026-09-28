@@ -71,7 +71,7 @@ export default async function SalonsPage({
     <>
       <PublicHeader locale={locale} />
       <main dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-        <div className="bg-gradient-to-b from-violet-50 via-white to-white px-4 sm:px-6 pt-10 pb-8">
+        <div className="bg-gradient-to-b from-brand-50 via-white to-white px-4 sm:px-6 pt-10 pb-8">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-wrap items-start justify-between gap-4 mb-2">
               <div>

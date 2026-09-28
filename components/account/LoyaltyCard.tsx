@@ -28,7 +28,7 @@ export default function LoyaltyCard({
     : 100;
 
   return (
-    <div className="rounded-2xl bg-gradient-to-l from-violet-600 via-fuchsia-600 to-rose-500 p-5 sm:p-6 text-white">
+    <div className="rounded-2xl bg-gradient-to-l from-brand-700 via-brand-600 to-gold-500 p-5 sm:p-6 text-white">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <p className="text-white/80 text-sm mb-1">{labels.title}</p>

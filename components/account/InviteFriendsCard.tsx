@@ -29,7 +29,7 @@ export default function InviteFriendsCard({ referralCode }: { referralCode: stri
   const whatsappHref = `https://wa.me/?text=${encodeURIComponent(t('inviteWhatsappText', { link }))}`;
 
   return (
-    <div className="rounded-2xl bg-gradient-to-l from-violet-600 via-fuchsia-600 to-rose-500 p-5 sm:p-6 text-white">
+    <div className="rounded-2xl bg-gradient-to-l from-brand-700 via-brand-600 to-gold-500 p-5 sm:p-6 text-white">
       <h2 className="text-lg font-bold mb-1">🎁 {t('inviteTitle')}</h2>
       <p className="text-sm text-white/90 mb-4">{t('inviteDesc', { points: REFERRAL_BONUS_POINTS })}</p>
 

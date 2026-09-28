@@ -30,7 +30,7 @@ export default async function LegalPage({ params }: { params: Promise<{ locale: 
               ? 'مسودة أولية لم تُعتمد قانونيًا بعد — يجب مراجعتها من محامٍ مرخّص قبل الإطلاق التجاري.'
               : 'Preliminary draft not yet legally approved — must be reviewed by a licensed lawyer before commercial launch.'}
           </p>
-          <span className="inline-block mb-3 rounded-full bg-purple-50 text-purple-700 px-3 py-1 text-xs font-semibold">
+          <span className="inline-block mb-3 rounded-full bg-brand-50 text-brand-700 px-3 py-1 text-xs font-semibold">
             {lang === 'ar' ? 'ينطبق على: ' : 'Applies to: '}
             {{ customer: lang === 'ar' ? 'العملاء' : 'Customers', owner: lang === 'ar' ? 'أصحاب الصالونات' : 'Salon owners', both: lang === 'ar' ? 'العملاء وأصحاب الصالونات' : 'Customers and salon owners' }[LEGAL_AUDIENCE[doc]]}
           </span>

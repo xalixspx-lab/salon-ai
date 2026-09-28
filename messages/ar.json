@@ -16,6 +16,8 @@
     "registerLink": "سجّل الآن",
     "loginLink": "سجّل الدخول",
     "myAccount": "حسابي",
+    "welcomeBadge": "أهلًا بعودتك",
+    "welcomeBack": "مرحبًا، {name} 👋",
     "notifications": "الإشعارات",
     "noNotifications": "لا توجد إشعارات جديدة",
     "upcomingReminder": "لديك موعد قادم",

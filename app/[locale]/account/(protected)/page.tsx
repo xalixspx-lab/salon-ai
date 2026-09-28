@@ -98,14 +98,23 @@ export default async function AccountPage({
   return (
     <>
       <PublicHeader locale={locale} />
-      <main className="min-h-screen bg-gray-50 p-6 md:p-12" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-      <div className="max-w-3xl mx-auto">
-        <header className="mb-6">
-          <h1 className="text-3xl font-extrabold text-gray-900 mb-1">{t('myAccount')}</h1>
-          <p className="text-gray-500 break-all sm:break-normal">{session.name} · <span dir="ltr">{session.email}</span></p>
-        </header>
+      <main className="min-h-screen bg-gray-50" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+      {/* واجهة استقبال: ترحيب باسم العميل بنفس أسلوب بطل الصفحة الرئيسية، بدل
+          عنوان "حسابي" الجاف السابق */}
+      <div className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white px-4 sm:px-6 pt-10 pb-8">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 -end-24 h-64 w-64 rounded-full bg-gradient-to-br from-gold-300 to-gold-500 opacity-20 blur-3xl"
+        />
+        <div className="relative max-w-3xl mx-auto">
+          <p className="text-brand-700 text-sm font-semibold mb-1">{t('welcomeBadge')}</p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-1">{t('welcomeBack', { name: session.name })}</h1>
+          <p className="text-gray-500 break-all sm:break-normal">{session.email}</p>
+        </div>
+      </div>
 
-        <div className="grid sm:grid-cols-2 gap-4 mb-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-12">
+        <div className="grid sm:grid-cols-2 gap-4 mb-8 -mt-4">
           <LoyaltyCard
             points={account?.points ?? 0}
             tier={tier}
