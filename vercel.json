@@ -4,5 +4,6 @@
   "installCommand": "npm ci",
   "buildCommand": "npx prisma generate && next build",
   "regions": ["bom1"],
+  "git": { "deploymentEnabled": { "main": false } },
   "crons": [{ "path": "/api/cron/marketing-emails", "schedule": "0 7 * * *" }]
 }
