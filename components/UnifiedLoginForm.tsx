@@ -42,12 +42,12 @@ export default function UnifiedLoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full bg-white shadow-md rounded-lg border border-gray-100 p-8 text-black">
-        <h1 className="text-2xl font-bold mb-1 text-gray-800">{t('loginTitle')}</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-brand-50 via-white to-white px-4">
+      <div className="max-w-md w-full bg-white shadow-xl shadow-brand-900/5 rounded-2xl border border-brand-100 p-8">
+        <h1 className="text-2xl font-bold mb-1 text-gray-900">{t('loginTitle')}</h1>
         <p className="text-sm text-gray-500 mb-6">{t('loginSubtitle')}</p>
 
-        {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
+        {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-xl text-sm">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -58,7 +58,7 @@ export default function UnifiedLoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               required
               dir="ltr"
-              className="w-full px-3 py-2 border rounded-md text-left"
+              className="w-full px-3 py-2 border border-gray-200 rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
           <div>
@@ -69,12 +69,12 @@ export default function UnifiedLoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
               dir="ltr"
-              className="w-full px-3 py-2 border rounded-md text-left"
+              className="w-full px-3 py-2 border border-gray-200 rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
 
           <p className="text-sm">
-            <a href={`/${locale}/forgot-password`} className="text-blue-600 hover:underline">
+            <a href={`/${locale}/forgot-password`} className="text-brand-600 hover:underline">
               {locale === 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot password?'}
             </a>
           </p>
@@ -82,14 +82,14 @@ export default function UnifiedLoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 transition disabled:opacity-50"
+            className="w-full bg-brand-600 text-white py-2.5 px-4 rounded-xl font-semibold hover:bg-brand-700 transition disabled:opacity-50"
           >
             {loading ? '...' : t('login')}
           </button>
 
           <p className="text-center text-sm text-gray-500">
             {t('noAccount')}{' '}
-            <a href={`/${locale}/account/register`} className="text-blue-600 font-medium hover:underline">
+            <a href={`/${locale}/account/register`} className="text-brand-600 font-medium hover:underline">
               {t('registerLink')}
             </a>
           </p>

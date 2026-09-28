@@ -39,16 +39,40 @@ const copy = {
   },
 };
 
-function Card({ locale, title, children }: { locale: string; title: string; children: React.ReactNode }) {
+// dark = صفحات الأدمن فقط (تُحدَّد بـ audience === 'admin')، بهوية داكنة+ذهبية
+// مختلفة عمدًا عن التدرج الأزرق العام — نفس إشارة "هذه منطقة مقيّدة منفصلة"
+// المتّبعة في بقية صفحات الأدمن.
+function Card({ locale, title, dark, children }: { locale: string; title: string; dark?: boolean; children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-      <div className="max-w-md w-full bg-white shadow-md rounded-lg border border-gray-100 p-8 text-black">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">{title}</h1>
+    <div
+      className={`min-h-screen flex items-center justify-center px-4 ${dark ? 'bg-slate-900' : 'bg-gradient-to-b from-brand-50 via-white to-white'}`}
+      dir={locale === 'ar' ? 'rtl' : 'ltr'}
+    >
+      <div
+        className={
+          dark
+            ? 'max-w-md w-full bg-slate-800 shadow-xl rounded-2xl border border-slate-700 p-8 text-white'
+            : 'max-w-md w-full bg-white shadow-xl shadow-brand-900/5 rounded-2xl border border-brand-100 p-8 text-black'
+        }
+      >
+        <h1 className={`text-2xl font-bold mb-4 ${dark ? 'text-white' : 'text-gray-900'}`}>{title}</h1>
         {children}
       </div>
     </div>
   );
 }
+
+const fieldClass = (dark?: boolean) =>
+  `w-full px-3 py-2 rounded-xl text-left focus:outline-none focus:ring-2 ${
+    dark
+      ? 'border border-slate-600 bg-slate-900 text-white focus:ring-gold-500'
+      : 'border border-gray-200 focus:ring-brand-500'
+  }`;
+
+const buttonClass = (dark?: boolean) =>
+  `w-full py-2.5 rounded-xl font-semibold disabled:opacity-50 transition ${
+    dark ? 'bg-gold-500 text-slate-900 hover:bg-gold-400' : 'bg-brand-600 text-white hover:bg-brand-700'
+  }`;
 
 const loginPath = (locale: string, audience?: Audience) =>
   audience === 'admin' ? `/${locale}/admin/login` : `/${locale}/login`;
@@ -58,6 +82,7 @@ const loginPath = (locale: string, audience?: Audience) =>
 // يمرّ صراحة لأن صفحته منفصلة عمدًا.
 export function ForgotPasswordForm({ locale, audience }: { locale: string; audience?: Audience }) {
   const c = copy[locale === 'en' ? 'en' : 'ar'];
+  const dark = audience === 'admin';
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -84,24 +109,24 @@ export function ForgotPasswordForm({ locale, audience }: { locale: string; audie
   };
 
   return (
-    <Card locale={locale} title={c.forgotTitle}>
+    <Card locale={locale} title={c.forgotTitle} dark={dark}>
       {done ? (
-        <p className="text-emerald-700 bg-emerald-50 rounded p-3 text-sm">{c.sentDone}</p>
+        <p className="text-emerald-700 bg-emerald-50 rounded-xl p-3 text-sm">{c.sentDone}</p>
       ) : (
         <form onSubmit={submit} className="space-y-4">
-          <p className="text-sm text-gray-500">{c.forgotHint}</p>
-          {error && <div className="p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
+          <p className={`text-sm ${dark ? 'text-slate-300' : 'text-gray-500'}`}>{c.forgotHint}</p>
+          {error && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm">{error}</div>}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{c.email}</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required dir="ltr" className="w-full px-3 py-2 border rounded-md text-left" />
+            <label className={`block text-sm font-medium mb-1 ${dark ? 'text-slate-200' : 'text-gray-700'}`}>{c.email}</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required dir="ltr" className={fieldClass(dark)} />
           </div>
-          <button disabled={loading} className="w-full bg-black text-white py-2 rounded-md disabled:opacity-50">
+          <button disabled={loading} className={buttonClass(dark)}>
             {loading ? '...' : c.send}
           </button>
         </form>
       )}
       <p className="mt-4 text-center text-sm">
-        <a href={loginPath(locale, audience)} className="text-blue-600 hover:underline">{c.login}</a>
+        <a href={loginPath(locale, audience)} className={dark ? 'text-gold-400 hover:underline' : 'text-brand-600 hover:underline'}>{c.login}</a>
       </p>
     </Card>
   );
@@ -109,6 +134,7 @@ export function ForgotPasswordForm({ locale, audience }: { locale: string; audie
 
 export function ResetPasswordForm({ locale, audience, token }: { locale: string; audience: Audience; token: string }) {
   const c = copy[locale === 'en' ? 'en' : 'ar'];
+  const dark = audience === 'admin';
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -135,22 +161,22 @@ export function ResetPasswordForm({ locale, audience, token }: { locale: string;
   };
 
   return (
-    <Card locale={locale} title={c.resetTitle}>
+    <Card locale={locale} title={c.resetTitle} dark={dark}>
       {done ? (
         <>
-          <p className="text-emerald-700 bg-emerald-50 rounded p-3 text-sm">{c.resetDone}</p>
+          <p className="text-emerald-700 bg-emerald-50 rounded-xl p-3 text-sm">{c.resetDone}</p>
           <p className="mt-4 text-center text-sm">
-            <a href={loginPath(locale, audience)} className="text-blue-600 hover:underline">{c.login}</a>
+            <a href={loginPath(locale, audience)} className={dark ? 'text-gold-400 hover:underline' : 'text-brand-600 hover:underline'}>{c.login}</a>
           </p>
         </>
       ) : (
         <form onSubmit={submit} className="space-y-4">
-          {error && <div className="p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
+          {error && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm">{error}</div>}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{c.password}</label>
-            <input type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required dir="ltr" className="w-full px-3 py-2 border rounded-md text-left" />
+            <label className={`block text-sm font-medium mb-1 ${dark ? 'text-slate-200' : 'text-gray-700'}`}>{c.password}</label>
+            <input type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required dir="ltr" className={fieldClass(dark)} />
           </div>
-          <button disabled={loading} className="w-full bg-black text-white py-2 rounded-md disabled:opacity-50">
+          <button disabled={loading} className={buttonClass(dark)}>
             {loading ? '...' : c.save}
           </button>
         </form>
@@ -185,13 +211,14 @@ export function VerifyEmailStatus({ locale, audience, token }: { locale: string;
   }, [token, audience, c.fail]);
 
   const title = state === 'ok' ? c.verifyDone : state === 'error' ? c.verifyFailed : c.verifying;
+  const dark = audience === 'admin';
 
   return (
-    <Card locale={locale} title={title}>
-      {state === 'error' && <div className="p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
+    <Card locale={locale} title={title} dark={dark}>
+      {state === 'error' && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm">{error}</div>}
       {state !== 'loading' && (
         <p className="mt-4 text-center text-sm">
-          <a href={loginPath(locale, audience)} className="text-blue-600 hover:underline">{c.login}</a>
+          <a href={loginPath(locale, audience)} className={dark ? 'text-gold-400 hover:underline' : 'text-brand-600 hover:underline'}>{c.login}</a>
         </p>
       )}
     </Card>
