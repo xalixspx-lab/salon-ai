@@ -464,5 +464,16 @@
     "logo": "Logo",
     "welcomeEmailSentNote": "A welcome email with this password was also sent automatically.",
     "featured": "Featured"
+  },
+  "Chat": {
+    "conversations": "Conversations",
+    "noConversations": "No conversations yet",
+    "noMessages": "Start the conversation by sending a message",
+    "typePlaceholder": "Type your message...",
+    "send": "Send",
+    "back": "Back",
+    "chatWithSalon": "Message the salon",
+    "loginToChat": "Log in to message the salon",
+    "justNow": "Just now"
   }
 }

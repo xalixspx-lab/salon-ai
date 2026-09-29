@@ -49,6 +49,7 @@ model Tenant {
   reviews          Review[]
   favorites        Favorite[]
   photos           SalonPhoto[]
+  conversations    Conversation[]
 
   @@map("tenants")
 }
@@ -170,9 +171,10 @@ model CustomerAccount {
   referredBy CustomerAccount?  @relation("Referrals", fields: [referredByAccountId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   referrals  CustomerAccount[] @relation("Referrals")
 
-  customers Customer[]
-  reviews   Review[]
-  favorites Favorite[]
+  customers     Customer[]
+  reviews       Review[]
+  favorites     Favorite[]
+  conversations Conversation[]
 
   @@map("customer_accounts")
 }
@@ -296,6 +298,42 @@ model Favorite {
 
   @@id([accountId, tenantId])
   @@map("favorites")
+}
+
+// محادثة بين عميل وصالون — سجل واحد لكل زوج (صالون، عميل)، فيملك الصالون
+// محادثات مستقلة متعددة في آن واحد، واحدة لكل عميل يراسله
+model Conversation {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId             String    @map("tenant_id") @db.Uuid
+  accountId            String    @map("account_id") @db.Uuid
+  lastMessageAt        DateTime  @default(now()) @map("last_message_at") @db.Timestamp(6)
+  lastReadByOwnerAt    DateTime? @map("last_read_by_owner_at") @db.Timestamp(6)
+  lastReadByCustomerAt DateTime? @map("last_read_by_customer_at") @db.Timestamp(6)
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+
+  tenant   Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  account  CustomerAccount @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  messages Message[]
+
+  @@unique([tenantId, accountId])
+  @@index([tenantId, lastMessageAt(sort: Desc)])
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversationId String   @map("conversation_id") @db.Uuid
+  // منسوخ من المحادثة عند الإنشاء — يمنح هذا الجدول نفس عزل RLS القائم على
+  // tenant_id الذي تحصل عليه بقية جداول المستأجر تلقائيًا (راجع scripts/rls-setup.mjs)
+  tenantId       String   @map("tenant_id") @db.Uuid
+  senderRole     String   @map("sender_role") @db.VarChar(20)
+  body           String
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
 }
 
 // سجل تدقيق لإجراءات الأدمن الحساسة. لا FK على الهدف حتى يبقى السجل بعد حذفه.

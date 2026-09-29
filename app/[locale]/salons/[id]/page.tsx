@@ -8,6 +8,7 @@ import { DIRECT_OFFER_TYPES, describeOffer } from '@/lib/offers';
 import { getRatings } from '@/lib/ratings';
 import FavoriteButton from '@/components/FavoriteButton';
 import PublicHeader from '@/components/PublicHeader';
+import SalonChatWidget from '@/components/salons/SalonChatWidget';
 
 export async function generateMetadata({
   params,
@@ -256,6 +257,7 @@ export default async function SalonDetailPage({
         </section>
       </div>
       </main>
+      <SalonChatWidget tenantId={tenant.id} />
     </>
   );
 }

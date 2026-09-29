@@ -464,5 +464,16 @@
     "logo": "الشعار",
     "welcomeEmailSentNote": "أُرسلت رسالة ترحيب بكلمة المرور هذه إلى البريد الإلكتروني تلقائيًا.",
     "featured": "مميز"
+  },
+  "Chat": {
+    "conversations": "المحادثات",
+    "noConversations": "لا توجد محادثات بعد",
+    "noMessages": "ابدأ المحادثة بإرسال رسالة",
+    "typePlaceholder": "اكتب رسالتك...",
+    "send": "إرسال",
+    "back": "رجوع",
+    "chatWithSalon": "راسل الصالون",
+    "loginToChat": "سجّل الدخول لمراسلة الصالون",
+    "justNow": "الآن"
   }
 }

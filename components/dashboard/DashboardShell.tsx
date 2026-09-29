@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ReactNode, useState } from 'react';
+import ChatWidget from '@/components/dashboard/ChatWidget';
 
 export default function DashboardShell({
   locale,
@@ -148,6 +149,8 @@ export default function DashboardShell({
           ))}
         </nav>
       </div>
+
+      <ChatWidget />
     </div>
   );
 }
