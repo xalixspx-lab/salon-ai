@@ -38,4 +38,31 @@ async function GETHandler() {
   return NextResponse.json({ success: true, data });
 }
 
+// يبدأ المالك محادثة مع أحد عملائه (customerId من سجل CRM الخاص بصالونه) —
+// يتطلب أن يكون لهذا العميل حساب دخول مرتبط (accountId)، وإلا فلا وجهة
+// لإرسال المحادثة إليها. إن كانت المحادثة موجودة مسبقًا تُعاد كما هي
+async function POSTHandler(request: Request) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
+  const body = await request.json().catch(() => ({}));
+  const customerId = typeof body.customerId === 'string' ? body.customerId : '';
+  if (!customerId) return NextResponse.json({ success: false, error: 'customerId required' }, { status: 400 });
+
+  const customer = await prisma.customer.findFirst({ where: { id: customerId, tenantId: session.tenantId } });
+  if (!customer) return NextResponse.json({ success: false, error: 'العميل غير موجود' }, { status: 404 });
+  if (!customer.accountId) {
+    return NextResponse.json({ success: false, error: 'هذا العميل غير مسجّل بحساب، لا يمكن بدء محادثة معه' }, { status: 400 });
+  }
+
+  const conversation = await prisma.conversation.upsert({
+    where: { tenantId_accountId: { tenantId: session.tenantId, accountId: customer.accountId } },
+    update: {},
+    create: { tenantId: session.tenantId, accountId: customer.accountId },
+  });
+
+  return NextResponse.json({ success: true, data: conversation }, { status: 201 });
+}
+
 export const GET = withTenantScope(GETHandler);
+export const POST = withTenantScope(POSTHandler);

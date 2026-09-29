@@ -474,6 +474,10 @@
     "back": "رجوع",
     "chatWithSalon": "راسل الصالون",
     "loginToChat": "سجّل الدخول لمراسلة الصالون",
-    "justNow": "الآن"
+    "justNow": "الآن",
+    "newConversation": "محادثة جديدة",
+    "selectCustomer": "اختر عميلًا لبدء محادثة معه",
+    "noEligibleCustomers": "لا يوجد عملاء مسجّلون بحساب لمراسلتهم بعد",
+    "startFailed": "تعذّر بدء المحادثة"
   }
 }

@@ -12,6 +12,7 @@ type ConversationSummary = {
 };
 
 type Message = { id: string; senderRole: string; body: string; createdAt: string };
+type EligibleClient = { id: string; name: string; phone: string | null; hasAccount: boolean };
 
 // ويدجت محادثة عائم فوق كل صفحات لوحة التحكم — بريد وارد يضم محادثة مستقلة
 // لكل عميل يراسل الصالون في آن واحد (لا محادثة واحدة مشتركة). يستطلع القائمة
@@ -25,6 +26,9 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [eligibleClients, setEligibleClients] = useState<EligibleClient[] | null>(null);
+  const [starting, setStarting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const loadConversations = useCallback(async () => {
@@ -62,6 +66,30 @@ export default function ChatWidget() {
     loadConversations();
   };
 
+  const openPicker = async () => {
+    setPickerOpen(true);
+    const res = await fetch('/api/dashboard/clients');
+    const data = await res.json();
+    if (data.success) setEligibleClients(data.data.filter((c: EligibleClient) => c.hasAccount));
+  };
+
+  const startConversation = async (customerId: string) => {
+    if (starting) return;
+    setStarting(true);
+    const res = await fetch('/api/dashboard/conversations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerId }),
+    });
+    const data = await res.json();
+    setStarting(false);
+    if (data.success) {
+      setPickerOpen(false);
+      await loadConversations();
+      openConversation(data.data.id);
+    }
+  };
+
   const handleSend = async () => {
     const text = input.trim();
     if (!text || !activeId || sending) return;
@@ -87,9 +115,43 @@ export default function ChatWidget() {
     <div className="fixed bottom-20 end-4 md:bottom-6 md:end-6 z-40">
       {open && (
         <div className="mb-3 w-[calc(100vw-2rem)] max-w-sm h-[28rem] bg-white rounded-2xl border border-stone-200 shadow-2xl flex flex-col overflow-hidden">
-          {!activeId ? (
+          {pickerOpen ? (
             <>
-              <div className="px-4 py-3 border-b border-stone-100 font-bold text-stone-800">{t('conversations')}</div>
+              <div className="px-3 py-3 border-b border-stone-100 flex items-center gap-2">
+                <button onClick={() => setPickerOpen(false)} className="text-stone-500 hover:text-stone-800 text-sm px-1">
+                  ← {t('back')}
+                </button>
+                <span className="font-bold text-stone-800 text-sm truncate">{t('newConversation')}</span>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <p className="text-xs text-stone-500 px-4 pt-3 pb-1">{t('selectCustomer')}</p>
+                {eligibleClients === null ? (
+                  <p className="text-center text-stone-400 text-sm py-10">…</p>
+                ) : eligibleClients.length === 0 ? (
+                  <p className="text-center text-stone-400 text-sm py-10">{t('noEligibleCustomers')}</p>
+                ) : (
+                  eligibleClients.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => startConversation(c.id)}
+                      disabled={starting}
+                      className="w-full text-start px-4 py-3 border-b border-stone-50 hover:bg-stone-50 disabled:opacity-50"
+                    >
+                      <p className="font-semibold text-stone-800 text-sm truncate">{c.name}</p>
+                      {c.phone && <p className="text-xs text-stone-500 truncate mt-0.5" dir="ltr">{c.phone}</p>}
+                    </button>
+                  ))
+                )}
+              </div>
+            </>
+          ) : !activeId ? (
+            <>
+              <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
+                <span className="font-bold text-stone-800">{t('conversations')}</span>
+                <button onClick={openPicker} className="h-7 w-7 rounded-full bg-brand-50 text-brand-700 text-lg leading-none flex items-center justify-center hover:bg-brand-100" aria-label={t('newConversation')}>
+                  +
+                </button>
+              </div>
               <div className="flex-1 overflow-y-auto">
                 {conversations.length === 0 ? (
                   <p className="text-center text-stone-400 text-sm py-10">{t('noConversations')}</p>

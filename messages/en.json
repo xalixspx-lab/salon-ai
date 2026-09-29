@@ -474,6 +474,10 @@
     "back": "Back",
     "chatWithSalon": "Message the salon",
     "loginToChat": "Log in to message the salon",
-    "justNow": "Just now"
+    "justNow": "Just now",
+    "newConversation": "New conversation",
+    "selectCustomer": "Select a customer to start a conversation",
+    "noEligibleCustomers": "No customers with an account to message yet",
+    "startFailed": "Couldn't start the conversation"
   }
 }

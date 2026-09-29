@@ -23,6 +23,9 @@ async function GETHandler() {
     phone: c.phone,
     totalVisits: c.appointments.length,
     lastVisit: c.appointments[0]?.startTime || null,
+    // العميل يحتاج حسابًا مرتبطًا (accountId) حتى يمكن بدء محادثة معه — عملاء
+    // الحجز كضيف بلا تسجيل دخول ليس لهم هذا الرابط
+    hasAccount: Boolean(c.accountId),
   }));
 
   return NextResponse.json({ success: true, data }, { status: 200 });
