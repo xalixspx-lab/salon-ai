@@ -48,7 +48,10 @@ export default async function PublicHeader({ locale }: { locale: string }) {
           )}
         </nav>
 
-        <div className="sm:hidden">
+        {/* me-20: يفسح مجالًا لمبدّل اللغة الثابت عالميًا (fixed top-3 end-3)
+            حتى لا يتراكب معه هذا الزر في نفس الزاوية، بنفس المقياس المستخدم
+            في DashboardShell/AdminShell لنفس المشكلة */}
+        <div className="sm:hidden me-20">
           <MobileNavMenu
             locale={locale}
             loggedIn={Boolean(session)}
