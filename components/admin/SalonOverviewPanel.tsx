@@ -113,7 +113,7 @@ export default function SalonOverviewPanel({ salonId }: { salonId: string }) {
                   {L('إعادة إرسال رابط التأكيد', 'Resend verification')}
                 </button>
               )}
-              <button onClick={impersonate} disabled={Boolean(owner.suspendedAt)} className="px-3 py-1.5 rounded-md text-xs bg-purple-700 text-white disabled:opacity-40">
+              <button onClick={impersonate} disabled={Boolean(owner.suspendedAt)} className="px-3 py-1.5 rounded-md text-xs bg-gold-600 text-white disabled:opacity-40">
                 {L('الدخول بدل المالك', 'Log in as owner')}
               </button>
             </div>
