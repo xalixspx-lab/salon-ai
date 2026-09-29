@@ -114,7 +114,7 @@ export default async function AccountPage({
       </div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-12">
-        <div className="grid sm:grid-cols-2 gap-4 mb-8 -mt-4">
+        <div className="grid sm:grid-cols-2 gap-4 mb-8 mt-6">
           <LoyaltyCard
             points={account?.points ?? 0}
             tier={tier}
