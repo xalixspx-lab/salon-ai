@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
+import { useParams } from 'next/navigation';
 import 'leaflet/dist/leaflet.css';
 
 const ICON = {
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconUrl: '/leaflet/marker-icon.png',
+  shadowUrl: '/leaflet/marker-shadow.png',
   iconSize: [25, 41] as [number, number],
   iconAnchor: [12, 41] as [number, number],
 };
@@ -28,6 +29,8 @@ export default function LocationPicker({
   onLatChange: (v: number | '') => void;
   onLngChange: (v: number | '') => void;
 }) {
+  const routeParams = useParams();
+  const L = (a: string, e: string) => (routeParams.locale === 'en' ? e : a);
   const [mapUrl, setMapUrl] = useState('');
   const [searching, setSearching] = useState(false);
   const [parsingUrl, setParsingUrl] = useState(false);
@@ -111,7 +114,7 @@ export default function LocationPicker({
 
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) {
-      setError('المتصفح لا يدعم تحديد الموقع الجغرافي.');
+      setError(L('المتصفح لا يدعم تحديد الموقع الجغرافي.', 'Your browser does not support geolocation.'));
       return;
     }
     setLocating(true);
@@ -122,7 +125,7 @@ export default function LocationPicker({
         setLocating(false);
       },
       () => {
-        setError('تعذّر الوصول لموقعك الحالي. تأكد من السماح بإذن الموقع.');
+        setError(L('تعذّر الوصول لموقعك الحالي. تأكد من السماح بإذن الموقع.', 'Could not get your location. Please allow location access.'));
         setLocating(false);
       },
       { enableHighAccuracy: true, timeout: 10000 }
@@ -148,10 +151,10 @@ export default function LocationPicker({
       if (data && data.length > 0) {
         placeMarker(parseFloat(data[0].lat), parseFloat(data[0].lon));
       } else {
-        setError('لم يتم العثور على هذه المدينة، يرجى النقر يدوياً على الخريطة.');
+        setError(L('لم يتم العثور على هذه المدينة، يرجى النقر يدوياً على الخريطة.', 'City not found. Please tap the map to set the location manually.'));
       }
     } catch {
-      setError('حدث خطأ أثناء البحث عن المدينة.');
+      setError(L('حدث خطأ أثناء البحث عن المدينة.', 'Something went wrong while searching for the city.'));
     } finally {
       setSearching(false);
     }
@@ -168,7 +171,7 @@ export default function LocationPicker({
         body: JSON.stringify({ url: mapUrl }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'فشل في استخراج الموقع من الرابط');
+      if (!res.ok) throw new Error(data.error || L('فشل في استخراج الموقع من الرابط', 'Could not extract the location from the link'));
       placeMarker(data.lat, data.lng);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
@@ -181,20 +184,20 @@ export default function LocationPicker({
   return (
     <div className="space-y-3">
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">المدينة</label>
+        <label className="block text-sm font-medium text-slate-700 mb-1">{L('المدينة', 'City')}</label>
         <div className="flex gap-2">
-          <input value={city} onChange={(e) => onCityChange(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" placeholder="مثال: المنامة، المحرق، دبي" />
+          <input value={city} onChange={(e) => onCityChange(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" placeholder={L('مثال: المنامة، المحرق، دبي', 'e.g. Manama, Muharraq, Dubai')} />
           <button type="button" onClick={handleSearchCity} disabled={searching} className="bg-slate-800 text-white px-4 py-2 rounded-md text-sm whitespace-nowrap disabled:opacity-50">
-            {searching ? 'جاري البحث...' : 'بحث بالمدينة'}
+            {searching ? L('جاري البحث...', 'Searching...') : L('بحث بالمدينة', 'Search city')}
           </button>
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">🔗 رابط موقع الصالون (Google Maps Link)</label>
+        <label className="block text-sm font-medium text-slate-700 mb-1">🔗 {L('رابط موقع الصالون (Google Maps Link)', 'Salon location link (Google Maps link)')}</label>
         <div className="flex gap-2" dir="ltr">
           <button type="button" onClick={handleParseMapUrl} disabled={parsingUrl} className="bg-emerald-600 text-white px-4 py-2 rounded-md text-sm whitespace-nowrap disabled:opacity-50 order-2">
-            {parsingUrl ? 'جاري التحليل...' : 'استخراج الإحداثيات'}
+            {parsingUrl ? L('جاري التحليل...', 'Analyzing...') : L('استخراج الإحداثيات', 'Extract coordinates')}
           </button>
           <input type="url" value={mapUrl} onChange={(e) => setMapUrl(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black order-1 text-left" placeholder="https://maps.app.goo.gl/..." />
         </div>
@@ -202,7 +205,7 @@ export default function LocationPicker({
 
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={handleUseMyLocation} disabled={locating} className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm whitespace-nowrap disabled:opacity-50">
-          📍 {locating ? 'جاري التحديد...' : 'استخدم موقعي الحالي'}
+          📍 {locating ? L('جاري التحديد...', 'Locating...') : L('استخدم موقعي الحالي', 'Use my current location')}
         </button>
         <button type="button" onClick={handleClear} className="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-md text-sm whitespace-nowrap">
           مسح التحديد
@@ -212,7 +215,7 @@ export default function LocationPicker({
       {error && <p className="text-xs text-red-600">{error}</p>}
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">📍 الخريطة التفاعلية (اسحب العلامة أو انقر لتحديد الموقع بدقة)</label>
+        <label className="block text-sm font-medium text-slate-700 mb-1">📍 {L('الخريطة التفاعلية (اسحب العلامة أو انقر لتحديد الموقع بدقة)', 'Interactive map (drag the marker or tap to set the exact location)')}</label>
         <div id={mapId.current} className="w-full h-[300px] rounded-lg border border-slate-300 z-0" />
       </div>
 

@@ -9,6 +9,7 @@ import { getRatings } from '@/lib/ratings';
 import FavoriteButton from '@/components/FavoriteButton';
 import PublicHeader from '@/components/PublicHeader';
 import SalonChatWidget from '@/components/salons/SalonChatWidget';
+import { isPubliclyVisible } from '@/lib/visibility';
 
 export async function generateMetadata({
   params,
@@ -19,9 +20,9 @@ export async function generateMetadata({
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return {};
   const tenant = await prisma.tenant.findUnique({
     where: { id },
-    select: { name: true, city: true, description: true, isPublished: true },
+    select: { name: true, city: true, description: true, isPublished: true, adminHiddenAt: true },
   });
-  if (!tenant || !tenant.isPublished) return {};
+  if (!tenant || !isPubliclyVisible(tenant)) return {};
 
   const desc = (tenant.description as Record<string, string> | null) || {};
   const text =
@@ -53,7 +54,7 @@ export default async function SalonDetailPage({
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) notFound();
 
   const tenant = await prisma.tenant.findUnique({ where: { id } });
-  if (!tenant || !tenant.isPublished) notFound();
+  if (!tenant || !isPubliclyVisible(tenant)) notFound();
 
   const photos = await prisma.salonPhoto.findMany({ where: { tenantId: tenant.id }, orderBy: { sortOrder: 'asc' } });
 

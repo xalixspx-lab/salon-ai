@@ -46,7 +46,7 @@ export default function AdminEditSalonPage() {
         setDescriptionAr(tenant.description?.ar || '');
         setDescriptionEn(tenant.description?.en || '');
         setPhone(tenant.phone || '');
-        setIsPublished(tenant.isPublished !== false);
+        setIsPublished(tenant.isPublished !== false && !tenant.adminHiddenAt);
         setDepositPercentage(String(tenant.depositPercentage ?? 30));
         setMinBookingNoticeHours(String(tenant.minBookingNoticeHours ?? 2));
         setOwnerEmail(tenant.owner?.email || null);

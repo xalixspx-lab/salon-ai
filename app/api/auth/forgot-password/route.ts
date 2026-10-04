@@ -4,6 +4,7 @@ import { issueToken } from '@/lib/authTokens';
 import { actionEmail, appOrigin, sendEmail } from '@/lib/email';
 import { clientIp, limitOrResponse } from '@/lib/rateLimit';
 import { localeFromRequest } from '@/lib/verification';
+import { tr } from '@/lib/apiLocale';
 
 // دائمًا نرجع نفس الاستجابة سواء وُجد الحساب أو لا، حتى لا نكشف من مسجّل.
 // audience اختياري الآن (نموذج الدخول الموحّد لا يعرفه): إن لم يُرسَل نجرّب
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
       ? (body.audience as 'owner' | 'customer' | 'admin')
       : null;
     if (!email) {
-      return NextResponse.json({ success: false, error: 'البريد الإلكتروني مطلوب' }, { status: 400 });
+      return NextResponse.json({ success: false, error: await tr('البريد الإلكتروني مطلوب') }, { status: 400 });
     }
 
     const limited =
@@ -58,6 +59,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {
     console.error('forgot-password error:', error);
-    return NextResponse.json({ success: false, error: 'حدث خطأ، حاول مرة أخرى' }, { status: 500 });
+    return NextResponse.json({ success: false, error: await tr('حدث خطأ، حاول مرة أخرى') }, { status: 500 });
   }
 }

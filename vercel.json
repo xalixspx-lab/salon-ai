@@ -3,7 +3,22 @@
   "framework": "nextjs",
   "installCommand": "npm ci",
   "buildCommand": "npx prisma generate && next build",
-  "regions": ["bom1"],
-  "git": { "deploymentEnabled": { "main": false } },
-  "crons": [{ "path": "/api/cron/marketing-emails", "schedule": "0 7 * * *" }]
+  "regions": [
+    "bom1"
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "main": false
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/marketing-emails",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/appointment-reminders",
+      "schedule": "0 12 * * *"
+    }
+  ]
 }

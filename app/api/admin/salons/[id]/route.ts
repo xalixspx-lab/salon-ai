@@ -74,7 +74,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
             }
           : {}),
         ...(phone !== undefined ? { phone: phone || null } : {}),
-        ...(isPublished !== undefined ? { isPublished: Boolean(isPublished) } : {}),
+        // مفتاح الأدمن "منشور" يكتب adminHiddenAt (حظر إداري) لا isPublished الخاص بالمالك،
+        // فلا يستطيع المالك إلغاء إخفاء الإدارة من لوحته
+        ...(isPublished !== undefined ? { adminHiddenAt: isPublished ? null : new Date() } : {}),
         ...(isFeatured !== undefined ? { isFeatured: Boolean(isFeatured) } : {}),
         ...(depositPercentage !== undefined
           ? { depositPercentage: Math.max(0, Math.min(100, parseInt(depositPercentage, 10) || 0)) }

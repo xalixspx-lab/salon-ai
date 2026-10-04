@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getRedis } from '@/lib/redis';
+import { tr } from '@/lib/apiLocale';
 
 // نافذة ثابتة (fixed window). على Redis عبر INCR+PEXPIRE تعمل بشكل صحيح مهما
 // تعدّدت نسخ السيرفر (فيرسل)؛ بدون Redis (تطوير محلي أو تعذّر الاتصال) نستخدم
@@ -57,7 +58,7 @@ export async function limitOrResponse(key: string, limit: number, windowMs: numb
   const r = await rateLimit(key, limit, windowMs);
   if (r.ok) return null;
   return NextResponse.json(
-    { success: false, error: 'محاولات كثيرة، حاول مرة أخرى لاحقًا' },
+    { success: false, error: await tr('محاولات كثيرة، حاول مرة أخرى لاحقًا') },
     { status: 429, headers: { 'Retry-After': String(r.retryAfterSec) } }
   );
 }

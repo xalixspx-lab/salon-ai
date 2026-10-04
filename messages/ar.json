@@ -68,7 +68,8 @@
     "inviteCopyLink": "نسخ رابط الدعوة",
     "inviteLinkCopied": "تم النسخ ✓",
     "inviteShareWhatsapp": "مشاركة عبر واتساب",
-    "inviteWhatsappText": "جرّب Salon AI! سجّل من هذا الرابط وسنحصل كلانا على نقاط ولاء: {link}"
+    "inviteWhatsappText": "جرّب Salon AI! سجّل من هذا الرابط وسنحصل كلانا على نقاط ولاء: {link}",
+    "addToCalendar": "أضف للتقويم"
   },
   "Index": {
     "title": "أهلاً بك في Salon AI",
@@ -273,7 +274,8 @@
     "changePassword": "تغيير كلمة المرور",
     "currentPassword": "كلمة المرور الحالية",
     "newPassword": "كلمة المرور الجديدة (8 أحرف على الأقل)",
-    "passwordChanged": "تم تغيير كلمة المرور بنجاح"
+    "passwordChanged": "تم تغيير كلمة المرور بنجاح",
+    "adminHiddenNotice": "صالونك موقوف من إدارة المنصة ولا يظهر للعملاء حاليًا. للاستفسار تواصل مع الدعم."
   },
   "Analytics": {
     "title": "أداء الصالون",
@@ -478,7 +480,12 @@
     "newConversation": "محادثة جديدة",
     "selectCustomer": "اختر عميلًا لبدء محادثة معه",
     "noEligibleCustomers": "لا يوجد عملاء مسجّلون بحساب لمراسلتهم بعد",
-    "startFailed": "تعذّر بدء المحادثة"
+    "startFailed": "تعذّر بدء المحادثة",
+    "blockSalon": "حظر الصالون",
+    "unblockSalon": "إلغاء الحظر",
+    "blockConfirm": "حظر هذا الصالون؟ لن يستطيع مراسلتك مجددًا حتى تلغي الحظر.",
+    "blockedByCustomerNotice": "هذا العميل حظر المحادثات، لا يمكنك إرسال رسائل جديدة.",
+    "youBlockedNotice": "حظرت هذا الصالون. ألغِ الحظر لتستأنف المحادثة."
   },
   "Errors": {
     "notFoundTitle": "الصفحة غير موجودة",

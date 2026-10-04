@@ -4,11 +4,13 @@ import { getPlatformSettings } from '@/lib/platformSettings';
 import { clientIp, limitOrResponse } from '@/lib/rateLimit';
 import { sendVerificationEmail } from '@/lib/verification';
 import { prisma } from '@/lib/prisma';
+import { PUBLIC_TENANT } from '@/lib/visibility';
 import { hashPassword } from '@/lib/password';
 import { createSession } from '@/lib/session';
 import { isHoneypotFilled } from '@/lib/honeypot';
 import { verifyTurnstileToken } from '@/lib/turnstile';
 import { LEGAL_VERSION } from '@/lib/legal';
+import { tr } from '@/lib/apiLocale';
 
 // جلب الصالونات (المستأجرين)، مع دعم اختياري للبحث الجغرافي عبر PostGIS
 export async function GET(request: Request) {
@@ -53,7 +55,7 @@ export async function GET(request: Request) {
             AND (offers.ends_at IS NULL OR offers.ends_at >= now())
           ) AS "hasActiveOffer"
         FROM tenants
-        WHERE latitude IS NOT NULL AND longitude IS NOT NULL AND is_published = true
+        WHERE latitude IS NOT NULL AND longitude IS NOT NULL AND is_published = true AND admin_hidden_at IS NULL
         AND (
           6371000 * acos(
             cos(radians(${userLat})) * cos(radians(latitude)) *
@@ -66,7 +68,7 @@ export async function GET(request: Request) {
       `;
     } else {
       const tenants = await prisma.tenant.findMany({
-        where: { isPublished: true, ...(city ? { city } : {}) },
+        where: { ...PUBLIC_TENANT, ...(city ? { city } : {}) },
         take: 60,
         orderBy: { createdAt: 'desc' },
         // حقول عامة فقط: لا نكشف الباقة ولا تواريخ التجربة ولا إعدادات داخلية
@@ -132,13 +134,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Failed to create salon' }, { status: 400 });
     }
     if (!(await verifyTurnstileToken(body.turnstileToken, clientIp(request)))) {
-      return NextResponse.json({ success: false, error: 'فشل التحقق من أنك لست روبوت' }, { status: 400 });
+      return NextResponse.json({ success: false, error: await tr('فشل التحقق من أنك لست روبوت') }, { status: 400 });
     }
     const { name, city, addressText, lat, lng, ownerName, email, password } = body;
 
     if (body.acceptTerms !== true) {
       return NextResponse.json(
-        { success: false, error: 'يجب الموافقة على اتفاقية الصالون وشروط الاستخدام وسياسة الخصوصية' },
+        { success: false, error: await tr('يجب الموافقة على اتفاقية الصالون وشروط الاستخدام وسياسة الخصوصية') },
         { status: 400 }
       );
     }
@@ -152,14 +154,14 @@ export async function POST(request: Request) {
 
     if (!ownerName || !email || !password) {
       return NextResponse.json(
-        { success: false, error: 'اسم المالك والبريد الإلكتروني وكلمة المرور مطلوبة' },
+        { success: false, error: await tr('اسم المالك والبريد الإلكتروني وكلمة المرور مطلوبة') },
         { status: 400 }
       );
     }
 
     if (password.length < 8) {
       return NextResponse.json(
-        { success: false, error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' },
+        { success: false, error: await tr('كلمة المرور يجب أن تكون 8 أحرف على الأقل') },
         { status: 400 }
       );
     }
@@ -169,7 +171,7 @@ export async function POST(request: Request) {
     const existingOwner = await prisma.owner.findUnique({ where: { email: normalizedEmail } });
     if (existingOwner) {
       return NextResponse.json(
-        { success: false, error: 'يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل' },
+        { success: false, error: await tr('يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل') },
         { status: 409 }
       );
     }
@@ -179,7 +181,7 @@ export async function POST(request: Request) {
     const existingCustomer = await prisma.customerAccount.findUnique({ where: { email: normalizedEmail } });
     if (existingCustomer) {
       return NextResponse.json(
-        { success: false, error: 'هذا البريد مسجَّل كحساب عميل بالفعل، استخدم بريدًا آخر لتسجيل صالونك' },
+        { success: false, error: await tr('هذا البريد مسجَّل كحساب عميل بالفعل، استخدم بريدًا آخر لتسجيل صالونك') },
         { status: 409 }
       );
     }

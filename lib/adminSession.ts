@@ -51,9 +51,10 @@ export async function getAdminSession(): Promise<AdminSessionPayload | null> {
     }
     const admin = await prisma.admin.findUnique({
       where: { id: payload.adminId },
-      select: { mustChangePassword: true },
+      select: { mustChangePassword: true, passwordChangedAt: true },
     });
     if (!admin) return null; // أدمن محذوف: تسقط جلسته فورًا
+    if (admin.passwordChangedAt && (payload.iat ?? 0) < Math.floor(admin.passwordChangedAt.getTime() / 1000)) return null;
 
     return { adminId: payload.adminId, email: payload.email, mustChangePassword: admin.mustChangePassword };
   } catch {

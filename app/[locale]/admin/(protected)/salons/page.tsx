@@ -12,6 +12,7 @@ interface TenantRow {
   name: string;
   city: string | null;
   isPublished: boolean;
+  adminHiddenAt: string | null;
   isFeatured: boolean;
   plan: string;
   trialEndsAt: string | null;
@@ -100,7 +101,7 @@ export default function AdminSalonsPage() {
     await fetch(`/api/admin/salons/${tenant.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isPublished: !tenant.isPublished }),
+      body: JSON.stringify({ isPublished: Boolean(tenant.adminHiddenAt) }),
     });
     await load();
     setTogglingId(null);
@@ -261,10 +262,10 @@ export default function AdminSalonsPage() {
                       onClick={() => togglePublished(tenant)}
                       disabled={togglingId === tenant.id}
                       className={`text-xs px-2 py-1 rounded-md font-medium disabled:opacity-50 ${
-                        tenant.isPublished ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+                        tenant.isPublished && !tenant.adminHiddenAt ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
                       }`}
                     >
-                      {tenant.isPublished ? t('published') : t('unpublished')}
+                      {tenant.isPublished && !tenant.adminHiddenAt ? t('published') : t('unpublished')}
                     </button>
                     <button
                       onClick={() => toggleFeatured(tenant)}

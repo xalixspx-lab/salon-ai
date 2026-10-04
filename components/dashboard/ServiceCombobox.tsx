@@ -48,7 +48,7 @@ export default function ServiceCombobox({
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:col-span-2">
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">اسم الخدمة (عربي)</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1">{locale === 'ar' ? 'اسم الخدمة (عربي)' : 'Service name (Arabic)'}</label>
           <input
             value={nameAr}
             onChange={(e) => onChange(e.target.value, nameEn)}

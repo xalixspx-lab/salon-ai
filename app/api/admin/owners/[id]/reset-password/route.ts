@@ -21,7 +21,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const newPassword = randomBytes(9).toString('base64url'); // ~12 حرف عشوائي
   const passwordHash = await hashPassword(newPassword);
 
-  await prisma.owner.update({ where: { id }, data: { passwordHash } });
+  await prisma.owner.update({ where: { id }, data: { passwordHash, passwordChangedAt: new Date() } });
   await logAdminAction(guard.session, {
     action: 'OWNER_PASSWORD_RESET',
     targetType: 'OWNER',

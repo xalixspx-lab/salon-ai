@@ -68,7 +68,7 @@ export default function ClientsPage() {
         body: JSON.stringify({ name, phone }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'فشل الحفظ');
+      if (!res.ok) throw new Error(data.error || (locale === 'en' ? 'Save failed' : 'فشل الحفظ'));
 
       setShowForm(false);
       resetForm();
@@ -81,7 +81,7 @@ export default function ClientsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('حذف هذا العميل؟')) return;
+    if (!confirm(locale === 'en' ? 'Delete this client?' : 'حذف هذا العميل؟')) return;
     await fetch(`/api/dashboard/clients/${id}`, { method: 'DELETE' });
     load();
   };
@@ -126,7 +126,7 @@ export default function ClientsPage() {
         {loading ? (
           <p className="p-6 text-center text-stone-400 text-sm">...</p>
         ) : clients.length === 0 ? (
-          <p className="p-6 text-center text-stone-400 text-sm">لا يوجد عملاء بعد</p>
+          <p className="p-6 text-center text-stone-400 text-sm">{locale === 'en' ? 'No clients yet' : 'لا يوجد عملاء بعد'}</p>
         ) : (
           <table className="w-full text-right text-sm text-stone-600">
             <thead className="bg-stone-50 text-stone-700 uppercase text-xs">

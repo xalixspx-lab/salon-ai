@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyPassword } from '@/lib/password';
 import { createSession } from '@/lib/session';
 import { createCustomerSession } from '@/lib/customerSession';
+import { tr } from '@/lib/apiLocale';
 
 // دخول موحّد لصاحب الصالون والعميل: يتعرّف على نوع الحساب من البريد نفسه
 // فلا يحتاج الزائر معرفة أي رابط يستخدم. الأدمن مستثنى عمدًا (يبقى منفصلاً
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { success: false, error: 'البريد الإلكتروني وكلمة المرور مطلوبان' },
+        { success: false, error: await tr('البريد الإلكتروني وكلمة المرور مطلوبان') },
         { status: 400 }
       );
     }
@@ -28,13 +29,13 @@ export async function POST(request: Request) {
       (await limitOrResponse(`login:email:${email}`, 10, 15 * 60 * 1000));
     if (limited) return limited;
 
-    const invalidCreds = () =>
-      NextResponse.json({ success: false, error: 'بيانات الدخول غير صحيحة' }, { status: 401 });
+    const invalidCreds = async () =>
+      NextResponse.json({ success: false, error: await tr('بيانات الدخول غير صحيحة') }, { status: 401 });
 
     const owner = await prisma.owner.findUnique({ where: { email } });
     if (owner) {
       if (owner.suspendedAt) {
-        return NextResponse.json({ success: false, error: 'هذا الحساب موقوف، تواصل مع إدارة المنصة' }, { status: 403 });
+        return NextResponse.json({ success: false, error: await tr('هذا الحساب موقوف، تواصل مع إدارة المنصة') }, { status: 403 });
       }
       if (!(await verifyPassword(password, owner.passwordHash))) return invalidCreds();
 
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
     const account = await prisma.customerAccount.findUnique({ where: { email } });
     if (account) {
       if (account.suspendedAt) {
-        return NextResponse.json({ success: false, error: 'هذا الحساب موقوف، تواصل مع إدارة المنصة' }, { status: 403 });
+        return NextResponse.json({ success: false, error: await tr('هذا الحساب موقوف، تواصل مع إدارة المنصة') }, { status: 403 });
       }
       if (!(await verifyPassword(password, account.passwordHash))) return invalidCreds();
 
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل تسجيل الدخول' },
+      { success: false, error: await tr('فشل تسجيل الدخول') },
       { status: 500 }
     );
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, FormEvent } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import WeeklyHoursEditor, { initialHours } from '@/components/dashboard/WeeklyHoursEditor';
 import type { WeeklyHours } from '@/lib/schedule';
 
@@ -15,6 +15,8 @@ interface StaffRow {
 }
 
 export default function StaffPage() {
+  const locale = useLocale();
+  const L = (a: string, e: string) => (locale === 'en' ? e : a);
   const t = useTranslations('Staff');
   const common = useTranslations('Common');
   const settings = useTranslations('Settings');
@@ -77,7 +79,7 @@ export default function StaffPage() {
         body: JSON.stringify({ name, role, phone, status, ...(editingId ? { workingHours: ownHours } : {}) }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'فشل الحفظ');
+      if (!res.ok) throw new Error(data.error || L('فشل الحفظ', 'Save failed'));
 
       setShowForm(false);
       resetForm();
@@ -90,7 +92,7 @@ export default function StaffPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('حذف هذا الموظف؟')) return;
+    if (!confirm(L('حذف هذا الموظف؟', 'Delete this staff member?'))) return;
     await fetch(`/api/dashboard/staff/${id}`, { method: 'DELETE' });
     load();
   };
@@ -163,7 +165,7 @@ export default function StaffPage() {
         {loading ? (
           <p className="p-6 text-center text-stone-400 text-sm">...</p>
         ) : staff.length === 0 ? (
-          <p className="p-6 text-center text-stone-400 text-sm">لا يوجد موظفون بعد</p>
+          <p className="p-6 text-center text-stone-400 text-sm">{L('لا يوجد موظفون بعد', 'No staff yet')}</p>
         ) : (
           <table className="w-full text-right text-sm text-stone-600">
             <thead className="bg-stone-50 text-stone-700 uppercase text-xs">

@@ -14,6 +14,7 @@ export default function ChatThread({
   sendLabel,
   emptyLabel,
   onSend,
+  lockedNotice,
 }: {
   messages: ChatMessage[];
   mineRole: 'OWNER' | 'CUSTOMER';
@@ -22,6 +23,7 @@ export default function ChatThread({
   sendLabel: string;
   emptyLabel: string;
   onSend: (text: string) => Promise<boolean>;
+  lockedNotice?: string;
 }) {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -74,6 +76,9 @@ export default function ChatThread({
           })
         )}
       </div>
+      {lockedNotice ? (
+        <div className="p-3 border-t border-stone-100 text-center text-xs text-stone-500 pb-[max(0.75rem,env(safe-area-inset-bottom))]">{lockedNotice}</div>
+      ) : (
       <div className="p-2 border-t border-stone-100 flex items-center gap-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <input
           value={input}
@@ -92,6 +97,7 @@ export default function ChatThread({
           {sendLabel}
         </button>
       </div>
+      )}
     </>
   );
 }

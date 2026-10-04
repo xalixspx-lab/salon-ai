@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getCustomerSession, clearCustomerSession } from '@/lib/customerSession';
 import { verifyPassword } from '@/lib/password';
 import { limitOrResponse } from '@/lib/rateLimit';
+import { tr } from '@/lib/apiLocale';
 
 // حذف العميل لحسابه بنفسه (حق المحو — PDPL). يتطلب كلمة المرور. تُحذف بياناته
 // الشخصية وتقييماته ومفضلاته، وتبقى سجلات الحجز عند الصالونات مفصولة عن هويته.
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const account = await prisma.customerAccount.findUnique({ where: { id: session.accountId } });
   if (!account || typeof body.password !== 'string' || !(await verifyPassword(body.password, account.passwordHash))) {
-    return NextResponse.json({ success: false, error: 'كلمة المرور غير صحيحة' }, { status: 400 });
+    return NextResponse.json({ success: false, error: await tr('كلمة المرور غير صحيحة') }, { status: 400 });
   }
 
   await prisma.customerAccount.delete({ where: { id: account.id } });

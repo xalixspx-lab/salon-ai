@@ -10,6 +10,7 @@ type ConversationSummary = {
   customerName: string;
   lastMessage: { body: string; senderRole: string; createdAt: string } | null;
   lastMessageAt: string;
+  blockedByCustomer: boolean;
   unreadCount: number;
 };
 
@@ -210,6 +211,7 @@ export default function ChatWidget() {
                 sendLabel={t('send')}
                 emptyLabel={t('noMessages')}
                 onSend={sendOwnerMessage}
+                lockedNotice={active?.blockedByCustomer ? t('blockedByCustomerNotice') : undefined}
               />
             </>
           )}

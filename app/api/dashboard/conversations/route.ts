@@ -12,8 +12,10 @@ async function GETHandler() {
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
   const conversations = await prisma.conversation.findMany({
-    where: { tenantId: session.tenantId },
+    // محادثة حظرها العميل قبل أن يراسل (فارغة) لا تظهر في بريد المالك
+    where: { tenantId: session.tenantId, NOT: { blockedByCustomerAt: { not: null }, messages: { none: {} } } },
     orderBy: { lastMessageAt: 'desc' },
+    take: 100,
     include: {
       account: { select: { name: true } },
       messages: { orderBy: { createdAt: 'desc' }, take: 1, select: { body: true, senderRole: true, createdAt: true } },
@@ -26,6 +28,7 @@ async function GETHandler() {
       customerName: c.account.name,
       lastMessage: c.messages[0] ?? null,
       lastMessageAt: c.lastMessageAt,
+      blockedByCustomer: Boolean(c.blockedByCustomerAt),
       unreadCount: await prisma.message.count({
         where: {
           conversationId: c.id,
@@ -57,6 +60,14 @@ async function POSTHandler(request: Request) {
   if (!customer) return NextResponse.json({ success: false, error: 'العميل غير موجود' }, { status: 404 });
   if (!customer.accountId) {
     return NextResponse.json({ success: false, error: 'هذا العميل غير مسجّل بحساب، لا يمكن بدء محادثة معه' }, { status: 400 });
+  }
+
+  const prior = await prisma.conversation.findUnique({
+    where: { tenantId_accountId: { tenantId: session.tenantId, accountId: customer.accountId } },
+    select: { blockedByCustomerAt: true },
+  });
+  if (prior?.blockedByCustomerAt) {
+    return NextResponse.json({ success: false, error: 'blocked', blocked: true }, { status: 403 });
   }
 
   const conversation = await prisma.conversation.upsert({

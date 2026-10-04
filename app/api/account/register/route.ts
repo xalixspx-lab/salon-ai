@@ -8,6 +8,7 @@ import { isHoneypotFilled } from '@/lib/honeypot';
 import { verifyTurnstileToken } from '@/lib/turnstile';
 import { CONSENT_TYPES, recordConsent } from '@/lib/legal';
 import { generateUniqueReferralCode } from '@/lib/referral';
+import { tr } from '@/lib/apiLocale';
 
 export async function POST(request: Request) {
   try {
@@ -16,30 +17,30 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     if (isHoneypotFilled(body)) {
-      return NextResponse.json({ success: false, error: 'فشل إنشاء الحساب' }, { status: 400 });
+      return NextResponse.json({ success: false, error: await tr('فشل إنشاء الحساب') }, { status: 400 });
     }
     if (!(await verifyTurnstileToken(body.turnstileToken, clientIp(request)))) {
-      return NextResponse.json({ success: false, error: 'فشل التحقق من أنك لست روبوت' }, { status: 400 });
+      return NextResponse.json({ success: false, error: await tr('فشل التحقق من أنك لست روبوت') }, { status: 400 });
     }
     const { name, email, password } = body;
 
     if (body.acceptTerms !== true) {
       return NextResponse.json(
-        { success: false, error: 'يجب الموافقة على شروط الاستخدام وسياسة الخصوصية' },
+        { success: false, error: await tr('يجب الموافقة على شروط الاستخدام وسياسة الخصوصية') },
         { status: 400 }
       );
     }
 
     if (!name || !email || !password) {
       return NextResponse.json(
-        { success: false, error: 'الاسم والبريد الإلكتروني وكلمة المرور مطلوبة' },
+        { success: false, error: await tr('الاسم والبريد الإلكتروني وكلمة المرور مطلوبة') },
         { status: 400 }
       );
     }
 
     if (password.length < 8) {
       return NextResponse.json(
-        { success: false, error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' },
+        { success: false, error: await tr('كلمة المرور يجب أن تكون 8 أحرف على الأقل') },
         { status: 400 }
       );
     }
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
     const existing = await prisma.customerAccount.findUnique({ where: { email: normalizedEmail } });
     if (existing) {
       return NextResponse.json(
-        { success: false, error: 'يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل' },
+        { success: false, error: await tr('يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل') },
         { status: 409 }
       );
     }
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
     const existingOwner = await prisma.owner.findUnique({ where: { email: normalizedEmail } });
     if (existingOwner) {
       return NextResponse.json(
-        { success: false, error: 'هذا البريد مسجَّل كحساب صاحب صالون بالفعل، استخدم بريدًا آخر لحساب العميل' },
+        { success: false, error: await tr('هذا البريد مسجَّل كحساب صاحب صالون بالفعل، استخدم بريدًا آخر لحساب العميل') },
         { status: 409 }
       );
     }
@@ -94,7 +95,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Error registering customer account:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل إنشاء الحساب' },
+      { success: false, error: await tr('فشل إنشاء الحساب') },
       { status: 500 }
     );
   }

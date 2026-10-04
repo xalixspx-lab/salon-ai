@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, FormEvent } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import LogoUploader from '@/components/dashboard/LogoUploader';
 import GalleryManager from '@/components/dashboard/GalleryManager';
 import WeeklyHoursEditor, { initialHours } from '@/components/dashboard/WeeklyHoursEditor';
@@ -10,6 +10,8 @@ import BookingLinkCard from '@/components/dashboard/BookingLinkCard';
 import type { WeeklyHours } from '@/lib/schedule';
 
 export default function SettingsPage() {
+  const locale = useLocale();
+  const L = (a: string, e: string) => (locale === 'en' ? e : a);
   const t = useTranslations('Settings');
   const common = useTranslations('Common');
 
@@ -28,6 +30,7 @@ export default function SettingsPage() {
   const [phone, setPhone] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isPublished, setIsPublished] = useState(true);
+  const [adminHidden, setAdminHidden] = useState(false);
   const [depositPercentage, setDepositPercentage] = useState('30');
   const [minBookingNoticeHours, setMinBookingNoticeHours] = useState('2');
   const [cancellationHours, setCancellationHours] = useState('24');
@@ -52,6 +55,7 @@ export default function SettingsPage() {
         setPhone(tenant.phone || '');
         setLogoUrl(tenant.logoUrl || null);
         setIsPublished(tenant.isPublished !== false);
+        setAdminHidden(Boolean(tenant.adminHiddenAt));
         setDepositPercentage(String(tenant.depositPercentage ?? 30));
         setMinBookingNoticeHours(String(tenant.minBookingNoticeHours ?? 2));
         setCancellationHours(String(tenant.cancellationHours ?? 24));
@@ -89,7 +93,7 @@ export default function SettingsPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'فشل الحفظ');
+      if (!res.ok) throw new Error(data.error || L('فشل الحفظ', 'Save failed'));
       setSaved(true);
     } catch (err: any) {
       setError(err.message);
@@ -106,6 +110,12 @@ export default function SettingsPage() {
     <div>
       <h1 className="text-2xl font-bold text-stone-900 mb-6">{t('title')}</h1>
 
+      {adminHidden && (
+        <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm" role="alert">
+          {t('adminHiddenNotice')}
+        </div>
+      )}
+
       {tenantId && <BookingLinkCard tenantId={tenantId} />}
 
       <div className="mb-6">
@@ -114,7 +124,7 @@ export default function SettingsPage() {
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6 max-w-2xl space-y-4">
         {error && <div className="p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
-        {saved && <div className="p-3 bg-emerald-50 text-emerald-700 rounded text-sm">تم الحفظ بنجاح</div>}
+        {saved && <div className="p-3 bg-emerald-50 text-emerald-700 rounded text-sm">{L('تم الحفظ بنجاح', 'Saved successfully')}</div>}
 
         {!loading && <LogoUploader key={logoUrl ?? 'none'} initialUrl={logoUrl} />}
 
@@ -133,7 +143,7 @@ export default function SettingsPage() {
           <input
             value={workingHoursText}
             onChange={(e) => setWorkingHoursText(e.target.value)}
-            placeholder="مثال: 01:00 م - 11:00 م"
+            placeholder={L('مثال: 01:00 م - 11:00 م', 'e.g. 1:00 PM - 11:00 PM')}
             className="w-full px-3 py-2 border rounded-md text-black"
           />
         </div>
@@ -144,11 +154,11 @@ export default function SettingsPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">العملة</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">{L('العملة', 'Currency')}</label>
             <input value={currency} onChange={(e) => setCurrency(e.target.value)} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">المنطقة الزمنية</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">{L('المنطقة الزمنية', 'Time zone')}</label>
             <input value={timezone} onChange={(e) => setTimezone(e.target.value)} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
           </div>
         </div>

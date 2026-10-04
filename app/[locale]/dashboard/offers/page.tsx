@@ -93,7 +93,7 @@ export default function OffersPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'فشل الحفظ');
+      if (!res.ok) throw new Error(data.error || (locale === 'en' ? 'Save failed' : 'فشل الحفظ'));
 
       setShowForm(false);
       resetForm();
@@ -115,7 +115,7 @@ export default function OffersPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('حذف هذا العرض؟')) return;
+    if (!confirm(locale === 'en' ? 'Delete this offer?' : 'حذف هذا العرض؟')) return;
     await fetch(`/api/dashboard/offers/${id}`, { method: 'DELETE' });
     load();
   };

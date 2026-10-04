@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCustomerSession } from '@/lib/customerSession';
+import { PUBLIC_TENANT } from '@/lib/visibility';
 
 export async function GET() {
   const session = await getCustomerSession();
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
   if (body.favorite === false) {
     await prisma.favorite.deleteMany({ where: { accountId: session.accountId, tenantId: body.tenantId } });
   } else {
-    const tenant = await prisma.tenant.findFirst({ where: { id: body.tenantId, isPublished: true }, select: { id: true } });
+    const tenant = await prisma.tenant.findFirst({ where: { id: body.tenantId, ...PUBLIC_TENANT }, select: { id: true } });
     if (!tenant) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
     await prisma.favorite.upsert({
       where: { accountId_tenantId: { accountId: session.accountId, tenantId: body.tenantId } },

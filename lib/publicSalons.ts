@@ -1,11 +1,12 @@
 import { prisma } from '@/lib/prisma';
 import { getRatings } from '@/lib/ratings';
+import { PUBLIC_TENANT } from '@/lib/visibility';
 
 // قائمة الصالونات المنشورة بحقول عامة فقط (لا باقة ولا إعدادات داخلية). تستخدمها
 // الصفحة الرئيسية مباشرة بدل استدعاء الـ API الخاص بها عبر HTTP.
 export async function listPublicSalons(opts: { city?: string | null; take?: number; featuredOnly?: boolean } = {}) {
   const tenants = await prisma.tenant.findMany({
-    where: { isPublished: true, ...(opts.city ? { city: opts.city } : {}), ...(opts.featuredOnly ? { isFeatured: true } : {}) },
+    where: { ...PUBLIC_TENANT, ...(opts.city ? { city: opts.city } : {}), ...(opts.featuredOnly ? { isFeatured: true } : {}) },
     take: opts.take ?? 60,
     orderBy: { createdAt: 'desc' },
     select: {

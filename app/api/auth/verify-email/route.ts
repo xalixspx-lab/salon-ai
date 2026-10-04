@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { consumeToken } from '@/lib/authTokens';
 import { clientIp, limitOrResponse } from '@/lib/rateLimit';
+import { tr } from '@/lib/apiLocale';
 
 export async function POST(request: Request) {
   try {
@@ -12,12 +13,12 @@ export async function POST(request: Request) {
     const token = typeof body.token === 'string' ? body.token : '';
     const audience = body.audience === 'customer' ? 'customer' : body.audience === 'owner' ? 'owner' : null;
     if (!token || !audience) {
-      return NextResponse.json({ success: false, error: 'رابط غير صالح' }, { status: 400 });
+      return NextResponse.json({ success: false, error: await tr('رابط غير صالح') }, { status: 400 });
     }
 
     const row = await consumeToken('VERIFY_EMAIL', audience, token);
     if (!row) {
-      return NextResponse.json({ success: false, error: 'الرابط منتهي أو مستخدم من قبل' }, { status: 400 });
+      return NextResponse.json({ success: false, error: await tr('الرابط منتهي أو مستخدم من قبل') }, { status: 400 });
     }
 
     const data = { emailVerifiedAt: new Date() };
@@ -29,6 +30,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {
     console.error('verify-email error:', error);
-    return NextResponse.json({ success: false, error: 'حدث خطأ، حاول مرة أخرى' }, { status: 500 });
+    return NextResponse.json({ success: false, error: await tr('حدث خطأ، حاول مرة أخرى') }, { status: 500 });
   }
 }

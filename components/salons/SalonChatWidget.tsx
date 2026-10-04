@@ -15,6 +15,7 @@ export default function SalonChatWidget({ tenantId }: { tenantId: string }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [unread, setUnread] = useState(0);
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
     fetch('/api/account/session')
@@ -36,6 +37,23 @@ export default function SalonChatWidget({ tenantId }: { tenantId: string }) {
     if (ok && data) setUnread(data.unread);
   }, [tenantId]);
 
+  const loadBlocked = useCallback(async () => {
+    const { ok, data } = await fetchJson<{ blocked: boolean }>(`/api/account/conversations/${tenantId}/block`);
+    if (ok && data) setBlocked(data.blocked);
+  }, [tenantId]);
+
+  const toggleBlock = async () => {
+    const next = !blocked;
+    if (next && !window.confirm(t('blockConfirm'))) return;
+    const { ok } = await fetchJson(`/api/account/conversations/${tenantId}/block`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ blocked: next }),
+    });
+    if (ok) setBlocked(next);
+  };
+
+  usePolling(loadBlocked, 20000, loggedIn === true && open);
   usePolling(loadMessages, 3000, loggedIn === true && open);
   usePolling(loadUnread, 15000, loggedIn === true && !open);
 
@@ -66,7 +84,12 @@ export default function SalonChatWidget({ tenantId }: { tenantId: string }) {
     <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] end-4 md:end-6 z-40">
       {open && (
         <div className="mb-3 w-[calc(100vw-2rem)] max-w-sm h-[min(26rem,calc(100dvh-8rem))] bg-white rounded-2xl border border-gray-200 shadow-2xl flex flex-col overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 font-bold text-gray-800">{t('chatWithSalon')}</div>
+          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
+            <span className="font-bold text-gray-800">{t('chatWithSalon')}</span>
+            <button onClick={toggleBlock} className="text-xs text-stone-500 hover:text-red-600 underline underline-offset-2 px-1 py-1">
+              {blocked ? t('unblockSalon') : t('blockSalon')}
+            </button>
+          </div>
           <ChatThread
             messages={messages}
             mineRole="CUSTOMER"
@@ -75,6 +98,7 @@ export default function SalonChatWidget({ tenantId }: { tenantId: string }) {
             sendLabel={t('send')}
             emptyLabel={t('noMessages')}
             onSend={sendCustomerMessage}
+            lockedNotice={blocked ? t('youBlockedNotice') : undefined}
           />
         </div>
       )}

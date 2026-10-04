@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { consumeToken } from '@/lib/authTokens';
 import { hashPassword } from '@/lib/password';
 import { clientIp, limitOrResponse } from '@/lib/rateLimit';
+import { tr } from '@/lib/apiLocale';
 
 export async function POST(request: Request) {
   try {
@@ -15,25 +16,25 @@ export async function POST(request: Request) {
     const audience = ['owner', 'customer', 'admin'].includes(body.audience) ? (body.audience as 'owner' | 'customer' | 'admin') : null;
 
     if (!token || !audience) {
-      return NextResponse.json({ success: false, error: 'رابط غير صالح' }, { status: 400 });
+      return NextResponse.json({ success: false, error: await tr('رابط غير صالح') }, { status: 400 });
     }
     if (password.length < 8) {
       return NextResponse.json(
-        { success: false, error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' },
+        { success: false, error: await tr('كلمة المرور يجب أن تكون 8 أحرف على الأقل') },
         { status: 400 }
       );
     }
 
     const row = await consumeToken('RESET_PASSWORD', audience, token);
     if (!row) {
-      return NextResponse.json({ success: false, error: 'الرابط منتهي أو مستخدم من قبل' }, { status: 400 });
+      return NextResponse.json({ success: false, error: await tr('الرابط منتهي أو مستخدم من قبل') }, { status: 400 });
     }
 
     const passwordHash = await hashPassword(password);
     // استلام رابط الاستعادة يثبت ملكية البريد أيضًا
-    const data = { passwordHash, emailVerifiedAt: new Date() };
+    const data = { passwordHash, emailVerifiedAt: new Date(), passwordChangedAt: new Date() };
     if (audience === 'admin') {
-      await prisma.admin.update({ where: { id: row.subjectId }, data: { passwordHash, mustChangePassword: false } });
+      await prisma.admin.update({ where: { id: row.subjectId }, data: { passwordHash, mustChangePassword: false, passwordChangedAt: new Date() } });
     } else if (audience === 'owner') {
       await prisma.owner.update({ where: { id: row.subjectId }, data });
     } else {
@@ -43,6 +44,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {
     console.error('reset-password error:', error);
-    return NextResponse.json({ success: false, error: 'حدث خطأ، حاول مرة أخرى' }, { status: 500 });
+    return NextResponse.json({ success: false, error: await tr('حدث خطأ، حاول مرة أخرى') }, { status: 500 });
   }
 }

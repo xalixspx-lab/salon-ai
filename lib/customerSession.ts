@@ -54,9 +54,10 @@ export async function getCustomerSession(): Promise<CustomerSessionPayload | nul
     }
     const account = await prisma.customerAccount.findUnique({
       where: { id: payload.accountId },
-      select: { suspendedAt: true },
+      select: { suspendedAt: true, passwordChangedAt: true },
     });
     if (!account || account.suspendedAt) return null;
+    if (account.passwordChangedAt && (payload.iat ?? 0) < Math.floor(account.passwordChangedAt.getTime() / 1000)) return null;
 
     return { accountId: payload.accountId, email: payload.email, name: payload.name };
   } catch {

@@ -5,7 +5,7 @@ import { DEFAULT_TIMEZONE } from '@/lib/schedule';
 const esc = (v: string) =>
   v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-export type BookingEvent = 'created' | 'cancelled' | 'rescheduled' | 'confirmed' | 'completed';
+export type BookingEvent = 'created' | 'cancelled' | 'rescheduled' | 'confirmed' | 'completed' | 'reminder';
 type Recipient = 'customer' | 'owner';
 
 const SUBJECT: Record<BookingEvent, { ar: string; en: string }> = {
@@ -14,6 +14,7 @@ const SUBJECT: Record<BookingEvent, { ar: string; en: string }> = {
   rescheduled: { ar: 'تم تغيير موعد حجز', en: 'Booking rescheduled' },
   confirmed: { ar: 'تم تأكيد حجزك', en: 'Your booking is confirmed' },
   completed: { ar: 'شكرًا لزيارتك', en: 'Thanks for your visit' },
+  reminder: { ar: 'تذكير بموعدك غدًا', en: 'Reminder: your appointment is tomorrow' },
 };
 
 // إشعار بريدي ثنائي اللغة. الفشل لا يوقف العملية الأساسية أبدًا.
@@ -58,6 +59,7 @@ export async function notifyBooking(appointmentId: string, event: BookingEvent, 
         r.who === 'owner' ? `العميل / Customer: ${customerName}` : '',
         appt.employee?.name ? `الموظف / Staff: ${appt.employee.name}` : '',
         event === 'completed' && r.who === 'customer' ? 'حصلت على 10 نقاط ولاء لهذه الزيارة! / You earned 10 loyalty points for this visit!' : '',
+        event === 'reminder' && r.who === 'customer' && accountLink ? `أضف الموعد لتقويمك أو ألغِه من حسابك / Add it to your calendar or manage it: ${accountLink}` : '',
         event === 'completed' && r.who === 'customer' && accountLink ? `قيّم زيارتك / Rate your visit: ${accountLink}` : '',
       ].filter(Boolean);
       const text = `${SUBJECT[event].ar} | ${SUBJECT[event].en}\n\n${lines.join('\n')}`;

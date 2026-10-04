@@ -106,7 +106,7 @@ export default function BookingsPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'فشل الحفظ');
+      if (!res.ok) throw new Error(data.error || (locale === 'en' ? 'Save failed' : 'فشل الحفظ'));
 
       setShowForm(false);
       setServiceId('');

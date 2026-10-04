@@ -68,7 +68,8 @@
     "inviteCopyLink": "Copy invite link",
     "inviteLinkCopied": "Copied ✓",
     "inviteShareWhatsapp": "Share on WhatsApp",
-    "inviteWhatsappText": "Try Salon AI! Register with this link and we'll both get loyalty points: {link}"
+    "inviteWhatsappText": "Try Salon AI! Register with this link and we'll both get loyalty points: {link}",
+    "addToCalendar": "Add to calendar"
   },
   "Index": {
     "title": "Welcome to Salon AI",
@@ -273,7 +274,8 @@
     "changePassword": "Change password",
     "currentPassword": "Current password",
     "newPassword": "New password (8+ characters)",
-    "passwordChanged": "Password changed successfully"
+    "passwordChanged": "Password changed successfully",
+    "adminHiddenNotice": "Your salon is suspended by the platform team and is currently hidden from customers. Please contact support."
   },
   "Analytics": {
     "title": "Salon performance",
@@ -478,7 +480,12 @@
     "newConversation": "New conversation",
     "selectCustomer": "Select a customer to start a conversation",
     "noEligibleCustomers": "No customers with an account to message yet",
-    "startFailed": "Couldn't start the conversation"
+    "startFailed": "Couldn't start the conversation",
+    "blockSalon": "Block salon",
+    "unblockSalon": "Unblock",
+    "blockConfirm": "Block this salon? It will not be able to message you until you unblock.",
+    "blockedByCustomerNotice": "This customer has blocked messages. You cannot send new ones.",
+    "youBlockedNotice": "You blocked this salon. Unblock to resume the conversation."
   },
   "Errors": {
     "notFoundTitle": "Page not found",

@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getCustomerSession } from '@/lib/customerSession';
+import { getCustomerSession, createCustomerSession } from '@/lib/customerSession';
 import { hashPassword, verifyPassword } from '@/lib/password';
 import { limitOrResponse } from '@/lib/rateLimit';
+import { tr } from '@/lib/apiLocale';
 
 export async function POST(request: Request) {
   const session = await getCustomerSession();
@@ -16,17 +17,18 @@ export async function POST(request: Request) {
   const next = typeof body.newPassword === 'string' ? body.newPassword : '';
 
   if (next.length < 8) {
-    return NextResponse.json({ success: false, error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' }, { status: 400 });
+    return NextResponse.json({ success: false, error: await tr('كلمة المرور يجب أن تكون 8 أحرف على الأقل') }, { status: 400 });
   }
   if (next === current) {
-    return NextResponse.json({ success: false, error: 'اختر كلمة مرور مختلفة عن الحالية' }, { status: 400 });
+    return NextResponse.json({ success: false, error: await tr('اختر كلمة مرور مختلفة عن الحالية') }, { status: 400 });
   }
 
   const account = await prisma.customerAccount.findUnique({ where: { id: session.accountId } });
   if (!account || !(await verifyPassword(current, account.passwordHash))) {
-    return NextResponse.json({ success: false, error: 'كلمة المرور الحالية غير صحيحة' }, { status: 400 });
+    return NextResponse.json({ success: false, error: await tr('كلمة المرور الحالية غير صحيحة') }, { status: 400 });
   }
 
-  await prisma.customerAccount.update({ where: { id: account.id }, data: { passwordHash: await hashPassword(next) } });
+  await prisma.customerAccount.update({ where: { id: account.id }, data: { passwordHash: await hashPassword(next), passwordChangedAt: new Date() } });
+  await createCustomerSession({ accountId: account.id, email: account.email, name: account.name });
   return NextResponse.json({ success: true });
 }

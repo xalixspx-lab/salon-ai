@@ -56,9 +56,11 @@ export async function getSession(): Promise<SessionPayload | null> {
     // الحساب يجب أن يبقى موجودًا وغير موقوف، وإلا تسقط الجلسة فورًا (حذف/إيقاف من الأدمن)
     const owner = await prisma.owner.findUnique({
       where: { id: payload.ownerId },
-      select: { tenantId: true, suspendedAt: true },
+      select: { tenantId: true, suspendedAt: true, passwordChangedAt: true },
     });
     if (!owner || owner.suspendedAt || owner.tenantId !== payload.tenantId) return null;
+    // جلسة صدرت قبل آخر تغيير/استعادة لكلمة المرور → مرفوضة (iat بالثواني)
+    if (owner.passwordChangedAt && (payload.iat ?? 0) < Math.floor(owner.passwordChangedAt.getTime() / 1000)) return null;
 
     return {
       ownerId: payload.ownerId,

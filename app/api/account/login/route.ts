@@ -3,6 +3,7 @@ import { clientIp, limitOrResponse } from '@/lib/rateLimit';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword } from '@/lib/password';
 import { createCustomerSession } from '@/lib/customerSession';
+import { tr } from '@/lib/apiLocale';
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { success: false, error: 'البريد الإلكتروني وكلمة المرور مطلوبان' },
+        { success: false, error: await tr('البريد الإلكتروني وكلمة المرور مطلوبان') },
         { status: 400 }
       );
     }
@@ -24,16 +25,16 @@ export async function POST(request: Request) {
 
     const account = await prisma.customerAccount.findUnique({ where: { email } });
     if (!account) {
-      return NextResponse.json({ success: false, error: 'بيانات الدخول غير صحيحة' }, { status: 401 });
+      return NextResponse.json({ success: false, error: await tr('بيانات الدخول غير صحيحة') }, { status: 401 });
     }
 
     if (account.suspendedAt) {
-      return NextResponse.json({ success: false, error: 'هذا الحساب موقوف، تواصل مع إدارة المنصة' }, { status: 403 });
+      return NextResponse.json({ success: false, error: await tr('هذا الحساب موقوف، تواصل مع إدارة المنصة') }, { status: 403 });
     }
 
     const valid = await verifyPassword(password, account.passwordHash);
     if (!valid) {
-      return NextResponse.json({ success: false, error: 'بيانات الدخول غير صحيحة' }, { status: 401 });
+      return NextResponse.json({ success: false, error: await tr('بيانات الدخول غير صحيحة') }, { status: 401 });
     }
 
     await createCustomerSession({ accountId: account.id, email: account.email, name: account.name });
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Customer login error:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل تسجيل الدخول' },
+      { success: false, error: await tr('فشل تسجيل الدخول') },
       { status: 500 }
     );
   }

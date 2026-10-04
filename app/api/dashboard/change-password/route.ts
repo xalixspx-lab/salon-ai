@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getSession } from '@/lib/session';
+import { getSession, createSession } from '@/lib/session';
 import { hashPassword, verifyPassword } from '@/lib/password';
 import { limitOrResponse } from '@/lib/rateLimit';
 import { withTenantScope } from '@/lib/tenantScope';
@@ -28,7 +28,9 @@ async function POSTHandler(request: Request) {
     return NextResponse.json({ success: false, error: 'كلمة المرور الحالية غير صحيحة' }, { status: 400 });
   }
 
-  await prisma.owner.update({ where: { id: owner.id }, data: { passwordHash: await hashPassword(next) } });
+  // passwordChangedAt يُسقط كل الجلسات القديمة (جهاز مسروق/منسي)، ثم نصدر جلسة جديدة لهذا الجهاز فقط
+  await prisma.owner.update({ where: { id: owner.id }, data: { passwordHash: await hashPassword(next), passwordChangedAt: new Date() } });
+  await createSession({ ownerId: owner.id, tenantId: session.tenantId, email: session.email, ...(session.imp ? { imp: session.imp } : {}) });
   return NextResponse.json({ success: true });
 }
 

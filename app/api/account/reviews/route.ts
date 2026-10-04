@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCustomerSession } from '@/lib/customerSession';
 import { limitOrResponse } from '@/lib/rateLimit';
+import { tr } from '@/lib/apiLocale';
 
 // تقييم موعد مكتمل. الشروط: الموعد يخص حساب العميل الحالي، حالته COMPLETED،
 // ولم يُقيَّم من قبل (قيد فريد على appointment_id).
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
   const rating = Number(body.rating);
   const comment = typeof body.comment === 'string' ? body.comment.trim().slice(0, 1000) : '';
   if (!Number.isInteger(rating) || rating < 1 || rating > 5 || typeof body.appointmentId !== 'string') {
-    return NextResponse.json({ success: false, error: 'تقييم غير صالح' }, { status: 400 });
+    return NextResponse.json({ success: false, error: await tr('تقييم غير صالح') }, { status: 400 });
   }
 
   const appt = await prisma.appointment.findFirst({
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
   }
   if (appt.status !== 'COMPLETED') {
-    return NextResponse.json({ success: false, error: 'يمكن التقييم بعد اكتمال الموعد فقط' }, { status: 400 });
+    return NextResponse.json({ success: false, error: await tr('يمكن التقييم بعد اكتمال الموعد فقط') }, { status: 400 });
   }
 
   try {
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, data: review }, { status: 201 });
   } catch (error) {
     if ((error as { code?: string }).code === 'P2002') {
-      return NextResponse.json({ success: false, error: 'تم تقييم هذا الموعد مسبقًا' }, { status: 409 });
+      return NextResponse.json({ success: false, error: await tr('تم تقييم هذا الموعد مسبقًا') }, { status: 409 });
     }
     throw error;
   }

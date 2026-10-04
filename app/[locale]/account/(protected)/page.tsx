@@ -11,6 +11,7 @@ import ChangePasswordCard from '@/components/account/ChangePasswordCard';
 import PrivacyCard from '@/components/account/PrivacyCard';
 import PublicHeader from '@/components/PublicHeader';
 import { formatDate, formatDateTime } from '@/lib/format';
+import { PUBLIC_TENANT } from '@/lib/visibility';
 import LoyaltyCard from '@/components/account/LoyaltyCard';
 import InviteFriendsCard from '@/components/account/InviteFriendsCard';
 import { CONSENT_TYPES, currentConsent } from '@/lib/legal';
@@ -47,7 +48,7 @@ export default async function AccountPage({
   const customerIds = linkedCustomers.map((c) => c.id);
 
   const favorites = await prisma.favorite.findMany({
-    where: { accountId: session.accountId, tenant: { isPublished: true } },
+    where: { accountId: session.accountId, tenant: { ...PUBLIC_TENANT } },
     include: { tenant: { select: { name: true, timezone: true } } },
     orderBy: { createdAt: 'desc' },
   });
@@ -149,6 +150,12 @@ export default async function AccountPage({
                     <p className="text-sm text-amber-700 mt-0.5">
                       {t('upcomingReminder')} — {a.startTime ? formatDateTime(a.startTime, locale, a.tenant?.timezone) : ''}
                     </p>
+                    <a
+                      href={`/api/account/appointments/${a.id}/ics?locale=${locale}`}
+                      className="inline-block mt-2 text-xs font-semibold text-amber-900 underline underline-offset-2"
+                    >
+                      📅 {t('addToCalendar')}
+                    </a>
                   </div>
                 </div>
               ))}

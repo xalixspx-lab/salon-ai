@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
+import { PUBLIC_TENANT } from '@/lib/visibility';
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
 const locales = ['ar', 'en'];
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const tenants = await prisma.tenant.findMany({
-    where: { isPublished: true },
+    where: { ...PUBLIC_TENANT },
     select: { id: true, updatedAt: true },
   });
 

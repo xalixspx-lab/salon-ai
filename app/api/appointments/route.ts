@@ -5,7 +5,9 @@ import { getCustomerSession } from '@/lib/customerSession';
 import { resolveSubscription } from '@/lib/subscription';
 import { DIRECT_OFFER_TYPES, PERCENT_OFFER_TYPES } from '@/lib/offers';
 import { notifyBooking } from '@/lib/notify';
+import { isPubliclyVisible } from '@/lib/visibility';
 import { createAppointmentGuarded, isOutsideHours, isSlotConflict } from '@/lib/availability';
+import { tr } from '@/lib/apiLocale';
 
 
 // POST: إنشاء حجز جديد مع التحقق من الخدمات والأسعار
@@ -43,13 +45,13 @@ export async function POST(request: Request) {
     }
 
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
-    if (!tenant || !tenant.isPublished) {
+    if (!tenant || !isPubliclyVisible(tenant)) {
       return NextResponse.json({ success: false, error: 'Salon not found' }, { status: 404 });
     }
 
     if (!resolveSubscription(tenant).bookingEnabled) {
       return NextResponse.json(
-        { success: false, error: 'هذا الصالون لا يستقبل حجوزات جديدة حاليًا' },
+        { success: false, error: await tr('هذا الصالون لا يستقبل حجوزات جديدة حاليًا') },
         { status: 403 }
       );
     }
@@ -57,7 +59,7 @@ export async function POST(request: Request) {
     if (employeeId) {
       const staff = await prisma.staff.findFirst({ where: { id: employeeId, tenantId, status: 'ACTIVE' } });
       if (!staff) {
-        return NextResponse.json({ success: false, error: 'الموظف غير متاح' }, { status: 404 });
+        return NextResponse.json({ success: false, error: await tr('الموظف غير متاح') }, { status: 404 });
       }
     }
 
@@ -125,7 +127,7 @@ export async function POST(request: Request) {
       const notExpired = offer && (!offer.endsAt || offer.endsAt >= new Date());
 
       if (!offer || !notExpired || !DIRECT_OFFER_TYPES.includes(offer.type)) {
-        return NextResponse.json({ success: false, error: 'العرض غير صالح' }, { status: 400 });
+        return NextResponse.json({ success: false, error: await tr('العرض غير صالح') }, { status: 400 });
       }
 
       const appliesToThisService =
@@ -134,7 +136,7 @@ export async function POST(request: Request) {
           : offer.appliesToServiceId === null || offer.appliesToServiceId === serviceId;
 
       if (!appliesToThisService) {
-        return NextResponse.json({ success: false, error: 'هذا العرض لا ينطبق على هذه الخدمة' }, { status: 400 });
+        return NextResponse.json({ success: false, error: await tr('هذا العرض لا ينطبق على هذه الخدمة') }, { status: 400 });
       }
 
       if (offer.type === 'FIRST_BOOKING') {
@@ -145,7 +147,7 @@ export async function POST(request: Request) {
             })
           : 1;
         if (prior > 0) {
-          return NextResponse.json({ success: false, error: 'هذا العرض لأول حجز فقط' }, { status: 400 });
+          return NextResponse.json({ success: false, error: await tr('هذا العرض لأول حجز فقط') }, { status: 400 });
         }
       }
 
@@ -193,11 +195,11 @@ export async function POST(request: Request) {
     );
   } catch (error: any) {
     if (isOutsideHours(error)) {
-      return NextResponse.json({ success: false, error: 'الوقت المختار خارج ساعات الدوام' }, { status: 400 });
+      return NextResponse.json({ success: false, error: await tr('الوقت المختار خارج ساعات الدوام') }, { status: 400 });
     }
     if (isSlotConflict(error)) {
       return NextResponse.json(
-        { success: false, error: 'هذا الموظف محجوز في هذا الوقت، اختر وقتًا أو موظفًا آخر' },
+        { success: false, error: await tr('هذا الموظف محجوز في هذا الوقت، اختر وقتًا أو موظفًا آخر') },
         { status: 409 }
       );
     }

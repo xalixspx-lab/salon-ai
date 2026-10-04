@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { computeSlots } from '@/lib/availability';
 import { clientIp, limitOrResponse } from '@/lib/rateLimit';
+import { isPubliclyVisible } from '@/lib/visibility';
 
 // مواعيد متاحة لخدمة في يوم معين (عام — تُستخدم بنموذج الحجز)
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -21,7 +22,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   }
 
   const tenant = await prisma.tenant.findUnique({ where: { id } });
-  if (!tenant || !tenant.isPublished) {
+  if (!tenant || !isPubliclyVisible(tenant)) {
     return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
   }
   const service = await prisma.service.findFirst({ where: { id: serviceId, tenantId: id } });

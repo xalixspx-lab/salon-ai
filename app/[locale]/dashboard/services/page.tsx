@@ -78,7 +78,7 @@ export default function ServicesPage() {
         body: JSON.stringify({ nameAr, nameEn, basePrice: price, baseDurationMinutes: duration }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'فشل الحفظ');
+      if (!res.ok) throw new Error(data.error || (locale === 'en' ? 'Save failed' : 'فشل الحفظ'));
 
       setShowForm(false);
       resetForm();
@@ -91,7 +91,7 @@ export default function ServicesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('حذف هذه الخدمة؟')) return;
+    if (!confirm(locale === 'en' ? 'Delete this service?' : 'حذف هذه الخدمة؟')) return;
     await fetch(`/api/dashboard/services/${id}`, { method: 'DELETE' });
     load();
   };
@@ -125,7 +125,7 @@ export default function ServicesPage() {
               <input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">{t('duration')} (دقيقة)</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1">{t('duration')} ({locale === 'en' ? 'minutes' : 'دقيقة'})</label>
               <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function ServicesPage() {
         {loading ? (
           <p className="p-6 text-center text-stone-400 text-sm">...</p>
         ) : services.length === 0 ? (
-          <p className="p-6 text-center text-stone-400 text-sm">لا توجد خدمات بعد</p>
+          <p className="p-6 text-center text-stone-400 text-sm">{locale === 'en' ? 'No services yet' : 'لا توجد خدمات بعد'}</p>
         ) : (
           <table className="w-full text-right text-sm text-stone-600">
             <thead className="bg-stone-50 text-stone-700 uppercase text-xs">
@@ -160,7 +160,7 @@ export default function ServicesPage() {
                 <tr key={s.id} className="border-b border-stone-100">
                   <td className="p-3 font-medium text-stone-900">{displayName(s)}</td>
                   <td className="p-3">{s.basePrice ? `${s.basePrice} ${common('currency')}` : '—'}</td>
-                  <td className="p-3">{s.baseDurationMinutes ? `${s.baseDurationMinutes} دقيقة` : '—'}</td>
+                  <td className="p-3">{s.baseDurationMinutes ? `${s.baseDurationMinutes} ${locale === 'en' ? 'min' : 'دقيقة'}` : '—'}</td>
                   <td className="p-3 flex gap-3">
                     <button onClick={() => openEdit(s)} className="text-brand-600 hover:underline">{common('edit')}</button>
                     <button onClick={() => handleDelete(s.id)} className="text-red-500 hover:underline">{common('delete')}</button>

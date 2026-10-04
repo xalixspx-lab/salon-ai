@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireAdmin } from '@/lib/adminSession';
+import { requireAdmin, createAdminSession } from '@/lib/adminSession';
 import { hashPassword, verifyPassword } from '@/lib/password';
 import { limitOrResponse } from '@/lib/rateLimit';
 import { logAdminAction } from '@/lib/audit';
@@ -28,7 +28,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'كلمة المرور الحالية غير صحيحة' }, { status: 400 });
   }
 
-  await prisma.admin.update({ where: { id: admin.id }, data: { passwordHash: await hashPassword(next), mustChangePassword: false } });
+  await prisma.admin.update({ where: { id: admin.id }, data: { passwordHash: await hashPassword(next), mustChangePassword: false, passwordChangedAt: new Date() } });
+  await createAdminSession({ adminId: admin.id, email: admin.email, mustChangePassword: false });
   await logAdminAction(guard.session, { action: 'ADMIN_PASSWORD_CHANGE', targetType: 'ADMIN', targetId: admin.id, targetLabel: admin.email });
   return NextResponse.json({ success: true });
 }

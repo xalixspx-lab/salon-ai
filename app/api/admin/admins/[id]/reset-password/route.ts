@@ -17,7 +17,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   if (!target) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
 
   const tempPassword = generateTempPassword();
-  await prisma.admin.update({ where: { id }, data: { passwordHash: await hashPassword(tempPassword), mustChangePassword: true } });
+  await prisma.admin.update({ where: { id }, data: { passwordHash: await hashPassword(tempPassword), mustChangePassword: true, passwordChangedAt: new Date() } });
   await logAdminAction(guard.session, { action: 'ADMIN_PASSWORD_RESET', targetType: 'ADMIN', targetId: id, targetLabel: target.email });
   return NextResponse.json({ success: true, tempPassword });
 }

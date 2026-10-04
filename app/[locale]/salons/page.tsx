@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import SalonMap from '@/components/SalonMap';
 import SalonGrid from '@/components/SalonGrid';
 import PublicHeader from '@/components/PublicHeader';
+import { PUBLIC_TENANT } from '@/lib/visibility';
 
 export default async function SalonsPage({
   params,
@@ -19,12 +20,12 @@ export default async function SalonsPage({
 
   // جلب الصالونات (المستأجرين) المنشورة فقط، مع تطبيق الفلتر إذا تم تحديد المدينة
   const tenants = await prisma.tenant.findMany({
-    where: { isPublished: true, ...(selectedCity ? { city: selectedCity } : {}) },
+    where: { ...PUBLIC_TENANT, ...(selectedCity ? { city: selectedCity } : {}) },
     orderBy: { createdAt: 'desc' },
   });
 
   // جلب المدن الفريدة لتعبئة أزرار الفلترة (من الصالونات المنشورة فقط)
-  const allTenants = await prisma.tenant.findMany({ where: { isPublished: true }, select: { city: true } });
+  const allTenants = await prisma.tenant.findMany({ where: { ...PUBLIC_TENANT }, select: { city: true } });
   const cities = Array.from(new Set(allTenants.map((t) => t.city).filter(Boolean))) as string[];
 
   // تحديد الصالونات التي لديها عرض نشط حاليًا

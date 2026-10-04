@@ -29,6 +29,10 @@ async function POSTHandler(request: Request, { params }: { params: Promise<{ id:
   const conversation = await prisma.conversation.findFirst({ where: { id, tenantId: session.tenantId } });
   if (!conversation) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
 
+  if (conversation.blockedByCustomerAt) {
+    return NextResponse.json({ success: false, error: 'blocked', blocked: true }, { status: 403 });
+  }
+
   const body = await readJsonObject(request);
   const text = typeof body.body === 'string' ? body.body.trim() : '';
   if (!text || text.length > MESSAGE_MAX_LENGTH) {

@@ -2,6 +2,7 @@ import { NextResponse, after } from 'next/server';
 import { loadOwnedAppointment } from '@/lib/customerAppointments';
 import { isOutsideHours, isSlotConflict, rescheduleAppointmentGuarded } from '@/lib/availability';
 import { notifyBooking } from '@/lib/notify';
+import { tr } from '@/lib/apiLocale';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -30,12 +31,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ success: true, data: updated });
   } catch (error) {
     if (isOutsideHours(error)) {
-      return NextResponse.json({ success: false, error: 'الوقت المختار خارج ساعات الدوام' }, { status: 400 });
+      return NextResponse.json({ success: false, error: await tr('الوقت المختار خارج ساعات الدوام') }, { status: 400 });
     }
     if (isSlotConflict(error)) {
-      return NextResponse.json({ success: false, error: 'هذا الوقت غير متاح، اختر وقتًا آخر' }, { status: 409 });
+      return NextResponse.json({ success: false, error: await tr('هذا الوقت غير متاح، اختر وقتًا آخر') }, { status: 409 });
     }
     console.error('reschedule error:', error);
-    return NextResponse.json({ success: false, error: 'فشل تغيير الموعد' }, { status: 500 });
+    return NextResponse.json({ success: false, error: await tr('فشل تغيير الموعد') }, { status: 500 });
   }
 }

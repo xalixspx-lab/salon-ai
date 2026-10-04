@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { withTenantScope } from '@/lib/tenantScope';
+import { tr } from '@/lib/apiLocale';
 
 // باقات الجلسات لعملاء صالون. للمالك فقط: tenantId يُؤخذ من الجلسة دائمًا، ولا
 // يُقبل من العميل (كانت هذه النقطة مفتوحة بدون مصادقة).
@@ -39,7 +40,7 @@ async function POSTHandler(request: Request) {
 
     const customer = await prisma.customer.findFirst({ where: { id: customerId, tenantId: session.tenantId } });
     if (!customer) {
-      return NextResponse.json({ success: false, error: 'العميل غير موجود' }, { status: 404 });
+      return NextResponse.json({ success: false, error: await tr('العميل غير موجود') }, { status: 404 });
     }
 
     const newPackage = await prisma.customerPackage.create({
