@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import markerIconPng from 'leaflet/dist/images/marker-icon.png';
-import markerShadowPng from 'leaflet/dist/images/marker-shadow.png';
 import { googleMapsUrl } from '@/lib/geo';
 
 interface Salon {
@@ -41,8 +39,9 @@ export default function SalonMap({ salons }: { salons: Salon[] }) {
       if (cancelled || !el) return;
 
       const customIcon = L.icon({
-        iconUrl: markerIconPng.src,
-        shadowUrl: markerShadowPng.src,
+        iconUrl: '/leaflet/marker-icon.png',
+        iconRetinaUrl: '/leaflet/marker-icon-2x.png',
+        shadowUrl: '/leaflet/marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
