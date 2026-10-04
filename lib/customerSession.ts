@@ -21,10 +21,10 @@ export interface CustomerSessionPayload {
 
 // جلسة عميل منفصلة تمامًا عن جلسة صاحب الصالون وجلسة الأدمن — كوكي مختلف
 // الاسم، ولا يمكن الخلط بينها أو الترقية من واحدة لأخرى بأي شكل.
-export async function createCustomerSession(payload: CustomerSessionPayload) {
+export async function createCustomerSession(payload: CustomerSessionPayload, opts: { issuedAt?: number } = {}) {
   const token = await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
+    .setIssuedAt(opts.issuedAt)
     .setExpirationTime(`${MAX_AGE_SECONDS}s`)
     .sign(getSecretKey());
 
@@ -57,7 +57,7 @@ export async function getCustomerSession(): Promise<CustomerSessionPayload | nul
       select: { suspendedAt: true, passwordChangedAt: true },
     });
     if (!account || account.suspendedAt) return null;
-    if (account.passwordChangedAt && (payload.iat ?? 0) < Math.floor(account.passwordChangedAt.getTime() / 1000)) return null;
+    if (account.passwordChangedAt && (payload.iat ?? 0) <= Math.floor(account.passwordChangedAt.getTime() / 1000)) return null;
 
     return { accountId: payload.accountId, email: payload.email, name: payload.name };
   } catch {

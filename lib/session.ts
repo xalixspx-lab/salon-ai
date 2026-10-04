@@ -21,11 +21,11 @@ export interface SessionPayload {
   imp?: string;
 }
 
-export async function createSession(payload: SessionPayload, opts: { maxAgeSeconds?: number } = {}) {
+export async function createSession(payload: SessionPayload, opts: { maxAgeSeconds?: number; issuedAt?: number } = {}) {
   const maxAge = opts.maxAgeSeconds ?? MAX_AGE_SECONDS;
   const token = await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
+    .setIssuedAt(opts.issuedAt)
     .setExpirationTime(`${maxAge}s`)
     .sign(getSecretKey());
 
@@ -60,7 +60,7 @@ export async function getSession(): Promise<SessionPayload | null> {
     });
     if (!owner || owner.suspendedAt || owner.tenantId !== payload.tenantId) return null;
     // جلسة صدرت قبل آخر تغيير/استعادة لكلمة المرور → مرفوضة (iat بالثواني)
-    if (owner.passwordChangedAt && (payload.iat ?? 0) < Math.floor(owner.passwordChangedAt.getTime() / 1000)) return null;
+    if (owner.passwordChangedAt && (payload.iat ?? 0) <= Math.floor(owner.passwordChangedAt.getTime() / 1000)) return null;
 
     return {
       ownerId: payload.ownerId,

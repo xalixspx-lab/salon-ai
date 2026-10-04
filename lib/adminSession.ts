@@ -22,10 +22,10 @@ export interface AdminSessionPayload {
 
 // جلسة أدمن منفصلة تمامًا عن جلسة صاحب الصالون — كوكي مختلف الاسم، ولا يمكن
 // الخلط بينها أو الترقية من جلسة owner لجلسة admin بأي شكل.
-export async function createAdminSession(payload: AdminSessionPayload) {
+export async function createAdminSession(payload: AdminSessionPayload, opts: { issuedAt?: number } = {}) {
   const token = await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
+    .setIssuedAt(opts.issuedAt)
     .setExpirationTime(`${MAX_AGE_SECONDS}s`)
     .sign(getSecretKey());
 
@@ -54,7 +54,7 @@ export async function getAdminSession(): Promise<AdminSessionPayload | null> {
       select: { mustChangePassword: true, passwordChangedAt: true },
     });
     if (!admin) return null; // أدمن محذوف: تسقط جلسته فورًا
-    if (admin.passwordChangedAt && (payload.iat ?? 0) < Math.floor(admin.passwordChangedAt.getTime() / 1000)) return null;
+    if (admin.passwordChangedAt && (payload.iat ?? 0) <= Math.floor(admin.passwordChangedAt.getTime() / 1000)) return null;
 
     return { adminId: payload.adminId, email: payload.email, mustChangePassword: admin.mustChangePassword };
   } catch {

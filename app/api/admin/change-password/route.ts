@@ -28,8 +28,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'كلمة المرور الحالية غير صحيحة' }, { status: 400 });
   }
 
-  await prisma.admin.update({ where: { id: admin.id }, data: { passwordHash: await hashPassword(next), mustChangePassword: false, passwordChangedAt: new Date() } });
-  await createAdminSession({ adminId: admin.id, email: admin.email, mustChangePassword: false });
+  const changedAt = new Date();
+  await prisma.admin.update({ where: { id: admin.id }, data: { passwordHash: await hashPassword(next), mustChangePassword: false, passwordChangedAt: changedAt } });
+  await createAdminSession({ adminId: admin.id, email: admin.email, mustChangePassword: false }, { issuedAt: Math.floor(changedAt.getTime() / 1000) + 1 });
   await logAdminAction(guard.session, { action: 'ADMIN_PASSWORD_CHANGE', targetType: 'ADMIN', targetId: admin.id, targetLabel: admin.email });
   return NextResponse.json({ success: true });
 }

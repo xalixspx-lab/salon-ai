@@ -28,9 +28,13 @@ async function POSTHandler(request: Request) {
     return NextResponse.json({ success: false, error: 'كلمة المرور الحالية غير صحيحة' }, { status: 400 });
   }
 
+  const changedAt = new Date();
   // passwordChangedAt يُسقط كل الجلسات القديمة (جهاز مسروق/منسي)، ثم نصدر جلسة جديدة لهذا الجهاز فقط
-  await prisma.owner.update({ where: { id: owner.id }, data: { passwordHash: await hashPassword(next), passwordChangedAt: new Date() } });
-  await createSession({ ownerId: owner.id, tenantId: session.tenantId, email: session.email, ...(session.imp ? { imp: session.imp } : {}) });
+  await prisma.owner.update({ where: { id: owner.id }, data: { passwordHash: await hashPassword(next), passwordChangedAt: changedAt } });
+  await createSession(
+    { ownerId: owner.id, tenantId: session.tenantId, email: session.email, ...(session.imp ? { imp: session.imp } : {}) },
+    { issuedAt: Math.floor(changedAt.getTime() / 1000) + 1 }
+  );
   return NextResponse.json({ success: true });
 }
 

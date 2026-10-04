@@ -28,7 +28,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: await tr('كلمة المرور الحالية غير صحيحة') }, { status: 400 });
   }
 
-  await prisma.customerAccount.update({ where: { id: account.id }, data: { passwordHash: await hashPassword(next), passwordChangedAt: new Date() } });
-  await createCustomerSession({ accountId: account.id, email: account.email, name: account.name });
+  const changedAt = new Date();
+  await prisma.customerAccount.update({ where: { id: account.id }, data: { passwordHash: await hashPassword(next), passwordChangedAt: changedAt } });
+  await createCustomerSession(
+    { accountId: account.id, email: account.email, name: account.name },
+    { issuedAt: Math.floor(changedAt.getTime() / 1000) + 1 }
+  );
   return NextResponse.json({ success: true });
 }
