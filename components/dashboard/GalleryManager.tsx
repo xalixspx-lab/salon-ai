@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { compressImage } from '@/lib/imageCompress';
 
 interface Photo {
   id: string;
@@ -29,7 +30,7 @@ export default function GalleryManager() {
     setBusy(true);
     setError('');
     const form = new FormData();
-    form.append('file', file);
+    form.append('file', await compressImage(file));
     const res = await fetch('/api/dashboard/gallery', { method: 'POST', body: form });
     const d = await res.json().catch(() => ({}));
     if (!res.ok) setError(d.error || 'Failed');
@@ -60,7 +61,7 @@ export default function GalleryManager() {
               onClick={() => remove(p.id)}
               disabled={busy}
               aria-label={t('removePhoto')}
-              className="absolute top-1 left-1 bg-black/60 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+              className="absolute top-1 start-1 bg-black/60 text-white text-sm rounded-full h-8 w-8 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 focus:opacity-100 transition"
             >
               ✕
             </button>
@@ -71,7 +72,7 @@ export default function GalleryManager() {
             +
             <input
               type="file"
-              accept="image/png,image/jpeg,image/webp"
+              accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
               className="hidden"
               disabled={busy}
               onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}

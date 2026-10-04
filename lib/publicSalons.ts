@@ -6,7 +6,7 @@ import { getRatings } from '@/lib/ratings';
 export async function listPublicSalons(opts: { city?: string | null; take?: number; featuredOnly?: boolean } = {}) {
   const tenants = await prisma.tenant.findMany({
     where: { isPublished: true, ...(opts.city ? { city: opts.city } : {}), ...(opts.featuredOnly ? { isFeatured: true } : {}) },
-    take: opts.take ?? 20,
+    take: opts.take ?? 60,
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,

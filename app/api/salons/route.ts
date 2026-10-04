@@ -62,12 +62,12 @@ export async function GET(request: Request) {
           )
         ) <= ${radiusMeters}
         ORDER BY "distanceKm" ASC
-        LIMIT 20;
+        LIMIT 60;
       `;
     } else {
       const tenants = await prisma.tenant.findMany({
         where: { isPublished: true, ...(city ? { city } : {}) },
-        take: 20,
+        take: 60,
         orderBy: { createdAt: 'desc' },
         // حقول عامة فقط: لا نكشف الباقة ولا تواريخ التجربة ولا إعدادات داخلية
         select: {
@@ -114,7 +114,7 @@ export async function GET(request: Request) {
   } catch (error: any) {
     console.error('Error fetching salons:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch salons', details: error.message },
+      { success: false, error: 'Failed to fetch salons' },
       { status: 500 }
     );
   }
@@ -227,7 +227,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Error creating salon:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create salon', details: error.message },
+      { success: false, error: 'Failed to create salon' },
       { status: 500 }
     );
   }

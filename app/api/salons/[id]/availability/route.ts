@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { computeSlots } from '@/lib/availability';
+import { clientIp, limitOrResponse } from '@/lib/rateLimit';
 
 // مواعيد متاحة لخدمة في يوم معين (عام — تُستخدم بنموذج الحجز)
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+  // نقطة عامة تنفّذ عدة استعلامات لكل طلب؛ 120 طلبًا/دقيقة لكل IP تكفي تصفح تقويم الحجز
+  const limited = await limitOrResponse('availability:' + clientIp(request), 120, 60_000);
+  if (limited) return limited;
   const url = new URL(request.url);
   const serviceId = url.searchParams.get('serviceId');
   const date = url.searchParams.get('date');

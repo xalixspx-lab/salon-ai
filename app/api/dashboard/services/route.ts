@@ -47,7 +47,7 @@ async function POSTHandler(request: Request) {
   } catch (error: any) {
     console.error('Error creating service:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل إنشاء الخدمة', details: error.message },
+      { success: false, error: 'فشل إنشاء الخدمة' },
       { status: 500 }
     );
   }

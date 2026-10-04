@@ -43,6 +43,28 @@ async function PATCHHandler(request: Request) {
       refundPercentAfterDeadline,
     } = body;
 
+    // مدخلات نصية: نوع وطول — منطقة زمنية غير صالحة كانت تكسر حساب المواعيد
+    // لهذا الصالون كله (Intl.DateTimeFormat يرمي استثناءً)
+    const isText = (v: unknown, max: number) => typeof v === 'string' && v.length <= max;
+    if (
+      (name !== undefined && (!isText(name, 255) || !name.trim())) ||
+      (city !== undefined && city !== null && !isText(city, 100)) ||
+      (phone !== undefined && phone !== null && !isText(phone, 50)) ||
+      (workingHoursText !== undefined && workingHoursText !== null && !isText(workingHoursText, 500)) ||
+      (descriptionAr !== undefined && descriptionAr !== null && !isText(descriptionAr, 2000)) ||
+      (descriptionEn !== undefined && descriptionEn !== null && !isText(descriptionEn, 2000)) ||
+      (currency && !(typeof currency === 'string' && /^[A-Za-z]{3}$/.test(currency)))
+    ) {
+      return NextResponse.json({ success: false, error: 'بيانات غير صالحة' }, { status: 400 });
+    }
+    if (timezone) {
+      try {
+        new Intl.DateTimeFormat('en', { timeZone: String(timezone) });
+      } catch {
+        return NextResponse.json({ success: false, error: 'المنطقة الزمنية غير صالحة' }, { status: 400 });
+      }
+    }
+
     let workingHoursUpdate = {};
     if (body.workingHours !== undefined) {
       const parsed = parseWeeklyHours(body.workingHours);
@@ -90,7 +112,7 @@ async function PATCHHandler(request: Request) {
   } catch (error: any) {
     console.error('Error updating settings:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل تحديث الإعدادات', details: error.message },
+      { success: false, error: 'فشل تحديث الإعدادات' },
       { status: 500 }
     );
   }

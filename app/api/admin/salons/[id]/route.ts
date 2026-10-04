@@ -97,7 +97,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   } catch (error: any) {
     console.error('Admin error updating tenant:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل تحديث الصالون', details: error.message },
+      { success: false, error: 'فشل تحديث الصالون' },
       { status: 500 }
     );
   }

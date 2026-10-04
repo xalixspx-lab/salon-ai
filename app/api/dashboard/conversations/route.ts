@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { withTenantScope } from '@/lib/tenantScope';
-import { SENDER_ROLE } from '@/lib/chat';
+import { SENDER_ROLE, readJsonObject, isUuid } from '@/lib/chat';
+import { limitOrResponse } from '@/lib/rateLimit';
 
 // قائمة محادثات الصالون (بريد وارد للمالك) — محادثة مستقلة لكل عميل، مرتبة
 // بحسب آخر نشاط، مع عدد الرسائل غير المقروءة من كل عميل
@@ -45,8 +46,11 @@ async function POSTHandler(request: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-  const body = await request.json().catch(() => ({}));
-  const customerId = typeof body.customerId === 'string' ? body.customerId : '';
+  const limited = await limitOrResponse(`chat:own-start:${session.tenantId}`, 20, 60_000);
+  if (limited) return limited;
+
+  const body = await readJsonObject(request);
+  const customerId = isUuid(body.customerId) ? body.customerId : '';
   if (!customerId) return NextResponse.json({ success: false, error: 'customerId required' }, { status: 400 });
 
   const customer = await prisma.customer.findFirst({ where: { id: customerId, tenantId: session.tenantId } });

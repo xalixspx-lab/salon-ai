@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Customer login error:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل تسجيل الدخول', details: error.message },
+      { success: false, error: 'فشل تسجيل الدخول' },
       { status: 500 }
     );
   }

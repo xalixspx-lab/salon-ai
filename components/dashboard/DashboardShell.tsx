@@ -85,7 +85,7 @@ export default function DashboardShell({
         {/* شريط علوي: على الجوال يعوّض هوية الصالون المختفية مع الشريط
             الجانبي؛ في كل العروض يحمل قائمة حساب موحّدة (عودة للمتجر/خروج)
             بدل تكرارها أسفل الشريط الجانبي أيضًا */}
-        <header className="sticky top-0 z-30 bg-white border-b border-stone-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+        <header className="sticky top-0 z-30 bg-white border-b border-stone-200 px-4 sm:px-6 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 md:hidden min-w-0">
             {logoUrl && (
               // eslint-disable-next-line @next/next/no-img-element
@@ -130,11 +130,11 @@ export default function DashboardShell({
           </div>
         </header>
 
-        <main className="flex-1 p-6 sm:p-8 pb-24 md:pb-8 overflow-y-auto">{children}</main>
+        <main className="flex-1 p-6 sm:p-8 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-8 overflow-y-auto">{children}</main>
 
         {/* شريط تنقّل سفلي للجوال فقط — الشريط الجانبي يختفي تحت md بلا أي
             بديل حاليًا، فمالك الصالون على هاتفه بلا أي تنقّل إطلاقًا */}
-        <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-stone-200 flex overflow-x-auto">
+        <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-stone-200 flex overflow-x-auto pb-[env(safe-area-inset-bottom)]">
           {links.map((link) => (
             <Link
               key={link.href}

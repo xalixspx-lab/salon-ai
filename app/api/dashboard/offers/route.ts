@@ -75,7 +75,7 @@ async function POSTHandler(request: Request) {
   } catch (error: any) {
     console.error('Error creating offer:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل إنشاء العرض', details: error.message },
+      { success: false, error: 'فشل إنشاء العرض' },
       { status: 500 }
     );
   }

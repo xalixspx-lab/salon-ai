@@ -22,7 +22,7 @@ export default function LanguageSwitcher() {
     <button
       type="button"
       onClick={switchTo}
-      className="fixed top-3 end-3 z-50 rounded-full bg-white/90 backdrop-blur border border-gray-200 shadow-sm px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-white transition"
+      className="fixed top-[calc(0.75rem+env(safe-area-inset-top))] end-3 z-50 rounded-full bg-white/90 backdrop-blur border border-gray-200 shadow-sm px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-white transition"
     >
       {other === 'ar' ? 'العربية' : 'English'}
     </button>

@@ -479,5 +479,14 @@
     "selectCustomer": "Select a customer to start a conversation",
     "noEligibleCustomers": "No customers with an account to message yet",
     "startFailed": "Couldn't start the conversation"
+  },
+  "Errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundDesc": "The link you opened is invalid or no longer available.",
+    "backHome": "Back to home",
+    "errorTitle": "Something went wrong",
+    "errorDesc": "We couldn't load this page. Please try again.",
+    "retry": "Try again",
+    "loading": "Loading..."
   }
 }

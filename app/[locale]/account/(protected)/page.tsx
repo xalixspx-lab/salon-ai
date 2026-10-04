@@ -10,6 +10,7 @@ import AppointmentActions from '@/components/account/AppointmentActions';
 import ChangePasswordCard from '@/components/account/ChangePasswordCard';
 import PrivacyCard from '@/components/account/PrivacyCard';
 import PublicHeader from '@/components/PublicHeader';
+import { formatDate, formatDateTime } from '@/lib/format';
 import LoyaltyCard from '@/components/account/LoyaltyCard';
 import InviteFriendsCard from '@/components/account/InviteFriendsCard';
 import { CONSENT_TYPES, currentConsent } from '@/lib/legal';
@@ -47,7 +48,7 @@ export default async function AccountPage({
 
   const favorites = await prisma.favorite.findMany({
     where: { accountId: session.accountId, tenant: { isPublished: true } },
-    include: { tenant: { select: { name: true } } },
+    include: { tenant: { select: { name: true, timezone: true } } },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -81,7 +82,7 @@ export default async function AccountPage({
             startTime: { gte: new Date() },
             status: { in: ['CONFIRMED', 'PENDING_DEPOSIT'] },
           },
-          include: { tenant: { select: { name: true } } },
+          include: { tenant: { select: { name: true, timezone: true } } },
           orderBy: { startTime: 'asc' },
         })
       : Promise.resolve([]),
@@ -146,7 +147,7 @@ export default async function AccountPage({
                   <div>
                     <p className="font-semibold text-amber-900">{a.tenant?.name}</p>
                     <p className="text-sm text-amber-700 mt-0.5">
-                      {t('upcomingReminder')} — {a.startTime ? new Date(a.startTime).toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US') : ''}
+                      {t('upcomingReminder')} — {a.startTime ? formatDateTime(a.startTime, locale, a.tenant?.timezone) : ''}
                     </p>
                   </div>
                 </div>
@@ -212,7 +213,7 @@ export default async function AccountPage({
                       <td className="p-3 font-medium text-gray-900">{a.tenant?.name || '—'}</td>
                       <td className="p-3">{serviceDisplayName(a.service, locale)}</td>
                       <td className="p-3">
-                        {a.startTime ? new Date(a.startTime).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US') : '—'}
+                        {a.startTime ? formatDate(a.startTime, locale, a.tenant?.timezone) : '—'}
                       </td>
                       <td className="p-3">{a.totalAmount ? String(a.totalAmount) : '—'}</td>
                       <td className="p-3">{a.depositAmount ? String(a.depositAmount) : '—'}</td>

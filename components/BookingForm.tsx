@@ -5,6 +5,10 @@ import { useLocale, useTranslations } from 'next-intl';
 import { describeOffer } from '@/lib/offers';
 import type { ApplicableOffer } from './ServicesList';
 
+// الدينار البحريني بثلاث خانات عشرية: 4.5 تظهر "4.5" لا "5" (toFixed(0) كان يقرّب)
+const formatMoney = (n: number) =>
+  new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 3 }).format(n);
+
 interface ServiceOption {
   id: string;
   displayName: string;
@@ -177,7 +181,7 @@ export default function BookingForm({
                 <>
                   <p className="text-xs text-gray-400">
                     {accountT('signInPrompt')} —{' '}
-                    <a href="/account/login" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    <a href={`/${locale}/account/login`} className="text-blue-600 hover:underline">
                       {accountT('loginLink')}
                     </a>
                   </p>
@@ -221,7 +225,7 @@ export default function BookingForm({
                   <select value={offerId} onChange={(e) => setOfferId(e.target.value)} className="w-full px-3 py-2 border rounded-md">
                     <option value="">{t('noOffer')}</option>
                     {offers.map((o) => (
-                      <option key={o.id} value={o.id}>{describeOffer(o as any, 'ar', currency)}</option>
+                      <option key={o.id} value={o.id}>{describeOffer(o as any, locale === 'en' ? 'en' : 'ar', currency)}</option>
                     ))}
                   </select>
                 </div>
@@ -267,7 +271,7 @@ export default function BookingForm({
 
               {selectedOffer && finalPrice !== null && (
                 <p className="text-sm font-medium text-emerald-700 bg-emerald-50 rounded-md px-3 py-2">
-                  {t('finalPrice')}: {finalPrice.toFixed(0)} {currency}
+                  {t('finalPrice')}: {formatMoney(finalPrice)} {currency}
                 </p>
               )}
 
@@ -275,7 +279,7 @@ export default function BookingForm({
                 {depositPercentage > 0
                   ? `${t('depositNote')} (${depositPercentage}%${
                       finalPrice !== null
-                        ? ` ≈ ${((finalPrice * depositPercentage) / 100).toFixed(0)} ${currency}`
+                        ? ` ≈ ${formatMoney((finalPrice * depositPercentage) / 100)} ${currency}`
                         : ''
                     })`
                   : t('noDepositNote')}
@@ -297,11 +301,11 @@ export default function BookingForm({
                 )}
                 <p>
                   {isAr ? 'بتأكيد الحجز أنت توافق على ' : 'By confirming you agree to the '}
-                  <a href={`/${locale}/legal/refund`} target="_blank" className="underline">{isAr ? 'سياسة الاسترداد' : 'refund policy'}</a>
+                  <a href={`/${locale}/legal/refund`} target="_blank" rel="noopener noreferrer" className="underline">{isAr ? 'سياسة الاسترداد' : 'refund policy'}</a>
                   {isAr ? ' و' : ', '}
-                  <a href={`/${locale}/legal/terms`} target="_blank" className="underline">{isAr ? 'شروط الاستخدام' : 'terms'}</a>
+                  <a href={`/${locale}/legal/terms`} target="_blank" rel="noopener noreferrer" className="underline">{isAr ? 'شروط الاستخدام' : 'terms'}</a>
                   {isAr ? ' و' : ' and '}
-                  <a href={`/${locale}/legal/privacy`} target="_blank" className="underline">{isAr ? 'سياسة الخصوصية' : 'privacy policy'}</a>.
+                  <a href={`/${locale}/legal/privacy`} target="_blank" rel="noopener noreferrer" className="underline">{isAr ? 'سياسة الخصوصية' : 'privacy policy'}</a>.
                 </p>
               </div>
 

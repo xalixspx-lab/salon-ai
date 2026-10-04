@@ -54,7 +54,7 @@ async function PATCHHandler(request: Request, { params }: { params: Promise<{ id
   } catch (error: any) {
     console.error('Error updating staff:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل تحديث بيانات الموظف', details: error.message },
+      { success: false, error: 'فشل تحديث بيانات الموظف' },
       { status: 500 }
     );
   }
@@ -69,6 +69,23 @@ async function DELETEHandler(request: Request, { params }: { params: Promise<{ i
   const { id } = await params;
   if (!(await assertOwnedByTenant(id, session.tenantId))) {
     return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+  }
+
+  // حذف موظف له حجوزات قادمة يترك الحجز بلا موظف (SetNull) فيُتجاهل في حساب
+  // التعارض ويمكن حجز موظف آخر فوقه؛ نمنع ذلك ونطلب إلغاءها أو تعطيل الموظف
+  const upcoming = await prisma.appointment.count({
+    where: {
+      tenantId: session.tenantId,
+      employeeId: id,
+      status: { in: ['CONFIRMED', 'PENDING_DEPOSIT'] },
+      startTime: { gte: new Date() },
+    },
+  });
+  if (upcoming > 0) {
+    return NextResponse.json(
+      { success: false, error: `لا يمكن حذف موظف لديه ${upcoming} حجز قادم. ألغِ الحجوزات أو عطّل الموظف بدل حذفه.` },
+      { status: 409 }
+    );
   }
 
   await prisma.staff.delete({ where: { id } });

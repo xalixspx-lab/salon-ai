@@ -99,8 +99,11 @@ export async function POST(request: Request) {
         }));
       resolvedCustomerId = linkedCustomer.id;
     } else if (!resolvedCustomerId && customerName && customerPhone) {
+      // accountId: null — حجز الضيف بالهاتف فقط لا يجوز أن يلتصق بسجل عميل مرتبط
+      // بحساب مسجّل (وإلا حجز أي شخص يعرف رقم عميل مسجّل باسمه، فتصله إيميلات
+      // الحجز وتُمنح له نقاطه)
       const existingCustomer = await prisma.customer.findFirst({
-        where: { tenantId, phone: customerPhone },
+        where: { tenantId, phone: customerPhone, accountId: null },
       });
       const customer =
         existingCustomer ||
@@ -203,7 +206,6 @@ export async function POST(request: Request) {
       {
         success: false,
         error: 'Failed to create appointment',
-        details: error.message,
       },
       { status: 500 }
     );

@@ -16,6 +16,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; id: string }>;
 }): Promise<Metadata> {
   const { locale, id } = await params;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return {};
   const tenant = await prisma.tenant.findUnique({
     where: { id },
     select: { name: true, city: true, description: true, isPublished: true },
@@ -48,6 +49,8 @@ export default async function SalonDetailPage({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { locale, id } = await params;
+  // معرّف غير UUID كان يرمي خطأ Prisma (500) بدل 404
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) notFound();
 
   const tenant = await prisma.tenant.findUnique({ where: { id } });
   if (!tenant || !tenant.isPublished) notFound();

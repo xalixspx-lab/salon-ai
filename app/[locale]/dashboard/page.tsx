@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { resolveSubscription } from '@/lib/subscription';
 import AnalyticsPanel from '@/components/dashboard/AnalyticsPanel';
+import { formatDateTime } from '@/lib/format';
+import { DEFAULT_TIMEZONE, localParts, zonedToUtc } from '@/lib/schedule';
 
 const STATUS_STYLES: Record<string, string> = {
   CONFIRMED: 'bg-blue-50 text-blue-700',
@@ -25,15 +27,16 @@ export default async function DashboardOverviewPage({
   const t = await getTranslations('Dashboard');
   const common = await getTranslations('Common');
 
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
-  const endOfToday = new Date(startOfToday);
-  endOfToday.setDate(endOfToday.getDate() + 1);
-
   const tenantInfo = await prisma.tenant.findUnique({
     where: { id: session.tenantId },
     select: { timezone: true, currency: true, plan: true, trialEndsAt: true },
   });
+
+  // "اليوم" بتوقيت الصالون: setHours على خادم UTC كان يزيح حدود اليوم 3 ساعات
+  // عن البحرين فتُحسب حجوزات الليلة الماضية/القادمة ضمن اليوم خطأً
+  const tz = tenantInfo?.timezone || DEFAULT_TIMEZONE;
+  const startOfToday = zonedToUtc(localParts(new Date(), tz).dateStr, '00:00', tz);
+  const endOfToday = new Date(startOfToday.getTime() + 24 * 3600 * 1000);
 
   const [todayAppointments, totalCustomers, recentAppointments] = await Promise.all([
     prisma.appointment.findMany({
@@ -142,7 +145,7 @@ export default async function DashboardOverviewPage({
                     <td className="p-3 font-medium text-stone-900">{a.customer?.name || '—'}</td>
                     <td className="p-3">{serviceName(a.service)}</td>
                     <td className="p-3">
-                      {a.startTime ? new Date(a.startTime).toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US') : '—'}
+                      {a.startTime ? formatDateTime(a.startTime, locale, tenantInfo?.timezone) : '—'}
                     </td>
                     <td className="p-3">{a.employee?.name || '—'}</td>
                     <td className="p-3">

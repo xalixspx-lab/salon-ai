@@ -1,59 +1,52 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
-
-type Message = { id: string; senderRole: string; body: string; createdAt: string };
+import { useCallback, useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import ChatThread, { type ChatMessage } from '@/components/chat/ChatThread';
+import { fetchJson, usePolling } from '@/components/chat/usePolling';
 
 // ويدجت محادثة عائم في صفحة الصالون العامة — محادثة واحدة مع هذا الصالون
-// تحديدًا (لا بريد وارد متعدد كجانب المالك)؛ يظهر فقط لعميل مسجّل دخوله
+// تحديدًا؛ يظهر كاملًا لعميل مسجّل دخوله، ولغيره رابط تسجيل الدخول فقط.
+// شارة غير المقروء تعمل والويدجت مغلق (استطلاع خفيف كل 15 ثانية).
 export default function SalonChatWidget({ tenantId }: { tenantId: string }) {
   const t = useTranslations('Chat');
   const locale = useLocale();
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const [sending, setSending] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [unread, setUnread] = useState(0);
 
   useEffect(() => {
     fetch('/api/account/session')
       .then((r) => r.json())
-      .then((d) => setLoggedIn(Boolean(d?.loggedIn)))
+      .then((json) => setLoggedIn(Boolean(json?.loggedIn)))
       .catch(() => setLoggedIn(false));
   }, []);
 
   const loadMessages = useCallback(async () => {
-    const res = await fetch(`/api/account/conversations/${tenantId}/messages`);
-    const data = await res.json();
-    if (data.success) setMessages(data.data);
+    const { ok, data } = await fetchJson<ChatMessage[]>(`/api/account/conversations/${tenantId}/messages`);
+    if (ok && data) {
+      setMessages(data);
+      setUnread(0);
+    }
   }, [tenantId]);
 
-  useEffect(() => {
-    if (!open) return;
-    loadMessages();
-    const interval = setInterval(loadMessages, 3000);
-    return () => clearInterval(interval);
-  }, [open, loadMessages]);
+  const loadUnread = useCallback(async () => {
+    const { ok, data } = await fetchJson<{ unread: number }>(`/api/account/conversations/${tenantId}/unread`);
+    if (ok && data) setUnread(data.unread);
+  }, [tenantId]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [messages]);
+  usePolling(loadMessages, 3000, loggedIn === true && open);
+  usePolling(loadUnread, 15000, loggedIn === true && !open);
 
-  const handleSend = async () => {
-    const text = input.trim();
-    if (!text || sending) return;
-    setSending(true);
-    setInput('');
-    const res = await fetch(`/api/account/conversations/${tenantId}/messages`, {
+  const sendCustomerMessage = async (text: string) => {
+    const { ok, data } = await fetchJson<ChatMessage>(`/api/account/conversations/${tenantId}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ body: text }),
     });
-    const data = await res.json();
-    if (data.success) setMessages((prev) => [...prev, data.data]);
-    setSending(false);
+    if (ok && data) setMessages((prev) => [...prev, data]);
+    return ok;
   };
 
   if (loggedIn === null) return null;
@@ -62,7 +55,7 @@ export default function SalonChatWidget({ tenantId }: { tenantId: string }) {
     return (
       <a
         href={`/${locale}/account/login`}
-        className="fixed bottom-6 end-6 z-40 rounded-full bg-white border border-gray-200 shadow-lg px-4 py-3 text-sm font-medium text-gray-700 hover:border-gray-300"
+        className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] end-4 z-40 rounded-full bg-white border border-gray-200 shadow-lg px-4 py-3 text-sm font-medium text-gray-700 hover:border-gray-300"
       >
         💬 {t('loginToChat')}
       </a>
@@ -70,52 +63,34 @@ export default function SalonChatWidget({ tenantId }: { tenantId: string }) {
   }
 
   return (
-    <div className="fixed bottom-6 end-6 z-40">
+    <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] end-4 md:end-6 z-40">
       {open && (
-        <div className="mb-3 w-[calc(100vw-2rem)] max-w-sm h-[26rem] bg-white rounded-2xl border border-gray-200 shadow-2xl flex flex-col overflow-hidden">
+        <div className="mb-3 w-[calc(100vw-2rem)] max-w-sm h-[min(26rem,calc(100dvh-8rem))] bg-white rounded-2xl border border-gray-200 shadow-2xl flex flex-col overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100 font-bold text-gray-800">{t('chatWithSalon')}</div>
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-gray-50">
-            {messages.length === 0 ? (
-              <p className="text-center text-gray-400 text-sm py-10">{t('noMessages')}</p>
-            ) : (
-              messages.map((m) => (
-                <div key={m.id} className={`flex ${m.senderRole === 'CUSTOMER' ? 'justify-end' : 'justify-start'}`}>
-                  <div
-                    className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
-                      m.senderRole === 'CUSTOMER' ? 'bg-brand-600 text-white' : 'bg-white text-gray-800 border border-gray-200'
-                    }`}
-                  >
-                    {m.body}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-          <div className="p-2 border-t border-gray-100 flex items-center gap-2">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder={t('typePlaceholder')}
-              className="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-            />
-            <button
-              onClick={handleSend}
-              disabled={sending || !input.trim()}
-              className="bg-brand-600 text-white rounded-xl px-3 py-2 text-sm font-medium disabled:opacity-40"
-            >
-              {t('send')}
-            </button>
-          </div>
+          <ChatThread
+            messages={messages}
+            mineRole="CUSTOMER"
+            locale={locale}
+            placeholder={t('typePlaceholder')}
+            sendLabel={t('send')}
+            emptyLabel={t('noMessages')}
+            onSend={sendCustomerMessage}
+          />
         </div>
       )}
 
       <button
         onClick={() => setOpen((v) => !v)}
-        className="h-14 w-14 rounded-full bg-brand-600 text-white shadow-xl flex items-center justify-center text-2xl hover:bg-brand-700 transition"
+        className="relative h-14 w-14 rounded-full bg-brand-600 text-white shadow-xl flex items-center justify-center text-2xl hover:bg-brand-700 transition"
         aria-label={t('chatWithSalon')}
+        aria-expanded={open}
       >
         💬
+        {!open && unread > 0 && (
+          <span className="absolute -top-1 -end-1 bg-gold-500 text-white text-[10px] font-bold rounded-full h-5 min-w-5 px-1 flex items-center justify-center">
+            {unread}
+          </span>
+        )}
       </button>
     </div>
   );

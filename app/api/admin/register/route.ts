@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Error registering admin:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل إنشاء حساب الأدمن', details: error.message },
+      { success: false, error: 'فشل إنشاء حساب الأدمن' },
       { status: 500 }
     );
   }

@@ -28,20 +28,38 @@ async function PATCHHandler(request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ success: false, error: 'حالة غير صحيحة' }, { status: 400 });
     }
 
-    // إعادة تفعيل حجز ملغي يجب ألا تُنشئ تعارضًا مع حجز آخر أُخذ وقته
-    const reactivating = existing.status === 'CANCELLED' && status !== 'CANCELLED';
-    if (reactivating && existing.employeeId && existing.startTime && existing.endTime) {
+    // الحجز المكتمل نهائي: الرجوع عنه ثم إكماله مجددًا كان يمنح نقاط الولاء
+    // ومكافأة الإحالة أكثر من مرة. والمُلغى لا يُكمَل مباشرة (يُعاد تفعيله أولًا)
+    if (existing.status === 'COMPLETED' && status !== 'COMPLETED') {
+      return NextResponse.json({ success: false, error: 'لا يمكن تغيير حالة حجز مكتمل' }, { status: 409 });
+    }
+    if (existing.status === 'CANCELLED' && status === 'COMPLETED') {
+      return NextResponse.json({ success: false, error: 'فعّل الحجز الملغي أولًا قبل إكماله' }, { status: 409 });
+    }
+
+    // أي انتقال إلى حالة "تشغل الوقت" (تأكيد/عربون/إكمال) يجب ألا يتعارض مع حجز
+    // آخر أُخذ وقته — يشمل إعادة تفعيل ملغي، وتأكيد حجز انتهت مهلة عربونه
+    // (15 دقيقة) وأخذ آخر مكانه
+    const occupiesSlot = (status === 'CONFIRMED' || status === 'PENDING_DEPOSIT') && existing.status !== status;
+    if (occupiesSlot && existing.employeeId && existing.startTime && existing.endTime) {
       if (await hasConflict(prisma, existing.tenantId!, existing.employeeId, existing.startTime, existing.endTime, existing.id)) {
         return NextResponse.json(
-          { success: false, error: 'لا يمكن إعادة التفعيل: الموظف لديه حجز آخر في هذا الوقت' },
+          { success: false, error: 'لا يمكن تغيير الحالة: الموظف لديه حجز آخر في هذا الوقت' },
           { status: 409 }
         );
       }
     }
 
-    const appointment = await prisma.appointment.update({
-      where: { id },
+    // تحديث بشرط الحالة السابقة: طلبان متزامنان لا يمرّان معًا (كانا يمنحان النقاط مرتين)
+    const updated = await prisma.appointment.updateMany({
+      where: { id, tenantId: session.tenantId, status: existing.status },
       data: { status },
+    });
+    if (updated.count === 0) {
+      return NextResponse.json({ success: false, error: 'تم تحديث هذا الحجز للتو، أعد المحاولة' }, { status: 409 });
+    }
+    const appointment = await prisma.appointment.findUniqueOrThrow({
+      where: { id },
       include: { service: true, customer: true, employee: true },
     });
 
@@ -61,7 +79,7 @@ async function PATCHHandler(request: Request, { params }: { params: Promise<{ id
   } catch (error: any) {
     console.error('Error updating booking:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل تحديث الحجز', details: error.message },
+      { success: false, error: 'فشل تحديث الحجز' },
       { status: 500 }
     );
   }

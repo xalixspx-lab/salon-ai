@@ -34,7 +34,7 @@ async function PATCHHandler(request: Request, { params }: { params: Promise<{ id
   } catch (error: any) {
     console.error('Error updating offer:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل تحديث العرض', details: error.message },
+      { success: false, error: 'فشل تحديث العرض' },
       { status: 500 }
     );
   }

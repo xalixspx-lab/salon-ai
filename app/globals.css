@@ -32,11 +32,11 @@
   --color-gold-600: #b8942a;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* التصميم كله فاتح (بطاقات bg-white صريحة). كتلة prefers-color-scheme: dark
+   السابقة كانت تقلب لون النص إلى الفاتح على هواتف الوضع الداكن فيختفي النص
+   على البطاقات البيضاء؛ نثبّت الفاتح صراحةً لحين بناء وضع داكن كامل. */
+:root {
+  color-scheme: light;
 }
 
 body {

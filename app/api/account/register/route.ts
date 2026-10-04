@@ -94,7 +94,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Error registering customer account:', error);
     return NextResponse.json(
-      { success: false, error: 'فشل إنشاء الحساب', details: error.message },
+      { success: false, error: 'فشل إنشاء الحساب' },
       { status: 500 }
     );
   }

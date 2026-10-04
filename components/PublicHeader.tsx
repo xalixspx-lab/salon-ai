@@ -14,7 +14,7 @@ export default async function PublicHeader({ locale }: { locale: string }) {
   const session = await getCustomerSession();
 
   return (
-    <header className="bg-white/90 backdrop-blur border-b border-gray-100 sticky top-0 z-40">
+    <header className="bg-white/90 backdrop-blur border-b border-gray-100 sticky top-0 z-40 pt-[env(safe-area-inset-top)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
         <Link href={`/${locale}`} className="font-extrabold text-lg text-gray-900 shrink-0">
           Salon AI

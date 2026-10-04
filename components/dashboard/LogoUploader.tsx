@@ -1,5 +1,6 @@
 'use client';
 
+import { compressImage } from '@/lib/imageCompress';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 
@@ -13,7 +14,7 @@ export default function LogoUploader({ initialUrl }: { initialUrl: string | null
     setBusy(true);
     setError('');
     const form = new FormData();
-    form.append('file', file);
+    form.append('file', await compressImage(file));
     const res = await fetch('/api/dashboard/logo', { method: 'POST', body: form });
     const d = await res.json().catch(() => ({}));
     if (!res.ok) setError(d.error || 'Failed');
@@ -41,7 +42,7 @@ export default function LogoUploader({ initialUrl }: { initialUrl: string | null
             {busy ? '...' : url ? t('changeLogo') : t('uploadLogo')}
             <input
               type="file"
-              accept="image/png,image/jpeg,image/webp"
+              accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
               className="hidden"
               disabled={busy}
               onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}

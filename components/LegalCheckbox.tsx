@@ -16,7 +16,7 @@ export default function LegalCheckbox({
   const locale = useLocale();
   const ar = locale === 'ar';
   const link = (slug: string, a: string, e: string) => (
-    <Link href={`/${locale}/legal/${slug}`} target="_blank" className="text-blue-600 underline">
+    <Link href={`/${locale}/legal/${slug}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
       {ar ? a : e}
     </Link>
   );
