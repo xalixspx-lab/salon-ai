@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Compass, Menu, Store, UserRound, X } from 'lucide-react';
 import LogoutButton from '@/components/account/LogoutButton';
+import { buttonClass } from '@/components/ui/Button';
 
-// قائمة جوال منسدلة للهيدر العام: تظهر فقط تحت sm (حيث يضيق الصف الأفقي
-// المعتاد عن استيعاب كل الروابط)، بديل الرابط الرئيسي عندما تكبر عناصر
-// التنقل (دخول/تسجيل أو الاسم/خروج + اكتشف + روابط لاحقة كالإحالة).
+// قائمة جوال منسدلة للهيدر العام (تحت sm فقط)
 export default function MobileNavMenu({
   locale,
   loggedIn,
@@ -16,49 +16,34 @@ export default function MobileNavMenu({
   locale: string;
   loggedIn: boolean;
   name?: string;
-  labels: { discover: string; login: string; register: string; account: string };
+  labels: { discover: string; login: string; register: string; account: string; forOwners?: string };
 }) {
   const [open, setOpen] = useState(false);
+  const item = 'flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-stone-700 hover:bg-stone-50';
 
   return (
     <div className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Menu"
-        aria-expanded={open}
-        className="p-2 -m-2 text-gray-700 hover:text-gray-900"
-      >
-        {open ? (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
-          </svg>
-        ) : (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
-          </svg>
-        )}
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="Menu" aria-expanded={open} className="h-10 w-10 -m-1 rounded-xl flex items-center justify-center text-stone-700 hover:bg-stone-100">
+        {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
 
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute end-0 top-full mt-2 w-56 bg-white rounded-2xl border border-gray-100 shadow-lg z-50 p-2 text-sm">
-            <Link
-              href={`/${locale}/salons`}
-              onClick={() => setOpen(false)}
-              className="block px-3 py-2.5 rounded-xl text-gray-700 hover:bg-gray-50"
-            >
-              {labels.discover}
+          <div className="absolute end-0 top-full mt-2 w-60 bg-white rounded-2xl border border-stone-200 shadow-xl z-50 p-1.5 text-sm animate-[popIn_.14s_ease-out]">
+            <Link href={`/${locale}/salons`} onClick={() => setOpen(false)} className={item}>
+              <Compass className="h-4 w-4 text-stone-400" /> {labels.discover}
             </Link>
+            {labels.forOwners && (
+              <Link href={`/${locale}/salons/new`} onClick={() => setOpen(false)} className={item}>
+                <Store className="h-4 w-4 text-stone-400" /> {labels.forOwners}
+              </Link>
+            )}
+            <div className="my-1 h-px bg-stone-100" />
             {loggedIn ? (
               <>
-                <Link
-                  href={`/${locale}/account`}
-                  onClick={() => setOpen(false)}
-                  className="block px-3 py-2.5 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
-                >
-                  {name || labels.account}
+                <Link href={`/${locale}/account`} onClick={() => setOpen(false)} className={`${item} font-medium`}>
+                  <UserRound className="h-4 w-4 text-stone-400" /> {name || labels.account}
                 </Link>
                 <div className="px-3 py-2.5">
                   <LogoutButton />
@@ -66,18 +51,10 @@ export default function MobileNavMenu({
               </>
             ) : (
               <>
-                <Link
-                  href={`/${locale}/account/login`}
-                  onClick={() => setOpen(false)}
-                  className="block px-3 py-2.5 rounded-xl text-gray-700 hover:bg-gray-50"
-                >
-                  {labels.login}
+                <Link href={`/${locale}/account/login`} onClick={() => setOpen(false)} className={item}>
+                  <UserRound className="h-4 w-4 text-stone-400" /> {labels.login}
                 </Link>
-                <Link
-                  href={`/${locale}/account/register`}
-                  onClick={() => setOpen(false)}
-                  className="block px-3 py-2.5 rounded-xl bg-gray-900 text-white text-center font-medium hover:bg-gray-800 mt-1"
-                >
+                <Link href={`/${locale}/account/register`} onClick={() => setOpen(false)} className={buttonClass('primary', 'md', 'w-full mt-1')}>
                   {labels.register}
                 </Link>
               </>

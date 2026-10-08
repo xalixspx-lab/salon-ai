@@ -5,6 +5,8 @@ import { getTranslations } from 'next-intl/server';
 import SalonMap from '@/components/SalonMap';
 import SalonGrid from '@/components/SalonGrid';
 import PublicHeader from '@/components/PublicHeader';
+import { buttonClass } from '@/components/ui/Button';
+import { Plus } from 'lucide-react';
 import { PUBLIC_TENANT } from '@/lib/visibility';
 
 export default async function SalonsPage({
@@ -12,10 +14,10 @@ export default async function SalonsPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ city?: string }>;
+  searchParams: Promise<{ city?: string; q?: string }>;
 }) {
   const { locale } = await params;
-  const { city: selectedCity } = await searchParams;
+  const { city: selectedCity, q: initialQuery } = await searchParams;
   const t = await getTranslations('Discovery');
 
   // جلب الصالونات (المستأجرين) المنشورة فقط، مع تطبيق الفلتر إذا تم تحديد المدينة
@@ -72,27 +74,24 @@ export default async function SalonsPage({
     <>
       <PublicHeader locale={locale} />
       <main dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-        <div className="bg-gradient-to-b from-brand-50 via-white to-white px-4 sm:px-6 pt-10 pb-8">
+        <div className="bg-[#fcf8f9] border-b border-stone-200/70 px-4 sm:px-6 pt-12 pb-10">
           <div className="max-w-6xl mx-auto">
-            <div className="flex flex-wrap items-start justify-between gap-4 mb-2">
+            <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">{t('pageTitle')}</h1>
-                <p className="text-gray-600">{t('pageSubtitle')}</p>
+                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 mb-2">{t('pageTitle')}</h1>
+                <p className="text-stone-600">{t('pageSubtitle')}</p>
               </div>
-              <Link
-                href={`/${locale}/salons/new`}
-                className="shrink-0 bg-gray-900 text-white px-5 py-2.5 rounded-full font-semibold hover:bg-gray-800 transition"
-              >
-                {t('addSalonButton')}
+              <Link href={`/${locale}/salons/new`} className={buttonClass('secondary', 'md', 'shrink-0')}>
+                <Plus className="h-4 w-4" /> {t('addSalonButton')}
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-16">
           {/* أزرار الفلترة حسب المدينة */}
           <div className="mb-6 flex gap-2 items-center flex-wrap">
-            <span className="text-sm font-semibold text-gray-500">{t('filterByCity')}</span>
+            <span className="text-sm font-medium text-stone-500">{t('filterByCity')}</span>
             <Link
               href={`/${locale}/salons`}
               className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition ${
@@ -106,7 +105,7 @@ export default async function SalonsPage({
                 key={city}
                 href={`/${locale}/salons?city=${encodeURIComponent(city)}`}
                 className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition ${
-                  selectedCity === city ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  selectedCity === city ? 'bg-brand-600 text-white shadow-sm' : 'bg-white border border-stone-200 text-stone-700 hover:bg-stone-50'
                 }`}
               >
                 {city}
@@ -126,7 +125,7 @@ export default async function SalonsPage({
               <p className="text-gray-500">{t('emptyState')}</p>
             </div>
           ) : (
-            <SalonGrid locale={locale} salons={gridSalons} />
+            <SalonGrid locale={locale} salons={gridSalons} initialQuery={initialQuery ?? ''} />
           )}
         </div>
       </main>
