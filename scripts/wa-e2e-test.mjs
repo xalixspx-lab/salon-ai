@@ -240,6 +240,92 @@ async function main() {
   const listR = await A.c.req('GET', '/api/dashboard/conversations');
   check('unread count cleared after reading', listR.json?.data?.find((c) => c.id === conv.id)?.unreadCount === 0);
 
+  console.log('\n[9] Outbound templates: appointment reminders and win-back (WhatsApp, to the customer number)');
+  if (!process.env.CRON_SECRET) {
+    console.log('  SKIP  template jobs (CRON_SECRET not provided)');
+  } else {
+    const cron = () => pub.req('GET', '/api/cron/daily', undefined, { Authorization: `Bearer ${process.env.CRON_SECRET}` });
+    const tplSent = () => sent.filter((x) => x.body?.type === 'template');
+    const hours = Object.fromEntries([0, 1, 2, 3, 4, 5, 6].map((d) => [String(d), { open: '00:00', close: '23:30' }]));
+    await A.c.req('PATCH', '/api/dashboard/settings', { workingHours: hours, minBookingNoticeHours: 0 });
+    const svc = await A.c.req('POST', '/api/dashboard/services', { nameAr: 'خدمة', nameEn: 'Svc', basePrice: 5, baseDurationMinutes: 30 });
+    const staff = await A.c.req('POST', '/api/dashboard/staff', { name: 'Staff', role: 'Stylist', status: 'ACTIVE' });
+    const serviceId = svc.json?.data?.id;
+    const staffId = staff.json?.data?.id;
+    const mkClient = async (name, phone) => (await A.c.req('POST', '/api/dashboard/clients', { name, phone })).json?.data?.id;
+    const book = (customerId, whenMs) => A.c.req('POST', '/api/dashboard/bookings', { customerId, serviceId, employeeId: staffId, startTime: new Date(whenMs).toISOString() });
+    const HOUR = 3600 * 1000;
+
+    // --- تذكير الموعد ---
+    const rPhone = '97333555111';
+    const rClient = await mkClient('عميلة التذكير', '33555111');
+    const rBook = await book(rClient, Date.now() + 24 * HOUR);
+    check('setup: reminder booking created', rBook.status === 201, `status=${rBook.status} ${rBook.text.slice(0, 100)}`);
+    const t0 = tplSent().length;
+    const run1 = await cron();
+    check('daily cron succeeds', run1.status === 200 && run1.json?.success === true, `status=${run1.status}`);
+    const rTpl = tplSent().slice(t0).filter((x) => x.body.to === rPhone);
+    check('reminder sent as an approved template to the customer number', rTpl.length === 1 && rTpl[0].body.template.name === 'appointment_reminder' && rTpl[0].body.template.language.code === 'ar', String(JSON.stringify(rTpl[0]?.body ?? null)).slice(0, 200) + ' sentTotal=' + sent.length + ' tpl=' + tplSent().length);
+    const params = rTpl[0]?.body?.template?.components?.[0]?.parameters?.map((p) => p.text) ?? [];
+    check('template params: customer name, salon name, appointment time', params[0] === 'عميلة التذكير' && params[1] === A.name && !!params[2], JSON.stringify(params));
+    check('reminder used the salon\'s own number id and token', rTpl[0]?.url.includes(`/${A.pnid}/`) && rTpl[0]?.auth === 'Bearer system-token', `${rTpl[0]?.url} ${rTpl[0]?.auth}`);
+    await cron();
+    check('reminder is idempotent (second run sends nothing more)', tplSent().slice(t0).filter((x) => x.body.to === rPhone).length === 1);
+    const thread = await A.c.req('GET', '/api/dashboard/conversations');
+    const rConv = (thread.json?.data || []).find((c) => c.phone === rPhone);
+    check('the reminder is visible in the owner inbox', !!rConv && (await A.c.req('GET', `/api/dashboard/conversations/${rConv.id}/messages`)).text.includes('تذكير بموعدك'));
+
+    // مفتاح الأدمن لهذا الصالون
+    const offRes = await admin.req('POST', `/api/admin/salons/${A.id}/automations`, { key: 'reminders', enabled: false });
+    check('admin turns reminders off for salon A', offRes.status === 200);
+    const r2Phone = '97333555222';
+    const r2Client = await mkClient('عميلة ثانية', '33555222');
+    await book(r2Client, Date.now() + 25 * HOUR);
+    const t1 = tplSent().length;
+    await cron();
+    check('no reminder while the salon switch is off', tplSent().slice(t1).filter((x) => x.body.to === r2Phone).length === 0);
+    await admin.req('POST', `/api/admin/salons/${A.id}/automations`, { key: 'reminders', enabled: true });
+    await cron();
+    check('reminder goes out once the switch is back on', tplSent().slice(t1).filter((x) => x.body.to === r2Phone).length === 1);
+
+    // salon without a linked WhatsApp number sends nothing
+    const noWa = await mkSalon('C');
+    const noWaSvc = await noWa.c.req('POST', '/api/dashboard/services', { nameAr: 'خ', nameEn: 'S', basePrice: 1, baseDurationMinutes: 30 });
+    const noWaClient = (await noWa.c.req('POST', '/api/dashboard/clients', { name: 'x', phone: '33555999' })).json?.data?.id;
+    await noWa.c.req('PATCH', '/api/dashboard/settings', { workingHours: hours });
+    await noWa.c.req('POST', '/api/dashboard/bookings', { customerId: noWaClient, serviceId: noWaSvc.json?.data?.id, startTime: new Date(Date.now() + 24 * HOUR).toISOString() });
+    const t2 = tplSent().length;
+    await cron();
+    check('a salon without a linked WhatsApp number sends nothing', tplSent().slice(t2).filter((x) => x.body.to === '97333555999').length === 0);
+    await admin.req('DELETE', `/api/admin/salons/${noWa.id}`, { confirmName: noWa.name });
+
+    // --- اشتقنا لك ---
+    const settings = (await admin.req('GET', '/api/admin/settings')).json?.data;
+    const setWinBack = (v) => admin.req('PUT', '/api/admin/settings', { ...settings, automations: { ...settings.automations, winBack: v } });
+    check('win-back is OFF by default (marketing needs an explicit admin decision)', settings?.automations?.winBack === false, JSON.stringify(settings?.automations));
+    const wPhone = '97333666111';
+    const wClient = await mkClient('عميلة غائبة', '33666111');
+    const wBook = await book(wClient, Date.now() - 60 * 24 * HOUR);
+    check('setup: old booking created', wBook.status === 201, `status=${wBook.status} ${wBook.text.slice(0, 100)}`);
+    if (wBook.json?.data?.id) await A.c.req('PATCH', `/api/dashboard/bookings/${wBook.json.data.id}`, { status: 'COMPLETED' });
+    await post(inboundPayload(A.pnid, wPhone, `wamid.W${TAG}`, 'مرحبا', { name: 'عميلة غائبة' })); // دليل موافقة: راسلت الصالون
+    const noInboundClient = await mkClient('لم تراسل أبدًا', '33666222');
+    const nb = await book(noInboundClient, Date.now() - 61 * 24 * HOUR);
+    if (nb.json?.data?.id) await A.c.req('PATCH', `/api/dashboard/bookings/${nb.json.data.id}`, { status: 'COMPLETED' });
+
+    const t3 = tplSent().length;
+    await cron();
+    check('win-back sends nothing while the platform switch is OFF', tplSent().slice(t3).filter((x) => x.body.template?.name === 'we_miss_you').length === 0);
+    check('admin enables win-back', (await setWinBack(true)).status === 200);
+    await cron();
+    const wTpl = tplSent().slice(t3).filter((x) => x.body.template?.name === 'we_miss_you');
+    check('win-back goes to the lapsed customer who had messaged the salon', wTpl.length === 1 && wTpl[0].body.to === wPhone, JSON.stringify(wTpl.map((x) => x.body.to)));
+    check('no win-back to a lapsed customer who never messaged the salon (no consent evidence)', !wTpl.some((x) => x.body.to === '97333666222'));
+    await cron();
+    check('win-back is sent once per period (idempotent)', tplSent().slice(t3).filter((x) => x.body.template?.name === 'we_miss_you').length === 1);
+    await setWinBack(false);
+  }
+
   console.log('\n[cleanup]');
   for (const s of [A, B]) await admin.req('DELETE', `/api/admin/salons/${s.id}`, { confirmName: s.name });
   console.log('  test salons deleted');

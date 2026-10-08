@@ -6,15 +6,15 @@ export interface PlatformSettings {
   trialDays: number;
   prices: Record<PaidPlanKey, number>;
   announcement: { textAr: string; textEn: string; active: boolean };
-  // تفعيل/إيقاف المهام اليومية التلقائية على مستوى المنصة (الافتراضي: تعمل)
-  automations: { reports: boolean; reminders: boolean; reviews: boolean; winBack: boolean };
+  // تفعيل/إيقاف المهام اليومية التلقائية على مستوى المنصة (التقارير والتذكيرات تعمل افتراضيًا، و«اشتقنا لك» التسويقي متوقف حتى يفعّله الأدمن)
+  automations: { reports: boolean; reminders: boolean; winBack: boolean };
 }
 
 export const DEFAULT_SETTINGS: PlatformSettings = {
   trialDays: TRIAL_DAYS,
   prices: { BASIC: PLANS.BASIC.priceBhdMonthly, PROFESSIONAL: PLANS.PROFESSIONAL.priceBhdMonthly, ENTERPRISE: PLANS.ENTERPRISE.priceBhdMonthly },
   announcement: { textAr: '', textEn: '', active: false },
-  automations: { reports: true, reminders: true, reviews: true, winBack: true },
+  automations: { reports: true, reminders: true, winBack: false },
 };
 
 const KEY = 'general';
@@ -43,7 +43,7 @@ export function normalizeSettings(raw: unknown): PlatformSettings {
       textEn: typeof a.textEn === 'string' ? a.textEn.slice(0, 500) : '',
       active: a.active === true,
     },
-    automations: { reports: on(au.reports), reminders: on(au.reminders), reviews: on(au.reviews), winBack: on(au.winBack) },
+    automations: { reports: on(au.reports), reminders: on(au.reminders), winBack: au.winBack === true },
   };
 }
 

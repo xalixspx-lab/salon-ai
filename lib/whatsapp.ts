@@ -149,3 +149,48 @@ export async function sendOwnerReply(conversationId: string, tenantId: string, t
   ]);
   return { ok: true as const, message };
 }
+
+// إرسال قالب معتمد (يعمل خارج نافذة 24 ساعة): تذكير موعد، اشتقنا لك...
+export async function sendWhatsAppTemplate(tenantId: string, to: string, name: string, lang: string, params: string[]): Promise<SendResult> {
+  const account = await prisma.whatsappAccount.findUnique({ where: { tenantId } });
+  if (!account || account.status !== 'ACTIVE') return { ok: false, code: 'NOT_CONNECTED' };
+  const token = await tokenFor(account);
+  if (!token) return { ok: false, code: 'NO_TOKEN' };
+  try {
+    const res = await fetch(`${apiBase()}/${apiVersion()}/${account.phoneNumberId}/messages`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to,
+        type: 'template',
+        template: { name, language: { code: lang }, components: [{ type: 'body', parameters: params.map((text) => ({ type: 'text', text })) }] },
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    const json = (await res.json().catch(() => null)) as { messages?: Array<{ id?: string }>; error?: { code?: number; message?: string } } | null;
+    const id = json?.messages?.[0]?.id;
+    if (res.ok && id) return { ok: true, waMessageId: id };
+    if (json?.error?.code === 190) return { ok: false, code: 'TOKEN_INVALID', detail: json.error.message };
+    return { ok: false, code: 'FAILED', detail: `${res.status} ${json?.error?.message ?? ''}`.trim() };
+  } catch (e) {
+    return { ok: false, code: 'FAILED', detail: e instanceof Error ? e.message : 'network error' };
+  }
+}
+
+// يسجّل القالب الصادر في محادثة العميل (ينشئ جهة الاتصال والمحادثة عند الحاجة) ليظهر في صندوق المالك
+export async function recordOutboundTemplate(tenantId: string, phone: string, customerId: string | null, kind: 'reminder' | 'winback', preview: string, waMessageId: string) {
+  const contact = await prisma.contact.upsert({
+    where: { tenantId_phone: { tenantId, phone } },
+    create: { tenantId, phone, customerId },
+    update: customerId ? { customerId } : {},
+  });
+  const conversation = await prisma.conversation.upsert({
+    where: { tenantId_contactId: { tenantId, contactId: contact.id } },
+    create: { tenantId, contactId: contact.id },
+    update: { lastMessageAt: new Date() },
+  });
+  await prisma.message.create({
+    data: { conversationId: conversation.id, tenantId, senderRole: 'OWNER', direction: 'OUT', body: preview, waMessageId, msgType: `template:${kind}`, status: 'sent' },
+  });
+}

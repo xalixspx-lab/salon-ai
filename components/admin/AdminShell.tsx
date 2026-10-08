@@ -16,7 +16,6 @@ import {
   ScrollText,
   Settings,
   ShieldCheck,
-  Star,
   UserCog,
   Users,
   X,
@@ -45,7 +44,6 @@ export default function AdminShell({ locale, adminEmail, children }: { locale: s
         { href: `${base}/owners`, label: t('owners'), icon: UserCog },
         { href: `${base}/customers`, label: t('customers'), icon: Users },
         { href: `${base}/bookings`, label: t('bookings'), icon: CalendarDays },
-        { href: `${base}/reviews`, label: t('reviews'), icon: Star },
       ],
     },
     {

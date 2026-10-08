@@ -8,10 +8,9 @@ interface Overview {
   owner: { id: string; name: string; email: string; emailVerifiedAt: string | null; suspendedAt: string | null } | null;
   staff: Array<{ id: string; name: string; role: string | null; status: string }>;
   services: Array<{ id: string; name: Record<string, string> | null; basePrice: string | null; baseDurationMinutes: number | null }>;
-  counts: { customers: number; appointments: number; offers: number; reviews: number };
+  counts: { customers: number; appointments: number; offers: number };
   completedRevenue: number;
   appointments: Array<{ id: string; status: string | null; startTime: string | null; totalAmount: string | null; service: { name: Record<string, string> | null } | null; customer: { name: string } | null; employee: { name: string } | null }>;
-  reviews: Array<{ id: string; rating: number; comment: string | null; createdAt: string; account: { name: string; email: string } }>;
 }
 
 export default function SalonOverviewPanel({ salonId }: { salonId: string }) {
@@ -55,10 +54,6 @@ export default function SalonOverviewPanel({ salonId }: { salonId: string }) {
     else setMsg((await res.json()).error || 'Failed');
   };
 
-  const deleteReview = async (id: string) => {
-    await fetch(`/api/admin/reviews/${id}`, { method: 'DELETE' });
-    load();
-  };
   const cancelBooking = async (id: string) => {
     await fetch(`/api/admin/bookings/${id}/cancel`, { method: 'POST' });
     load();
@@ -66,8 +61,8 @@ export default function SalonOverviewPanel({ salonId }: { salonId: string }) {
 
   const autos = [
     { key: 'reports', label: L('التقارير الدورية بالبريد', 'Scheduled email reports'), hint: L('جداول التقارير التي ينشئها المالك', 'Report schedules the owner creates') },
-    { key: 'reminders', label: L('تذكير المواعيد للعملاء', 'Appointment reminders'), hint: L('بريد قبل الموعد بـ24 ساعة تقريبًا', 'Email about 24h before the appointment') },
-    { key: 'reviews', label: L('طلب التقييم بعد الزيارة', 'Review requests'), hint: L('بريد بعد اكتمال الزيارة بيومين أو ثلاثة', 'Email 2–3 days after a completed visit') },
+    { key: 'reminders', label: L('تذكير المواعيد للعملاء', 'Appointment reminders'), hint: L('رسالة واتساب قبل الموعد بـ24 ساعة تقريبًا', 'WhatsApp message about 24h before the appointment') },
+    { key: 'winBack', label: L('رسائل «اشتقنا لك» على واتساب', 'Win-back WhatsApp messages'), hint: L('لعملاء الصالون المنقطعين الذين راسلوه سابقًا', 'To lapsed clients who have messaged the salon before') },
   ];
 
   const stats = [
@@ -75,7 +70,6 @@ export default function SalonOverviewPanel({ salonId }: { salonId: string }) {
     { label: L('الحجوزات', 'Bookings'), v: data.counts.appointments },
     { label: L('الإيراد المكتمل', 'Completed revenue'), v: `${data.completedRevenue.toFixed(3)} ${tenant.currency || ''}` },
     { label: L('العروض', 'Offers'), v: data.counts.offers },
-    { label: L('التقييمات', 'Reviews'), v: data.counts.reviews },
   ];
 
   return (
@@ -206,22 +200,6 @@ export default function SalonOverviewPanel({ salonId }: { salonId: string }) {
         )}
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 p-5">
-        <h2 className="font-bold text-slate-900 mb-3">{L('التقييمات', 'Reviews')}</h2>
-        {data.reviews.length === 0 ? <p className="text-sm text-slate-400">—</p> : (
-          <ul className="space-y-3">
-            {data.reviews.map((r) => (
-              <li key={r.id} className="text-sm border-b border-slate-100 pb-2">
-                <div className="flex justify-between">
-                  <span className="text-slate-800">{r.account.name} <span className="text-amber-500" dir="ltr">{'★'.repeat(r.rating)}</span></span>
-                  <button onClick={() => deleteReview(r.id)} className="text-xs text-red-600 hover:underline">{L('حذف', 'Delete')}</button>
-                </div>
-                {r.comment && <p className="text-slate-600">{r.comment}</p>}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
     </div>
   );
 }

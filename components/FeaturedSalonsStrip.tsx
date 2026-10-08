@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { MapPin, Star } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import type { SalonGridItem } from '@/components/SalonGrid';
 
 // شريط أفقي للصالونات المميزة (يختارها الأدمن يدويًا)
@@ -27,11 +27,6 @@ export default function FeaturedSalonsStrip({ locale, salons }: { locale: string
               </p>
             </div>
           </div>
-          {salon.rating ? (
-            <p className="mt-3 flex items-center gap-1 text-sm font-medium text-amber-700">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> {salon.rating} <span className="text-stone-400 font-normal">({salon.reviewCount})</span>
-            </p>
-          ) : null}
         </Link>
       ))}
     </div>

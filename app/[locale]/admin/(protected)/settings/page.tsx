@@ -7,7 +7,7 @@ interface Settings {
   trialDays: number;
   prices: { BASIC: number; PROFESSIONAL: number; ENTERPRISE: number };
   announcement: { textAr: string; textEn: string; active: boolean };
-  automations: { reports: boolean; reminders: boolean; reviews: boolean; winBack: boolean };
+  automations: { reports: boolean; reminders: boolean; winBack: boolean };
 }
 
 export default function AdminPlatformSettingsPage() {
@@ -57,9 +57,8 @@ export default function AdminPlatformSettingsPage() {
           <div className="space-y-2">
             {([
               ['reports', L('التقارير الدورية بالبريد (جداول أصحاب الصالونات)', 'Scheduled email reports (owners)')],
-              ['reminders', L('تذكير العملاء بمواعيدهم', 'Appointment reminders to customers')],
-              ['reviews', L('طلب تقييم بعد الزيارة', 'Review requests after a visit')],
-              ['winBack', L('بريد «اشتقنا لك» للعملاء المنقطعين (تسويقي)', 'Win-back emails to lapsed customers (marketing)')],
+              ['reminders', L('تذكير العملاء بمواعيدهم عبر واتساب', 'Appointment reminders to customers on WhatsApp')],
+              ['winBack', L('رسائل «اشتقنا لك» عبر واتساب للعملاء المنقطعين (تسويقي — يُفعَّل بقرارك)', 'Win-back WhatsApp messages to lapsed clients (marketing — off until you enable)')],
             ] as const).map(([k, label]) => (
               <label key={k} className="flex items-center gap-3 text-sm text-slate-800">
                 <input type="checkbox" checked={s.automations[k]} onChange={(e) => setS({ ...s, automations: { ...s.automations, [k]: e.target.checked } })} className="h-4 w-4" />

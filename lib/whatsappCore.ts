@@ -151,3 +151,14 @@ export function decryptToken(blob: string): string {
 export function normalizeWaPhone(input: string): string {
   return input.replace(/\D/g, '');
 }
+
+// رقم سجل العميل (يدخله المالك غالبًا محليًا: 33123456) → صيغة دولية للإرسال. نزيل 00 البادئة ونضيف
+// رمز الدولة الافتراضي (البحرين 973) للأرقام المحلية ذات 8 خانات؛ الأرقام الأطول تُعدّ دولية أصلًا.
+// أرقام دول أخرى بلا رمز دولة تُرفض (null) بدل إرسالها لرقم خاطئ.
+export function toWaNumber(input: string | null | undefined, defaultCountryCode = process.env.DEFAULT_PHONE_COUNTRY_CODE || '973'): string | null {
+  let d = (input ?? '').replace(/\D/g, '');
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('0')) return null; // صيغة وطنية لدولة غير معروفة (مثل 05xxxxxxxx)
+  if (d.length === 8) d = defaultCountryCode + d;
+  return d.length >= 10 && d.length <= 15 ? d : null;
+}

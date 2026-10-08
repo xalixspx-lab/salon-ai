@@ -275,8 +275,8 @@ async function main() {
     // ---------- 8b. مفاتيح الأدمن للمهام التلقائية ----------
     console.log('\n[8b] Admin on/off switches for automatic jobs');
     const auto = (key, enabled) => admin.req('POST', `/api/admin/salons/${A.tenantId}/automations`, { key, enabled });
-    const badKey = await auto('winBack', false);
-    check('per-salon switch rejects unknown/platform-only keys (400)', badKey.status === 400, `status=${badKey.status}`);
+    const badKey = await auto('reviews', false);
+    check('per-salon switch rejects unknown keys (400)', badKey.status === 400, `status=${badKey.status}`);
     const ownerSwitch = await A.c.req('POST', `/api/admin/salons/${A.tenantId}/automations`, { key: 'reports', enabled: false });
     check('owner cannot flip admin switches (401)', ownerSwitch.status === 401, `status=${ownerSwitch.status}`);
 
@@ -313,14 +313,14 @@ async function main() {
       // مفتاح المنصة
       const cur = (await admin.req('GET', '/api/admin/settings')).json?.data;
       const put = (a) => admin.req('PUT', '/api/admin/settings', { ...cur, automations: { ...cur.automations, ...a } });
-      check('settings expose all four automations (default on)', cur?.automations && Object.values(cur.automations).every((v) => v === true), JSON.stringify(cur?.automations));
-      await put({ reminders: false, reviews: false, winBack: false, reports: false });
+      check('settings expose the automations (reports/reminders on, win-back off by default)', cur?.automations?.reports === true && cur.automations.reminders === true && cur.automations.winBack === false && !('reviews' in cur.automations), JSON.stringify(cur?.automations));
+      await put({ reminders: false, winBack: false, reports: false });
       const run = await new Client().req('GET', '/api/cron/daily', undefined, h);
-      check('platform switches OFF: reminders disabled, review/win-back send 0', run.json?.reminders?.disabled === true && run.json?.reviewRequests === 0 && run.json?.winBack === 0, JSON.stringify(run.json));
+      check('platform switches OFF: reminders and win-back are disabled', run.json?.reminders?.disabled === true && run.json?.winBack?.disabled === true, JSON.stringify(run.json));
       const blockedPlatform = await A.c.req('POST', sPath, { reportType: 'staff', frequency: 'DAILY' });
       check('platform reports switch OFF blocks owners too (403 or limit)', blockedPlatform.status === 403 || blockedPlatform.status === 409, `status=${blockedPlatform.status}`);
-      const restored = await put({ reminders: true, reviews: true, winBack: true, reports: true });
-      check('platform switches restored', ok2xx(restored) && Object.values(restored.json?.data?.automations ?? {}).every((v) => v === true));
+      const restored = await put({ reminders: true, winBack: false, reports: true });
+      check('platform switches restored', ok2xx(restored) && restored.json?.data?.automations?.reports === true && restored.json?.data?.automations?.reminders === true);
     } else {
       skip('cron respects automation switches', 'CRON_SECRET not provided to the test');
     }

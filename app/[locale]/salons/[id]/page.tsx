@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
-import { MapPin, MessageCircle, Phone, Star, Tag } from 'lucide-react';
+import { MapPin, MessageCircle, Phone, Tag } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { prisma } from '@/lib/prisma';
 import SalonMap from '@/components/SalonMap';
 import ServicesList from '@/components/ServicesList';
 import { DIRECT_OFFER_TYPES, describeOffer } from '@/lib/offers';
-import { getRatings } from '@/lib/ratings';
 import PublicHeader from '@/components/PublicHeader';
 import { getSalonWhatsappNumber, waMeLink } from '@/lib/salonWhatsapp';
 import { isPubliclyVisible } from '@/lib/visibility';
@@ -78,16 +77,6 @@ export default async function SalonDetailPage({
   const waText = locale === 'ar' ? `مرحبًا ${tenant.name}، أود الاستفسار عن خدماتكم` : `Hello ${tenant.name}, I would like to ask about your services`;
   const waHref = waNumber ? waMeLink(waNumber, waText) : null;
 
-  const [ratingMap, reviews] = await Promise.all([
-    getRatings([tenant.id]),
-    prisma.review.findMany({
-      where: { tenantId: tenant.id },
-      orderBy: { createdAt: 'desc' },
-      take: 10,
-      include: { account: { select: { name: true } } },
-    }),
-  ]);
-  const rating = ratingMap.get(tenant.id);
 
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://salon-ai.co').replace(/\/$/, '');
   const salonImage = tenant.logoUrl || photos[0]?.url || null;
@@ -106,7 +95,6 @@ export default async function SalonDetailPage({
     ...(tenant.latitude && tenant.longitude
       ? { geo: { '@type': 'GeoCoordinates', latitude: Number(tenant.latitude), longitude: Number(tenant.longitude) } }
       : {}),
-    ...(rating ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: rating.avg, reviewCount: rating.count } } : {}),
   };
 
   const serviceRows = services.map((s) => {
@@ -154,11 +142,6 @@ export default async function SalonDetailPage({
                   <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">{tenant.name}</h1>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-stone-600">
-                  {rating && (
-                    <span className="inline-flex items-center gap-1 font-semibold text-amber-700">
-                      <Star className="h-4 w-4 fill-amber-400 text-amber-400" /> {rating.avg} <span className="font-normal text-stone-400">({rating.count})</span>
-                    </span>
-                  )}
                   <span className="inline-flex items-center gap-1.5">
                     <MapPin className="h-4 w-4 text-stone-400" strokeWidth={1.8} />
                     {tenant.addressText || tenant.city || (ar ? 'موقع مميز في دول الخليج' : 'Prime GCC Location')}
@@ -231,28 +214,6 @@ export default async function SalonDetailPage({
             </div>
           )}
 
-          <section className="bg-white rounded-2xl border border-stone-200/80 p-5 sm:p-6">
-            <h2 className="text-lg font-semibold text-stone-900 mb-4">{t('reviews')}</h2>
-            {reviews.length === 0 ? (
-              <p className="text-stone-400 text-sm">{t('noReviews')}</p>
-            ) : (
-              <div className="space-y-3">
-                {reviews.map((r) => (
-                  <div key={r.id} className="rounded-xl bg-stone-50 border border-stone-100 p-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-stone-900">{r.account.name}</span>
-                      <span className="inline-flex gap-0.5" dir="ltr" aria-label={`${r.rating}/5`}>
-                        {[1, 2, 3, 4, 5].map((n) => (
-                          <Star key={n} className={`h-3.5 w-3.5 ${n <= r.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300'}`} />
-                        ))}
-                      </span>
-                    </div>
-                    {r.comment && <p className="text-sm text-stone-600 mt-1.5">{r.comment}</p>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
         </div>
         {waHref && (
           <div className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t border-stone-200 bg-white/95 backdrop-blur p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">

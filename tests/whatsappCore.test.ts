@@ -6,6 +6,7 @@ import {
   isReplyWindowOpen,
   parseWebhook,
   shouldAdvanceStatus,
+  toWaNumber,
   verifySignature,
 } from '@/lib/whatsappCore';
 
@@ -124,5 +125,20 @@ describe('token encryption', () => {
   it('rejects a missing or short key', () => {
     process.env.WHATSAPP_TOKEN_ENC_KEY = 'short';
     expect(() => encryptToken('x')).toThrow();
+  });
+});
+
+describe('toWaNumber', () => {
+  it('adds the Bahrain code to 8-digit local numbers and keeps international ones', () => {
+    expect(toWaNumber('33123456')).toBe('97333123456');
+    expect(toWaNumber('+973 3312 3456')).toBe('97333123456');
+    expect(toWaNumber('0097333123456')).toBe('97333123456');
+    expect(toWaNumber('966501234567')).toBe('966501234567');
+  });
+  it('rejects numbers it cannot make international', () => {
+    expect(toWaNumber('')).toBeNull();
+    expect(toWaNumber(null)).toBeNull();
+    expect(toWaNumber('12345')).toBeNull();
+    expect(toWaNumber('0501234567')).toBeNull();
   });
 });

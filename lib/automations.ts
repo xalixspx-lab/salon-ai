@@ -1,11 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { getPlatformSettings } from '@/lib/platformSettings';
 
-// المهام اليومية التلقائية التي يتحكم بها الأدمن. winBack على مستوى المنصة فقط (حسابات عملاء عابرة للصالونات).
-export const AUTOMATION_KEYS = ['reports', 'reminders', 'reviews', 'winBack'] as const;
+// المهام اليومية التلقائية التي يتحكم بها الأدمن. كلها تعمل عبر واتساب الصالون.
+export const AUTOMATION_KEYS = ['reports', 'reminders', 'winBack'] as const;
 export type AutomationKey = (typeof AUTOMATION_KEYS)[number];
 // ما يمكن إيقافه لصالون بعينه
-export const TENANT_AUTOMATION_KEYS = ['reports', 'reminders', 'reviews'] as const;
+export const TENANT_AUTOMATION_KEYS = ['reports', 'reminders', 'winBack'] as const;
 export type TenantAutomationKey = (typeof TENANT_AUTOMATION_KEYS)[number];
 
 export const isTenantAutomationKey = (v: unknown): v is TenantAutomationKey => typeof v === 'string' && (TENANT_AUTOMATION_KEYS as readonly string[]).includes(v);

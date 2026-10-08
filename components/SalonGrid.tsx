@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { ArrowUpRight, MapPin, Navigation, Search, Star, Tag, X } from 'lucide-react';
+import { ArrowUpRight, MapPin, Navigation, Search, Tag, X } from 'lucide-react';
 import { googleMapsUrl } from '@/lib/geo';
 import Badge from '@/components/ui/Badge';
 import Segmented from '@/components/ui/Segmented';
@@ -21,8 +21,6 @@ export interface SalonGridItem {
   hasActiveOffer?: boolean;
   isFeatured?: boolean;
   logoUrl?: string | null;
-  rating?: number | null;
-  reviewCount?: number;
   distanceKm?: number | string | null;
 }
 
@@ -30,7 +28,7 @@ export default function SalonGrid({ locale, salons, initialQuery = '' }: { local
   const t = useTranslations('Discovery');
   const ar = locale === 'ar';
   const [query, setQuery] = useState(initialQuery);
-  const [sort, setSort] = useState<'default' | 'rating' | 'name'>('default');
+  const [sort, setSort] = useState<'default' | 'name'>('default');
   const [nearMeResults, setNearMeResults] = useState<SalonGridItem[] | null>(null);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState('');
@@ -40,7 +38,6 @@ export default function SalonGrid({ locale, salons, initialQuery = '' }: { local
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = q ? source.filter((s) => s.name.toLowerCase().includes(q) || (s.city ?? '').toLowerCase().includes(q)) : source;
-    if (sort === 'rating') return [...list].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
     if (sort === 'name') return [...list].sort((a, b) => a.name.localeCompare(b.name));
     return list;
   }, [source, query, sort]);
@@ -87,7 +84,6 @@ export default function SalonGrid({ locale, salons, initialQuery = '' }: { local
           onChange={setSort}
           options={[
             { value: 'default', label: ar ? 'الافتراضي' : 'Default' },
-            { value: 'rating', label: ar ? 'الأعلى تقييمًا' : 'Top rated' },
             { value: 'name', label: ar ? 'الاسم' : 'Name' },
           ]}
         />
@@ -140,11 +136,6 @@ export default function SalonGrid({ locale, salons, initialQuery = '' }: { local
                         <span className="truncate">{salon.addressText || salon.city || (ar ? 'موقع مميز في دول الخليج' : 'Prime GCC Location')}</span>
                       </p>
                     </div>
-                    {salon.rating ? (
-                      <span className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-amber-50 text-amber-700 px-2 py-1 text-sm font-semibold">
-                        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> {salon.rating}
-                      </span>
-                    ) : null}
                   </div>
                   <div className="mt-4 flex flex-wrap items-center gap-1.5">
                     {salon.isFeatured && <Badge tone="brand">{t('featured')}</Badge>}
@@ -153,11 +144,6 @@ export default function SalonGrid({ locale, salons, initialQuery = '' }: { local
                         <Tag className="h-3 w-3" /> {t('hasOffer')}
                       </Badge>
                     )}
-                    {salon.reviewCount ? (
-                      <Badge tone="gray">
-                        {salon.reviewCount} {ar ? 'تقييم' : 'reviews'}
-                      </Badge>
-                    ) : null}
                     {distance !== null && (
                       <Badge tone="blue">
                         {distance.toFixed(1)} {t('distanceKm')}
