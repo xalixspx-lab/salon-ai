@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 
 interface Overview {
-  tenant: { id: string; name: string; plan: string; trialEndsAt: string | null; isPublished: boolean; currency: string | null; subscription: { onTrial: boolean; trialExpired: boolean; trialDaysLeft: number } };
+  tenant: { id: string; name: string; plan: string; trialEndsAt: string | null; isPublished: boolean; automationOff: string[]; currency: string | null; subscription: { onTrial: boolean; trialExpired: boolean; trialDaysLeft: number } };
   owner: { id: string; name: string; email: string; emailVerifiedAt: string | null; suspendedAt: string | null } | null;
   staff: Array<{ id: string; name: string; role: string | null; status: string }>;
   services: Array<{ id: string; name: Record<string, string> | null; basePrice: string | null; baseDurationMinutes: number | null }>;
@@ -64,6 +64,12 @@ export default function SalonOverviewPanel({ salonId }: { salonId: string }) {
     load();
   };
 
+  const autos = [
+    { key: 'reports', label: L('التقارير الدورية بالبريد', 'Scheduled email reports'), hint: L('جداول التقارير التي ينشئها المالك', 'Report schedules the owner creates') },
+    { key: 'reminders', label: L('تذكير المواعيد للعملاء', 'Appointment reminders'), hint: L('بريد قبل الموعد بـ24 ساعة تقريبًا', 'Email about 24h before the appointment') },
+    { key: 'reviews', label: L('طلب التقييم بعد الزيارة', 'Review requests'), hint: L('بريد بعد اكتمال الزيارة بيومين أو ثلاثة', 'Email 2–3 days after a completed visit') },
+  ];
+
   const stats = [
     { label: L('العملاء', 'Customers'), v: data.counts.customers },
     { label: L('الحجوزات', 'Bookings'), v: data.counts.appointments },
@@ -89,6 +95,32 @@ export default function SalonOverviewPanel({ salonId }: { salonId: string }) {
           {L('كلمة المرور الجديدة (انسخها الآن):', 'New password (copy now):')} <span className="font-mono select-all" dir="ltr">{newPw}</span>
         </div>
       )}
+
+      <div className="bg-white rounded-2xl border border-slate-200 p-5">
+        <h2 className="font-bold text-slate-900 mb-1">{L('المهام التلقائية لهذا الصالون', 'Automatic jobs for this salon')}</h2>
+        <p className="text-xs text-slate-500 mb-3">{L('تعمل يوميًا الساعة 7 صباحًا (البحرين). الإيقاف هنا يخص هذا الصالون فقط؛ مفاتيح المنصة العامة في إعدادات المنصة.', 'Run daily at 7 AM (Bahrain). Turning one off here affects this salon only; platform-wide switches are in Platform settings.')}</p>
+        <ul className="divide-y divide-slate-100">
+          {autos.map((a) => {
+            const on = !tenant.automationOff.includes(a.key);
+            return (
+              <li key={a.key} className="py-2.5 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-800">{a.label}</p>
+                  <p className="text-xs text-slate-400">{a.hint}</p>
+                </div>
+                <button
+                  role="switch"
+                  aria-checked={on}
+                  onClick={() => act(`/api/admin/salons/${salonId}/automations`, { key: a.key, enabled: !on })}
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium ${on ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}`}
+                >
+                  {on ? L('مفعّل', 'On') : L('متوقف', 'Off')}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 p-5">
         <h2 className="font-bold text-slate-900 mb-3">{L('المالك والاشتراك', 'Owner & subscription')}</h2>

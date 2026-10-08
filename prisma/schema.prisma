@@ -29,6 +29,8 @@ model Tenant {
   isPublished                Boolean   @default(true) @map("is_published")
   // إخفاء/حظر من الإدارة: يتفوق على isPublished ولا يملك المالك تغييره
   adminHiddenAt              DateTime? @map("admin_hidden_at") @db.Timestamp(6)
+  // مهام تلقائية أوقفها الأدمن لهذا الصالون: reports | reminders | reviews (المصفوفة الفارغة = الكل يعمل)
+  automationOff              String[]  @default([]) @map("automation_off")
   depositPercentage          Int       @default(30) @map("deposit_percentage")
   minBookingNoticeHours      Int       @default(2) @map("min_booking_notice_hours")
   cancellationHours          Int       @default(24) @map("cancellation_hours")

@@ -4,6 +4,7 @@ import { getSession } from '@/lib/session';
 import { withTenantScope } from '@/lib/tenantScope';
 import { readJsonObject } from '@/lib/chat';
 import { limitOrResponse } from '@/lib/rateLimit';
+import { ownerReportsEnabled } from '@/lib/automations';
 import { isOwnerType } from '@/lib/reports';
 import { MAX_SCHEDULES, parseScheduleInput, serializeSchedule } from '@/lib/reports/schedule';
 
@@ -13,13 +14,15 @@ async function GETHandler() {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   const rows = await prisma.reportSchedule.findMany({ where: { tenantId: session.tenantId, scope: 'OWNER' }, orderBy: { createdAt: 'asc' } });
-  return NextResponse.json({ success: true, data: rows.map(serializeSchedule), max: MAX_SCHEDULES });
+  // enabled=false: أوقف الأدمن الجدولة البريدية لهذا الصالون (أو للمنصة كلها)
+  return NextResponse.json({ success: true, data: rows.map(serializeSchedule), max: MAX_SCHEDULES, enabled: await ownerReportsEnabled(session.tenantId) });
 }
 
 // جدول تقرير دوري يصل على بريد المالك نفسه فقط (لا بريد حر)
 async function POSTHandler(request: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  if (!(await ownerReportsEnabled(session.tenantId))) return NextResponse.json({ success: false, error: 'disabled', code: 'DISABLED' }, { status: 403 });
   const limited = await limitOrResponse(`report-sched:own:${session.tenantId}`, 20, 60_000);
   if (limited) return limited;
 

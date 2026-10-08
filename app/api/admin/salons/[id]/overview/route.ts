@@ -46,6 +46,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         phone: tenant.phone,
         currency: tenant.currency,
         isPublished: tenant.isPublished,
+        automationOff: tenant.automationOff,
         createdAt: tenant.createdAt,
         logoUrl: tenant.logoUrl,
         plan: tenant.plan,

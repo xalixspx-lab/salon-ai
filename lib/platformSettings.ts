@@ -6,12 +6,15 @@ export interface PlatformSettings {
   trialDays: number;
   prices: Record<PaidPlanKey, number>;
   announcement: { textAr: string; textEn: string; active: boolean };
+  // تفعيل/إيقاف المهام اليومية التلقائية على مستوى المنصة (الافتراضي: تعمل)
+  automations: { reports: boolean; reminders: boolean; reviews: boolean; winBack: boolean };
 }
 
 export const DEFAULT_SETTINGS: PlatformSettings = {
   trialDays: TRIAL_DAYS,
   prices: { BASIC: PLANS.BASIC.priceBhdMonthly, PROFESSIONAL: PLANS.PROFESSIONAL.priceBhdMonthly, ENTERPRISE: PLANS.ENTERPRISE.priceBhdMonthly },
   announcement: { textAr: '', textEn: '', active: false },
+  automations: { reports: true, reminders: true, reviews: true, winBack: true },
 };
 
 const KEY = 'general';
@@ -26,6 +29,8 @@ export function normalizeSettings(raw: unknown): PlatformSettings {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, any>;
   const p = (r.prices && typeof r.prices === 'object' ? r.prices : {}) as Record<string, unknown>;
   const a = (r.announcement && typeof r.announcement === 'object' ? r.announcement : {}) as Record<string, unknown>;
+  const au = (r.automations && typeof r.automations === 'object' ? r.automations : {}) as Record<string, unknown>;
+  const on = (v: unknown) => v !== false; // أي قيمة غير false تبقى مفعّلة (توافق مع إعدادات قديمة بلا هذا الحقل)
   return {
     trialDays: Math.round(num(r.trialDays, 0, 365, DEFAULT_SETTINGS.trialDays)),
     prices: {
@@ -38,6 +43,7 @@ export function normalizeSettings(raw: unknown): PlatformSettings {
       textEn: typeof a.textEn === 'string' ? a.textEn.slice(0, 500) : '',
       active: a.active === true,
     },
+    automations: { reports: on(au.reports), reminders: on(au.reminders), reviews: on(au.reviews), winBack: on(au.winBack) },
   };
 }
 

@@ -269,6 +269,59 @@ async function main() {
     check("owner cannot delete an admin's schedule", !!ownerTouch && ownerTouch.status === 401, ownerTouch && `status=${ownerTouch.status}`);
     const aDel = aSch.json?.data?.id && (await admin.req('DELETE', `/api/admin/report-schedules/${aSch.json.data.id}`));
     check('admin schedule deleted', !!aDel && ok2xx(aDel));
+
+    // ---------- 8b. مفاتيح الأدمن للمهام التلقائية ----------
+    console.log('\n[8b] Admin on/off switches for automatic jobs');
+    const auto = (key, enabled) => admin.req('POST', `/api/admin/salons/${A.tenantId}/automations`, { key, enabled });
+    const badKey = await auto('winBack', false);
+    check('per-salon switch rejects unknown/platform-only keys (400)', badKey.status === 400, `status=${badKey.status}`);
+    const ownerSwitch = await A.c.req('POST', `/api/admin/salons/${A.tenantId}/automations`, { key: 'reports', enabled: false });
+    check('owner cannot flip admin switches (401)', ownerSwitch.status === 401, `status=${ownerSwitch.status}`);
+
+    const gs = (await A.c.req('GET', sPath)).json;
+    check('schedules API reports enabled=true by default', gs?.enabled === true);
+    // نترك مكانًا لجدول جديد: نحذف جدولًا قائمًا
+    const first = gs?.data?.[0];
+    if (first) await A.c.req('DELETE', `${sPath}/${first.id}`);
+
+    check('admin turns reports OFF for salon A', ok2xx(await auto('reports', false)));
+    const off = await A.c.req('GET', sPath);
+    check('owner sees enabled=false', off.json?.enabled === false);
+    const blocked = await A.c.req('POST', sPath, { reportType: 'overview', frequency: 'DAILY' });
+    check('owner cannot create a schedule while off (403 DISABLED)', blocked.status === 403 && blocked.json?.code === 'DISABLED', `status=${blocked.status}`);
+    const blockedSend = off.json?.data?.[0] && (await A.c.req('POST', `${sPath}/${off.json.data[0].id}/send`));
+    check('send-now blocked while off (403)', !blockedSend || blockedSend.status === 403, blockedSend && `status=${blockedSend.status}`);
+
+    check('admin turns reports back ON', ok2xx(await auto('reports', true)));
+    const mk = await A.c.req('POST', sPath, { reportType: 'overview', frequency: 'DAILY' });
+    check('schedule can be created again after re-enabling', mk.status === 201, `status=${mk.status}`);
+    const mkId = mk.json?.data?.id;
+
+    if (CRON_SECRET && mkId) {
+      const h = { Authorization: `Bearer ${CRON_SECRET}` };
+      await auto('reports', false);
+      await new Client().req('GET', '/api/cron/daily', undefined, h);
+      const l = (await A.c.req('GET', sPath)).json?.data?.find((x) => x.id === mkId);
+      check('cron skips a salon whose reports switch is off', l?.lastRunAt === null, JSON.stringify(l));
+      await auto('reports', true);
+      await new Client().req('GET', '/api/cron/daily', undefined, h);
+      const l2 = (await A.c.req('GET', sPath)).json?.data?.find((x) => x.id === mkId);
+      check('cron runs it once the switch is back on', !!l2?.lastRunAt, JSON.stringify(l2));
+
+      // مفتاح المنصة
+      const cur = (await admin.req('GET', '/api/admin/settings')).json?.data;
+      const put = (a) => admin.req('PUT', '/api/admin/settings', { ...cur, automations: { ...cur.automations, ...a } });
+      check('settings expose all four automations (default on)', cur?.automations && Object.values(cur.automations).every((v) => v === true), JSON.stringify(cur?.automations));
+      await put({ reminders: false, reviews: false, winBack: false, reports: false });
+      const run = await new Client().req('GET', '/api/cron/daily', undefined, h);
+      check('platform switches OFF: reminders disabled, review/win-back send 0', run.json?.reminders?.disabled === true && run.json?.reviewRequests === 0 && run.json?.winBack === 0, JSON.stringify(run.json));
+      const blockedPlatform = await A.c.req('POST', sPath, { reportType: 'staff', frequency: 'DAILY' });
+      check('platform reports switch OFF blocks owners too (403 or limit)', blockedPlatform.status === 403 || blockedPlatform.status === 409, `status=${blockedPlatform.status}`);
+      const restored = await put({ reminders: true, reviews: true, winBack: true, reports: true });
+      check('platform switches restored', ok2xx(restored) && Object.values(restored.json?.data?.automations ?? {}).every((v) => v === true));
+    } else {
+      skip('cron respects automation switches', 'CRON_SECRET not provided to the test');
+    }
   }
 
   // ---------- 9. صفحات الواجهة ----------

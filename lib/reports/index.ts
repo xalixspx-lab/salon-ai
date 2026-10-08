@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
+import { automationEnabled } from '@/lib/automations';
 import { buildAdminReport } from '@/lib/reports/admin';
 import { renderReportEmail } from '@/lib/reports/email';
 import { buildOwnerReport } from '@/lib/reports/owner';
@@ -81,7 +82,15 @@ export async function sendScheduleNow(s: Schedule, origin?: string) {
 // يُشغَّل يوميًا من cron: لكل جدول فعّال حان موعده (بتوقيت صاحبه) يُحجز اليوم أولًا بتحديث
 // مشروط (فلا يُرسَل مرتين لو تداخل تشغيلان) ثم يُرسَل. فشل جدول لا يوقف البقية.
 export async function runDueReports(now = new Date(), origin?: string) {
-  const schedules = await prisma.reportSchedule.findMany({ where: { isActive: true }, take: 1000 });
+  // الإيقاف على مستوى المنصة أو الصالون يمنع جداول المالك فقط؛ جداول الأدمن تعمل دائمًا
+  const ownerAllowed = await automationEnabled('reports');
+  const schedules = await prisma.reportSchedule.findMany({
+    where: {
+      isActive: true,
+      OR: [{ scope: 'ADMIN' }, ...(ownerAllowed ? [{ scope: 'OWNER', tenant: { NOT: { automationOff: { has: 'reports' } } } }] : [])],
+    },
+    take: 1000,
+  });
   const tzCache = new Map<string, string>();
   let due = 0;
   let sent = 0;

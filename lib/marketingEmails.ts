@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
 import { CONSENT_TYPES, currentConsent } from '@/lib/legal';
+import { automationEnabled } from '@/lib/automations';
 
 const DAY = 24 * 3600 * 1000;
 export const WIN_BACK_AFTER_DAYS = 45;
@@ -21,6 +22,7 @@ function button(href: string, label: string) {
 // مع مهمة يومية تعني رسالة واحدة فقط لكل زيارة دون حاجة لحقل تتبّع إضافي.
 // رسالة خدمية عن زيارة فعلية، فلا تشترط موافقة التسويق.
 export async function sendReviewRequests(appOrigin: string): Promise<number> {
+  if (!(await automationEnabled('reviews'))) return 0;
   const now = Date.now();
   const appts = await prisma.appointment.findMany({
     where: {
@@ -30,6 +32,7 @@ export async function sendReviewRequests(appOrigin: string): Promise<number> {
         lt: new Date(now - REVIEW_REQUEST_MIN_DAYS * DAY),
       },
       review: null,
+      tenant: { NOT: { automationOff: { has: 'reviews' } } },
       customer: { accountId: { not: null } },
     },
     include: { tenant: { select: { name: true } }, customer: { include: { account: { select: { email: true, suspendedAt: true } } } } },
@@ -60,6 +63,7 @@ export async function sendReviewRequests(appOrigin: string): Promise<number> {
 // وعمر الحساب أطول من ذلك)، وأعطت موافقة تسويق سارية، ولم تصلها رسالة مماثلة
 // خلال المدة نفسها. رسالة تسويقية فتُشترط موافقة MARKETING (قانون حماية البيانات).
 export async function sendWinBackEmails(appOrigin: string): Promise<number> {
+  if (!(await automationEnabled('winBack'))) return 0;
   const cutoff = new Date(Date.now() - WIN_BACK_AFTER_DAYS * DAY);
   const candidates = await prisma.customerAccount.findMany({
     where: {

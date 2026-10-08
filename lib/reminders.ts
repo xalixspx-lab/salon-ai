@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { notifyBooking } from '@/lib/notify';
+import { automationEnabled } from '@/lib/automations';
 
 const HOUR = 3600 * 1000;
 
@@ -8,12 +9,15 @@ const HOUR = 3600 * 1000;
 // قبل الإرسال بتحديث مشروط (updateMany) فلا يُرسل تذكيران لو تداخل تشغيلان.
 // العميل بلا حساب (حجز ضيف) ليس له بريد فيُستثنى من الاستعلام.
 export async function sendAppointmentReminders(now = new Date()) {
+  // مفتاح الأدمن على مستوى المنصة، وصالونات أوقف الأدمن لها "reminders" تُستثنى من الاستعلام
+  if (!(await automationEnabled('reminders'))) return { due: 0, sent: 0, disabled: true };
   const due = await prisma.appointment.findMany({
     where: {
       status: 'CONFIRMED',
       reminderSentAt: null,
       startTime: { gte: new Date(now.getTime() + 12 * HOUR), lt: new Date(now.getTime() + 36 * HOUR) },
       customer: { accountId: { not: null } },
+      tenant: { NOT: { automationOff: { has: 'reminders' } } },
     },
     orderBy: { startTime: 'asc' },
     take: 500,

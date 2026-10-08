@@ -7,6 +7,7 @@ interface Settings {
   trialDays: number;
   prices: { BASIC: number; PROFESSIONAL: number; ENTERPRISE: number };
   announcement: { textAr: string; textEn: string; active: boolean };
+  automations: { reports: boolean; reminders: boolean; reviews: boolean; winBack: boolean };
 }
 
 export default function AdminPlatformSettingsPage() {
@@ -49,6 +50,24 @@ export default function AdminPlatformSettingsPage() {
       <form onSubmit={save} className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6">
         {error && <div className="p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
         {saved && <div className="p-3 bg-emerald-50 text-emerald-700 rounded text-sm">{L('تم الحفظ', 'Saved')}</div>}
+
+        <section>
+          <h2 className="font-bold text-slate-900 mb-1">{L('المهام التلقائية على مستوى المنصة', 'Platform-wide automatic jobs')}</h2>
+          <p className="text-xs text-slate-500 mb-3">{L('تعمل يوميًا الساعة 7 صباحًا بتوقيت البحرين. إيقاف مهمة هنا يوقفها لكل الصالونات؛ ويمكن إيقافها لصالون واحد من صفحته في «الصالونات».', 'Run daily at 7 AM Bahrain time. Turning one off here stops it for every salon; you can also turn it off for a single salon from its page under Salons.')}</p>
+          <div className="space-y-2">
+            {([
+              ['reports', L('التقارير الدورية بالبريد (جداول أصحاب الصالونات)', 'Scheduled email reports (owners)')],
+              ['reminders', L('تذكير العملاء بمواعيدهم', 'Appointment reminders to customers')],
+              ['reviews', L('طلب تقييم بعد الزيارة', 'Review requests after a visit')],
+              ['winBack', L('بريد «اشتقنا لك» للعملاء المنقطعين (تسويقي)', 'Win-back emails to lapsed customers (marketing)')],
+            ] as const).map(([k, label]) => (
+              <label key={k} className="flex items-center gap-3 text-sm text-slate-800">
+                <input type="checkbox" checked={s.automations[k]} onChange={(e) => setS({ ...s, automations: { ...s.automations, [k]: e.target.checked } })} className="h-4 w-4" />
+                {label}
+              </label>
+            ))}
+          </div>
+        </section>
 
         <section>
           <h2 className="font-bold text-slate-900 mb-3">{L('الاشتراكات', 'Subscriptions')}</h2>

@@ -70,6 +70,7 @@ export default function ReportsWorkspace({ apiBase, types, accent }: { apiBase: 
   // ---------- الجدولة ----------
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [max, setMax] = useState(5);
+  const [enabled, setEnabled] = useState(true);
   const [sType, setSType] = useState(types[0].id);
   const [sFreq, setSFreq] = useState<'DAILY' | 'WEEKLY' | 'MONTHLY'>('WEEKLY');
   const [sDow, setSDow] = useState(0);
@@ -87,6 +88,7 @@ export default function ReportsWorkspace({ apiBase, types, accent }: { apiBase: 
     if (json?.success) {
       setSchedules(json.data);
       setMax(json.max ?? 5);
+      setEnabled(json.enabled !== false);
     }
   }, [apiBase]);
 
@@ -106,7 +108,7 @@ export default function ReportsWorkspace({ apiBase, types, accent }: { apiBase: 
     if (res?.ok && json?.success) {
       setSMsg(L('تمت إضافة الجدولة', 'Schedule added'));
       loadSchedules();
-    } else setSMsg(json?.code === 'LIMIT' ? L(`الحد الأقصى ${max} جداول`, `Maximum ${max} schedules`) : L('تعذّرت الإضافة', 'Could not add'));
+    } else setSMsg(json?.code === 'DISABLED' ? L('الخدمة غير مفعّلة لصالونك', 'This service is not enabled for your salon') : json?.code === 'LIMIT' ? L(`الحد الأقصى ${max} جداول`, `Maximum ${max} schedules`) : L('تعذّرت الإضافة', 'Could not add'));
   };
   const toggle = async (s: Schedule) => {
     await fetch(`${apiBase}/report-schedules/${s.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isActive: !s.isActive }) });
@@ -185,6 +187,11 @@ export default function ReportsWorkspace({ apiBase, types, accent }: { apiBase: 
       {/* ---------- الجدولة ---------- */}
       <section className="no-print bg-white rounded-2xl border border-stone-200 shadow-sm p-4 sm:p-6">
         <h2 className="text-base font-bold text-stone-800">{L('التقارير الدورية بالبريد', 'Scheduled email reports')}</h2>
+        {!enabled && (
+          <p className="mt-3 p-3 rounded-xl bg-amber-50 text-amber-800 text-sm" role="status">
+            {L('الإرسال البريدي الدوري غير مفعّل لصالونك حاليًا. تواصل مع إدارة المنصة لتفعيله. التقارير حسب الطلب متاحة دائمًا.', 'Scheduled email reports are not enabled for your salon. Contact the platform team to enable them. On-demand reports are always available.')}
+          </p>
+        )}
         <p className="text-xs text-stone-500 mt-1 mb-4">
           {L('يصلك التقرير على بريد حسابك صباح اليوم المحدد (7 صباحًا بتوقيت البحرين) مع ملف CSV كامل. اليومي يغطي الأمس، والأسبوعي آخر 7 أيام كاملة، والشهري الشهر الماضي.', 'The report is emailed to your account address on the chosen day (7 AM Bahrain time) with a full CSV. Daily covers yesterday, weekly the last 7 full days, monthly the previous month.')}
         </p>
@@ -204,7 +211,7 @@ export default function ReportsWorkspace({ apiBase, types, accent }: { apiBase: 
                 <button onClick={() => toggle(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${s.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-stone-100 text-stone-500'}`}>
                   {s.isActive ? L('فعّالة', 'Active') : L('متوقفة', 'Paused')}
                 </button>
-                <button onClick={() => sendNow(s)} className="px-3 py-1.5 rounded-lg text-xs border border-stone-300 text-stone-700">
+                <button onClick={() => sendNow(s)} disabled={!enabled} className="px-3 py-1.5 rounded-lg text-xs border border-stone-300 text-stone-700 disabled:opacity-40">
                   {L('أرسل الآن', 'Send now')}
                 </button>
                 <button onClick={() => remove(s)} className="px-3 py-1.5 rounded-lg text-xs border border-red-200 text-red-700">
@@ -258,7 +265,7 @@ export default function ReportsWorkspace({ apiBase, types, accent }: { apiBase: 
               </select>
             </label>
           )}
-          <button onClick={createSchedule} disabled={schedules.length >= max} className={`${btn} text-white px-4 py-2.5 rounded-xl text-sm font-medium disabled:opacity-50`}>
+          <button onClick={createSchedule} disabled={!enabled || schedules.length >= max} className={`${btn} text-white px-4 py-2.5 rounded-xl text-sm font-medium disabled:opacity-50`}>
             + {L('إضافة جدولة', 'Add schedule')}
           </button>
         </div>

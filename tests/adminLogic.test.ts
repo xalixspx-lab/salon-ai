@@ -58,3 +58,14 @@ describe('generateTempPassword', () => {
     expect(generateTempPassword()).not.toBe(a);
   });
 });
+
+describe('normalizeSettings automations', () => {
+  it('defaults every automatic job to ON (also for legacy settings without the field)', () => {
+    expect(normalizeSettings({}).automations).toEqual({ reports: true, reminders: true, reviews: true, winBack: true });
+    expect(normalizeSettings({ trialDays: 7 }).automations.reports).toBe(true);
+  });
+  it('only an explicit false turns a job off; junk values stay ON', () => {
+    const a = normalizeSettings({ automations: { reports: false, reminders: 0, reviews: 'no', winBack: false } }).automations;
+    expect(a).toEqual({ reports: false, reminders: true, reviews: true, winBack: false });
+  });
+});

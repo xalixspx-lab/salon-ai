@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { withTenantScope } from '@/lib/tenantScope';
+import { ownerReportsEnabled } from '@/lib/automations';
 import { isUuid } from '@/lib/chat';
 import { limitOrResponse } from '@/lib/rateLimit';
 import { sendScheduleNow } from '@/lib/reports';
@@ -11,6 +12,7 @@ import { appOrigin } from '@/lib/email';
 async function POSTHandler(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  if (!(await ownerReportsEnabled(session.tenantId))) return NextResponse.json({ success: false, error: 'disabled', code: 'DISABLED' }, { status: 403 });
   const { id } = await params;
   if (!isUuid(id)) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
 
