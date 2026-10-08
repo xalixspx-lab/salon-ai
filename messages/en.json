@@ -181,7 +181,11 @@
     "pending": "Pending",
     "cancelled": "Cancelled",
     "inbox": "Inbox",
-    "reports": "Reports"
+    "reports": "Reports",
+    "navMain": "Main",
+    "navBusiness": "Business",
+    "navAccount": "Account",
+    "more": "More"
   },
   "Bookings": {
     "title": "Manage Appointments",
@@ -424,6 +428,10 @@
     "mustChangeNotice": "For your account's security, change the temporary password before continuing.",
     "adminsHint": "Every admin has full permissions. A new account gets a temporary password it must change.",
     "reports": "Reports",
+    "navPlatform": "Platform",
+    "navInsights": "Insights",
+    "navSystem": "System",
+    "more": "More",
     "audit": "Audit log",
     "auditWhen": "When",
     "auditWho": "Admin",

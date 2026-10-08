@@ -2,16 +2,20 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import type { Metadata, Viewport } from 'next';
 import { ReactNode } from 'react';
+import { IBM_Plex_Sans_Arabic } from 'next/font/google';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import SiteFooter from '@/components/SiteFooter';
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 import "../globals.css";
 
+// خط واحد للعربية واللاتينية بمظهر احترافي (يُستضاف ذاتيًا عبر next/font بلا طلبات خارجية وقت التشغيل)
+const uiFont = IBM_Plex_Sans_Arabic({ subsets: ['arabic', 'latin'], weight: ['400', '500', '600', '700'], variable: '--font-ui', display: 'swap' });
+
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 // viewportFit: cover يجعل الصفحة تحترم منطقة النتوء/شريط الرجوع على الجوال في
 // وضع التطبيق المثبّت (standalone)
-export const viewport: Viewport = { themeColor: '#1d4ed8', viewportFit: 'cover' };
+export const viewport: Viewport = { themeColor: '#b4456b', viewportFit: 'cover' };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -41,7 +45,7 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+    <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} className={uiFont.variable}>
       <body>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <ServiceWorkerRegister />

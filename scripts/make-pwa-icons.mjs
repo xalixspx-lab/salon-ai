@@ -5,7 +5,7 @@ import sharp from 'sharp';
 import fs from 'node:fs';
 
 const svg = fs.readFileSync('app/icon.svg');
-const BG = '#1d4ed8';
+const BG = '#b4456b';
 
 async function onSolid(size, inner, out) {
   const glyph = await sharp(svg).resize(inner, inner).png().toBuffer();
