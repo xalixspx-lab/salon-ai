@@ -180,7 +180,8 @@
     "completed": "Completed",
     "pending": "Pending",
     "cancelled": "Cancelled",
-    "inbox": "Inbox"
+    "inbox": "Inbox",
+    "reports": "Reports"
   },
   "Bookings": {
     "title": "Manage Appointments",
@@ -422,6 +423,7 @@
     "passwordChanged": "Password changed",
     "mustChangeNotice": "For your account's security, change the temporary password before continuing.",
     "adminsHint": "Every admin has full permissions. A new account gets a temporary password it must change.",
+    "reports": "Reports",
     "audit": "Audit log",
     "auditWhen": "When",
     "auditWho": "Admin",

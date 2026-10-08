@@ -53,6 +53,7 @@ model Tenant {
   photos           SalonPhoto[]
   conversations    Conversation[]
   whatsappAccount  WhatsappAccount?
+  reportSchedules  ReportSchedule[]
   contacts         Contact[]
 
   @@map("tenants")
@@ -398,6 +399,30 @@ model Contact {
 
   @@unique([tenantId, phone])
   @@map("contacts")
+}
+
+// جدولة تقارير دورية بالبريد. scope=OWNER: tenantId للصالون والبريد هو بريد المالك الحالي؛
+// scope=ADMIN: tenantId فارغ وadminId هو المشرف والبريد بريده الحالي. لا يُخزَّن بريد
+// حر (يمنع استعمال المنصة لإرسال تقارير لطرف ثالث).
+model ReportSchedule {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  scope      String    @db.VarChar(10)
+  tenantId   String?   @map("tenant_id") @db.Uuid
+  adminId    String?   @map("admin_id") @db.Uuid
+  reportType String    @map("report_type") @db.VarChar(30)
+  frequency  String    @db.VarChar(10)
+  dayOfWeek  Int?      @map("day_of_week")
+  dayOfMonth Int?      @map("day_of_month")
+  locale     String    @default("ar") @db.VarChar(5)
+  isActive   Boolean   @default(true) @map("is_active")
+  lastRunAt  DateTime? @map("last_run_at") @db.Timestamp(6)
+  lastError  String?   @map("last_error")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([isActive, scope])
+  @@map("report_schedules")
 }
 
 // سجل تدقيق لإجراءات الأدمن الحساسة. لا FK على الهدف حتى يبقى السجل بعد حذفه.

@@ -31,6 +31,7 @@ export default function DashboardShell({
     { href: `${base}/calendar`, label: t('calendar'), icon: '🗓️' },
     { href: `${base}/clients`, label: t('clients'), icon: '👥' },
     { href: `${base}/services`, label: t('services'), icon: '💇‍♀️' },
+    { href: `${base}/reports`, label: t('reports'), icon: '📈' },
     { href: `${base}/reviews`, label: t('reviews'), icon: '⭐' },
     { href: `${base}/offers`, label: t('offers'), icon: '🏷️' },
     { href: `${base}/staff`, label: t('staff'), icon: '🧑‍💼' },

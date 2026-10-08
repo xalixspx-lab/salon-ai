@@ -1,6 +1,13 @@
 // إرسال البريد عبر Resend إذا ضُبط RESEND_API_KEY و EMAIL_FROM. بدون ذلك
 // (بيئة التطوير) نطبع الرسالة في سجل السيرفر حتى يمكن اختبار الروابط.
-export async function sendEmail(opts: { to: string; subject: string; html: string; text: string }) {
+export async function sendEmail(opts: {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  // مرفقات (مثل CSV للتقارير): المحتوى نص يُرمَّز base64 عند الإرسال
+  attachments?: Array<{ filename: string; content: string }>;
+}) {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
 
@@ -12,7 +19,16 @@ export async function sendEmail(opts: { to: string; subject: string; html: strin
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from, to: opts.to, subject: opts.subject, html: opts.html, text: opts.text }),
+    body: JSON.stringify({
+      from,
+      to: opts.to,
+      subject: opts.subject,
+      html: opts.html,
+      text: opts.text,
+      ...(opts.attachments?.length
+        ? { attachments: opts.attachments.map((a) => ({ filename: a.filename, content: Buffer.from(a.content, 'utf8').toString('base64') })) }
+        : {}),
+    }),
   });
   if (!res.ok) {
     console.error('Email send failed', res.status, await res.text());

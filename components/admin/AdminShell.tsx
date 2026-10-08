@@ -28,6 +28,7 @@ export default function AdminShell({
     { href: `${base}/owners`, label: t('owners'), icon: '🧑‍💼' },
     { href: `${base}/customers`, label: t('customers'), icon: '👤' },
     { href: `${base}/bookings`, label: t('bookings'), icon: '📅' },
+    { href: `${base}/reports`, label: t('reports'), icon: '📈' },
     { href: `${base}/reviews`, label: t('reviews'), icon: '⭐' },
     { href: `${base}/database`, label: t('database'), icon: '🗄️' },
     { href: `${base}/admins`, label: t('admins'), icon: '🛡️' },
