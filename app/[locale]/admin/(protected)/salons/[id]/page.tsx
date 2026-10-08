@@ -4,6 +4,7 @@ import { useEffect, useState, FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import SalonOverviewPanel from '@/components/admin/SalonOverviewPanel';
+import WhatsAppLinkPanel from '@/components/admin/WhatsAppLinkPanel';
 
 export default function AdminEditSalonPage() {
   const t = useTranslations('Admin');
@@ -166,6 +167,8 @@ export default function AdminEditSalonPage() {
           {saving ? '...' : common('save')}
         </button>
       </form>
+
+      <WhatsAppLinkPanel salonId={String(id)} />
     </div>
   );
 }

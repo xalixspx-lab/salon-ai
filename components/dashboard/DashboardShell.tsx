@@ -26,6 +26,7 @@ export default function DashboardShell({
   const base = `/${locale}/dashboard`;
   const links = [
     { href: base, label: t('overview'), icon: '📊' },
+    { href: `${base}/inbox`, label: t('inbox'), icon: '💬' },
     { href: `${base}/bookings`, label: t('appointments'), icon: '📅' },
     { href: `${base}/calendar`, label: t('calendar'), icon: '🗓️' },
     { href: `${base}/clients`, label: t('clients'), icon: '👥' },
@@ -150,7 +151,8 @@ export default function DashboardShell({
         </nav>
       </div>
 
-      <ChatWidget />
+      {/* صفحة الرسائل الكاملة تغني عن الويدجت العائم (وإلا تراكبا) */}
+      {!pathname.endsWith('/inbox') && <ChatWidget />}
     </div>
   );
 }

@@ -52,6 +52,8 @@ model Tenant {
   favorites        Favorite[]
   photos           SalonPhoto[]
   conversations    Conversation[]
+  whatsappAccount  WhatsappAccount?
+  contacts         Contact[]
 
   @@map("tenants")
 }
@@ -150,6 +152,7 @@ model Customer {
   account          CustomerAccount?  @relation(fields: [accountId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   appointments     Appointment[]
   customerPackages CustomerPackage[]
+  contacts         Contact[]
 
   @@map("customers")
 }
@@ -313,7 +316,13 @@ model Favorite {
 model Conversation {
   id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   tenantId             String    @map("tenant_id") @db.Uuid
-  accountId            String    @map("account_id") @db.Uuid
+  // محادثة ويب قديمة (حساب عميل) أو محادثة واتساب (جهة اتصال) — واحد منهما فقط
+  accountId            String?   @map("account_id") @db.Uuid
+  contactId            String?   @map("contact_id") @db.Uuid
+  // آخر رسالة واردة من العميل: تحدد نافذة الرد الحر على واتساب (24 ساعة)
+  lastInboundAt        DateTime? @map("last_inbound_at") @db.Timestamp(6)
+  // من يرد الآن: HUMAN (المالك) | AGENT (الوكيل) | ESCALATED (الوكيل صعّد للمالك)
+  mode                 String    @default("HUMAN") @db.VarChar(20)
   lastMessageAt        DateTime  @default(now()) @map("last_message_at") @db.Timestamp(6)
   lastReadByOwnerAt    DateTime? @map("last_read_by_owner_at") @db.Timestamp(6)
   lastReadByCustomerAt DateTime? @map("last_read_by_customer_at") @db.Timestamp(6)
@@ -321,11 +330,13 @@ model Conversation {
   blockedByCustomerAt  DateTime? @map("blocked_by_customer_at") @db.Timestamp(6)
   createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
 
-  tenant   Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  account  CustomerAccount @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenant   Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  account  CustomerAccount? @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  contact  Contact?         @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   messages Message[]
 
   @@unique([tenantId, accountId])
+  @@unique([tenantId, contactId])
   @@index([tenantId, lastMessageAt(sort: Desc)])
   @@map("conversations")
 }
@@ -338,12 +349,55 @@ model Message {
   tenantId       String   @map("tenant_id") @db.Uuid
   senderRole     String   @map("sender_role") @db.VarChar(20)
   body           String
+  // واتساب: معرّف الرسالة لدى Meta (فريد: يمنع تكرار المعالجة عند إعادة الإرسال)
+  waMessageId    String?  @unique @map("wa_message_id") @db.VarChar(128)
+  direction      String?  @db.VarChar(10)
+  msgType        String   @default("text") @map("msg_type") @db.VarChar(20)
+  mediaId        String?  @map("media_id") @db.VarChar(255)
+  // حالة التسليم للرسائل الصادرة: sent | delivered | read | failed
+  status         String?  @db.VarChar(20)
+  error          String?
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(6)
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([conversationId, createdAt])
   @@map("messages")
+}
+
+// رقم واتساب مربوط بصالون (واجهة Meta الرسمية). صالون واحد = رقم واحد حاليًا.
+// الرمز مشفّر AES-GCM؛ إن غاب يُستعمل رمز النظام من المتغيرات (رقم الاختبار).
+model WhatsappAccount {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId       String   @unique @map("tenant_id") @db.Uuid
+  phoneNumberId  String   @unique @map("phone_number_id") @db.VarChar(64)
+  wabaId         String?  @map("waba_id") @db.VarChar(64)
+  displayPhone   String?  @map("display_phone") @db.VarChar(32)
+  status         String   @default("ACTIVE") @db.VarChar(20)
+  accessTokenEnc String?  @map("access_token_enc")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("whatsapp_accounts")
+}
+
+// جهة اتصال = عميل واتساب (هويته رقمه، بلا حساب). تُربط بسجل CRM للصالون.
+model Contact {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId      String    @map("tenant_id") @db.Uuid
+  phone         String    @db.VarChar(32)
+  name          String?   @db.VarChar(255)
+  customerId    String?   @map("customer_id") @db.Uuid
+  lastInboundAt DateTime? @map("last_inbound_at") @db.Timestamp(6)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  customer      Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  conversations Conversation[]
+
+  @@unique([tenantId, phone])
+  @@map("contacts")
 }
 
 // سجل تدقيق لإجراءات الأدمن الحساسة. لا FK على الهدف حتى يبقى السجل بعد حذفه.

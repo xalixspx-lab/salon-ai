@@ -4,6 +4,7 @@ import { getSession } from '@/lib/session';
 import { withTenantScope } from '@/lib/tenantScope';
 import { SENDER_ROLE, readJsonObject, isUuid } from '@/lib/chat';
 import { limitOrResponse } from '@/lib/rateLimit';
+import { isReplyWindowOpen } from '@/lib/whatsappCore';
 
 // قائمة محادثات الصالون (بريد وارد للمالك) — محادثة مستقلة لكل عميل، مرتبة
 // بحسب آخر نشاط، مع عدد الرسائل غير المقروءة من كل عميل
@@ -18,6 +19,7 @@ async function GETHandler() {
     take: 100,
     include: {
       account: { select: { name: true } },
+      contact: { select: { name: true, phone: true } },
       messages: { orderBy: { createdAt: 'desc' }, take: 1, select: { body: true, senderRole: true, createdAt: true } },
     },
   });
@@ -25,7 +27,11 @@ async function GETHandler() {
   const data = await Promise.all(
     conversations.map(async (c) => ({
       id: c.id,
-      customerName: c.account.name,
+      customerName: c.account?.name ?? c.contact?.name ?? (c.contact ? '+' + c.contact.phone : ''),
+      channel: c.contact ? 'whatsapp' : 'web',
+      phone: c.contact?.phone ?? null,
+      windowOpen: c.contact ? isReplyWindowOpen(c.lastInboundAt) : true,
+      mode: c.mode,
       lastMessage: c.messages[0] ?? null,
       lastMessageAt: c.lastMessageAt,
       blockedByCustomer: Boolean(c.blockedByCustomerAt),

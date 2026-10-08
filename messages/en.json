@@ -179,7 +179,8 @@
     "confirmed": "Confirmed",
     "completed": "Completed",
     "pending": "Pending",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "inbox": "Inbox"
   },
   "Bookings": {
     "title": "Manage Appointments",
@@ -495,5 +496,26 @@
     "errorDesc": "We couldn't load this page. Please try again.",
     "retry": "Try again",
     "loading": "Loading..."
+  },
+  "Inbox": {
+    "title": "Inbox",
+    "search": "Search by name or number",
+    "all": "All",
+    "unread": "Unread",
+    "empty": "No conversations yet",
+    "selectChat": "Select a conversation from the list",
+    "whatsapp": "WhatsApp",
+    "windowOpen": "Reply window open",
+    "windowClosed": "Reply window closed",
+    "windowClosedNotice": "More than 24 hours passed since the customer last wrote, so WhatsApp does not allow a free-form reply. Template replies are coming soon.",
+    "notConnectedTitle": "WhatsApp is not connected yet",
+    "notConnectedDesc": "Once your salon number is connected, your customers' messages appear here. Contact the platform team to connect the number.",
+    "connectedAs": "Connected number",
+    "errWindow": "The 24-hour reply window has ended. A free-form message cannot be sent now.",
+    "errNotConnected": "WhatsApp number is not connected.",
+    "errToken": "The WhatsApp connection has expired. Contact the platform team.",
+    "errFailed": "Could not send, please try again.",
+    "back": "List",
+    "you": "You"
   }
 }

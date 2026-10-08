@@ -22,7 +22,7 @@ export async function loadThread(conversationId: string) {
     where: { conversationId },
     orderBy: { createdAt: 'desc' },
     take: THREAD_PAGE_SIZE,
-    select: { id: true, senderRole: true, body: true, createdAt: true },
+    select: { id: true, senderRole: true, body: true, createdAt: true, status: true, msgType: true },
   });
   return rows.reverse();
 }
@@ -53,16 +53,20 @@ export async function notifyChatMessage(conversationId: string, senderRole: Send
         tenantId: true,
         tenant: { select: { name: true, owner: { select: { email: true, suspendedAt: true } } } },
         account: { select: { name: true, email: true, suspendedAt: true } },
+        contact: { select: { name: true, phone: true } },
       },
     });
     if (!conv) return;
 
     const origin = process.env.APP_URL?.replace(/\/$/, '');
     const toOwner = senderRole === SENDER_ROLE.CUSTOMER;
+    // محادثة واتساب: العميل يتلقى الرد على واتساب نفسه (لا بريد له)؛ المالك فقط يُشعَر بالبريد
+    if (!toOwner && !conv.account) return;
     const to = toOwner ? conv.tenant.owner : conv.account;
     if (!to?.email || to.suspendedAt) return;
 
-    const fromName = toOwner ? conv.account.name : conv.tenant.name;
+    const customerName = conv.account?.name ?? conv.contact?.name ?? (conv.contact ? '+' + conv.contact.phone : '');
+    const fromName = toOwner ? customerName : conv.tenant.name;
     const link = origin ? (toOwner ? `${origin}/ar/dashboard` : `${origin}/ar/salons/${conv.tenantId}`) : null;
     const excerpt = body.length > 160 ? `${body.slice(0, 160)}…` : body;
     const subject = `رسالة جديدة من ${fromName} | New message from ${fromName}`;

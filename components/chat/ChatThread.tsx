@@ -2,7 +2,16 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-export type ChatMessage = { id: string; senderRole: string; body: string; createdAt: string };
+export type ChatMessage = { id: string; senderRole: string; body: string; createdAt: string; status?: string | null; msgType?: string };
+
+// علامات تسليم واتساب لرسائلنا الصادرة
+function ticks(status?: string | null): { text: string; cls: string } | null {
+  if (status === 'sent') return { text: '✓', cls: '' };
+  if (status === 'delivered') return { text: '✓✓', cls: '' };
+  if (status === 'read') return { text: '✓✓', cls: 'text-sky-300' };
+  if (status === 'failed') return { text: '⚠', cls: 'text-red-300' };
+  return null;
+}
 
 // منطقة الرسائل + شريط الإدخال، مشتركة بين ويدجت المالك وويدجت العميل.
 // mineRole: دور الطرف الحالي (رسائله على الجهة الأخرى بلون العلامة).
@@ -69,6 +78,9 @@ export default function ChatThread({
                   {m.body}
                   <div className={`mt-1 text-[10px] ${mine ? 'text-white/70' : 'text-stone-400'}`}>
                     {timeFmt.format(new Date(m.createdAt))}
+                    {mine && ticks(m.status) && (
+                      <span className={`ms-1 ${ticks(m.status)!.cls}`}>{ticks(m.status)!.text}</span>
+                    )}
                   </div>
                 </div>
               </div>

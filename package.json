@@ -11,7 +11,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "test:isolation": "node scripts/isolation-test.mjs",
-    "test:e2e": "node scripts/e2e-test.mjs"
+    "test:e2e": "node scripts/e2e-test.mjs",
+    "test:wa": "node scripts/wa-e2e-test.mjs"
   },
   "dependencies": {
     "@prisma/client": "^5.19.0",
