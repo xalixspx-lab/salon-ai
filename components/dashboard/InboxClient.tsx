@@ -153,7 +153,7 @@ export default function InboxClient() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('search')}
-              className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-base focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-base focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
             />
             <div className="flex gap-2">
               {(['all', 'unread'] as const).map((f) => (

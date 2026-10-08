@@ -102,7 +102,7 @@ export default function AppointmentActions({
                   key={s}
                   type="button"
                   onClick={() => setPicked(s)}
-                  className={`text-xs px-2 py-1 rounded border ${picked === s ? 'bg-black text-white' : 'bg-white text-gray-700'}`}
+                  className={`text-xs px-2 py-1 rounded border ${picked === s ? 'bg-brand-600 text-white' : 'bg-white text-gray-700'}`}
                 >
                   {new Date(s).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: timezone })}
                 </button>
@@ -114,7 +114,7 @@ export default function AppointmentActions({
           <button
             disabled={busy || !picked}
             onClick={() => call('reschedule', { startTime: picked })}
-            className="text-xs bg-black text-white px-2 py-1 rounded disabled:opacity-40"
+            className="text-xs bg-brand-600 text-white px-2 py-1 rounded disabled:opacity-40"
           >
             {t('saveNewTime')}
           </button>

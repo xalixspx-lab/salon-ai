@@ -122,11 +122,11 @@ export default function ServicesPage() {
             />
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('price')} ({common('currency')})</label>
-              <input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+              <input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('duration')} ({locale === 'en' ? 'minutes' : 'دقيقة'})</label>
-              <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+              <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
             </div>
           </div>
           <div className="flex gap-2">

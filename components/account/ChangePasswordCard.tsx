@@ -37,11 +37,11 @@ export default function ChangePasswordCard() {
       <form onSubmit={submit} className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">{t('currentPassword')}</label>
-          <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} required dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
+          <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} required dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">{t('newPassword')}</label>
-          <input type="password" minLength={8} value={next} onChange={(e) => setNext(e.target.value)} required dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
+          <input type="password" minLength={8} value={next} onChange={(e) => setNext(e.target.value)} required dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
         </div>
         <button disabled={busy} className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50">
           {busy ? '...' : t('changePassword')}

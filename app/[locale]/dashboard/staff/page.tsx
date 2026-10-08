@@ -115,19 +115,19 @@ export default function StaffPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('name')}</label>
-              <input value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-3 py-2 border rounded-md text-black" />
+              <input value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('role')}</label>
-              <input value={role} onChange={(e) => setRole(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+              <input value={role} onChange={(e) => setRole(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('phone')}</label>
-              <input value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
+              <input value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('status')}</label>
-              <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black">
+              <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400">
                 <option value="ACTIVE">{t('active')}</option>
                 <option value="ON_LEAVE">{t('onLeave')}</option>
               </select>

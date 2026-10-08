@@ -110,48 +110,48 @@ export default function AdminEditSalonPage() {
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">{settingsT('salonName')}</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-3 py-2 border rounded-md text-black" />
+          <input value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">{settingsT('city')}</label>
-            <input value={city} onChange={(e) => setCity(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+            <input value={city} onChange={(e) => setCity(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">العنوان التفصيلي</label>
-            <input value={addressText} onChange={(e) => setAddressText(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+            <input value={addressText} onChange={(e) => setAddressText(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
           </div>
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">{settingsT('workingHours')}</label>
-          <input value={workingHoursText} onChange={(e) => setWorkingHoursText(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+          <input value={workingHoursText} onChange={(e) => setWorkingHoursText(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">{settingsT('descriptionAr')}</label>
-          <textarea value={descriptionAr} onChange={(e) => setDescriptionAr(e.target.value)} rows={2} className="w-full px-3 py-2 border rounded-md text-black" />
+          <textarea value={descriptionAr} onChange={(e) => setDescriptionAr(e.target.value)} rows={2} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">{settingsT('descriptionEn')}</label>
-          <textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} rows={2} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
+          <textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} rows={2} dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">{settingsT('phone')}</label>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">العملة</label>
-            <input value={currency} onChange={(e) => setCurrency(e.target.value)} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
+            <input value={currency} onChange={(e) => setCurrency(e.target.value)} dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">{settingsT('depositPercentage')}</label>
-            <input type="number" min={0} max={100} value={depositPercentage} onChange={(e) => setDepositPercentage(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+            <input type="number" min={0} max={100} value={depositPercentage} onChange={(e) => setDepositPercentage(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">{settingsT('minBookingNoticeHours')}</label>
-            <input type="number" min={0} value={minBookingNoticeHours} onChange={(e) => setMinBookingNoticeHours(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+            <input type="number" min={0} value={minBookingNoticeHours} onChange={(e) => setMinBookingNoticeHours(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
           </div>
         </div>
 

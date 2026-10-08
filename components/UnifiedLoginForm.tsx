@@ -58,7 +58,7 @@ export default function UnifiedLoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               required
               dir="ltr"
-              className="w-full px-3 py-2 border border-gray-200 rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-left focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
             />
           </div>
           <div>
@@ -69,7 +69,7 @@ export default function UnifiedLoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
               dir="ltr"
-              className="w-full px-3 py-2 border border-gray-200 rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-left focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
             />
           </div>
 

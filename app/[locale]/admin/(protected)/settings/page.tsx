@@ -40,7 +40,7 @@ export default function AdminPlatformSettingsPage() {
   const price = (k: keyof Settings['prices'], label: string) => (
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-      <input type="number" min={0} step="0.001" value={s.prices[k]} onChange={(e) => setS({ ...s, prices: { ...s.prices, [k]: Number(e.target.value) } })} className="w-full px-3 py-2 border rounded-md text-black" />
+      <input type="number" min={0} step="0.001" value={s.prices[k]} onChange={(e) => setS({ ...s, prices: { ...s.prices, [k]: Number(e.target.value) } })} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
     </div>
   );
 
@@ -73,7 +73,7 @@ export default function AdminPlatformSettingsPage() {
           <h2 className="font-bold text-slate-900 mb-3">{L('الاشتراكات', 'Subscriptions')}</h2>
           <div className="mb-4">
             <label className="block text-sm font-medium text-slate-700 mb-1">{L('مدة التجربة المجانية (أيام) للصالونات الجديدة', 'Free trial length (days) for new salons')}</label>
-            <input type="number" min={0} max={365} value={s.trialDays} onChange={(e) => setS({ ...s, trialDays: Number(e.target.value) })} className="w-full px-3 py-2 border rounded-md text-black" />
+            <input type="number" min={0} max={365} value={s.trialDays} onChange={(e) => setS({ ...s, trialDays: Number(e.target.value) })} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {price('BASIC', L('سعر الأساسية (شهريًا)', 'Basic price / month'))}
@@ -88,8 +88,8 @@ export default function AdminPlatformSettingsPage() {
             <input type="checkbox" checked={s.announcement.active} onChange={(e) => setS({ ...s, announcement: { ...s.announcement, active: e.target.checked } })} />
             {L('عرض الإعلان في لوحات الملاك', 'Show in owners’ dashboards')}
           </label>
-          <textarea value={s.announcement.textAr} onChange={(e) => setS({ ...s, announcement: { ...s.announcement, textAr: e.target.value } })} rows={2} maxLength={500} placeholder="النص بالعربية" className="w-full px-3 py-2 border rounded-md text-black mb-2" />
-          <textarea value={s.announcement.textEn} onChange={(e) => setS({ ...s, announcement: { ...s.announcement, textEn: e.target.value } })} rows={2} maxLength={500} dir="ltr" placeholder="English text" className="w-full px-3 py-2 border rounded-md text-black text-left" />
+          <textarea value={s.announcement.textAr} onChange={(e) => setS({ ...s, announcement: { ...s.announcement, textAr: e.target.value } })} rows={2} maxLength={500} placeholder="النص بالعربية" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 mb-2" />
+          <textarea value={s.announcement.textEn} onChange={(e) => setS({ ...s, announcement: { ...s.announcement, textEn: e.target.value } })} rows={2} maxLength={500} dir="ltr" placeholder="English text" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
         </section>
 
         <button className="bg-slate-900 text-white px-5 py-2 rounded-md text-sm">{L('حفظ', 'Save')}</button>

@@ -186,7 +186,7 @@ export default function LocationPicker({
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">{L('المدينة', 'City')}</label>
         <div className="flex gap-2">
-          <input value={city} onChange={(e) => onCityChange(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" placeholder={L('مثال: المنامة، المحرق، دبي', 'e.g. Manama, Muharraq, Dubai')} />
+          <input value={city} onChange={(e) => onCityChange(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" placeholder={L('مثال: المنامة، المحرق، دبي', 'e.g. Manama, Muharraq, Dubai')} />
           <button type="button" onClick={handleSearchCity} disabled={searching} className="bg-slate-800 text-white px-4 py-2 rounded-md text-sm whitespace-nowrap disabled:opacity-50">
             {searching ? L('جاري البحث...', 'Searching...') : L('بحث بالمدينة', 'Search city')}
           </button>
@@ -199,7 +199,7 @@ export default function LocationPicker({
           <button type="button" onClick={handleParseMapUrl} disabled={parsingUrl} className="bg-emerald-600 text-white px-4 py-2 rounded-md text-sm whitespace-nowrap disabled:opacity-50 order-2">
             {parsingUrl ? L('جاري التحليل...', 'Analyzing...') : L('استخراج الإحداثيات', 'Extract coordinates')}
           </button>
-          <input type="url" value={mapUrl} onChange={(e) => setMapUrl(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black order-1 text-left" placeholder="https://maps.app.goo.gl/..." />
+          <input type="url" value={mapUrl} onChange={(e) => setMapUrl(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 order-1 text-left" placeholder="https://maps.app.goo.gl/..." />
         </div>
       </div>
 
@@ -225,7 +225,7 @@ export default function LocationPicker({
           step="any"
           value={lat}
           onChange={(e) => onLatChange(e.target.value ? parseFloat(e.target.value) : '')}
-          className="px-3 py-2 border rounded-md text-black bg-slate-50"
+          className="px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 bg-slate-50"
           placeholder="Lat"
         />
         <input
@@ -233,7 +233,7 @@ export default function LocationPicker({
           step="any"
           value={lng}
           onChange={(e) => onLngChange(e.target.value ? parseFloat(e.target.value) : '')}
-          className="px-3 py-2 border rounded-md text-black bg-slate-50"
+          className="px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 bg-slate-50"
           placeholder="Lng"
         />
       </div>

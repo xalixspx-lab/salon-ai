@@ -171,7 +171,7 @@ export default function AdminOwnersPage() {
           <p className="text-sm text-red-900 mb-3">
             {t('deleteOwnerWarning')} <b dir="ltr">{deleting.email}</b>
           </p>
-          <input value={confirmEmail} onChange={(e) => setConfirmEmail(e.target.value)} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black mb-3" />
+          <input value={confirmEmail} onChange={(e) => setConfirmEmail(e.target.value)} dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 mb-3" />
           <div className="flex gap-2">
             <button
               disabled={confirmEmail.trim().toLowerCase() !== deleting.email}

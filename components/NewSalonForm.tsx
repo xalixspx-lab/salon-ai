@@ -84,7 +84,7 @@ export default function NewSalonForm() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-black"
+              className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-stone-900"
               placeholder={L('مثال: صالون رتاج للتجميل', 'e.g. Rataj Beauty Salon')}
             />
           </div>
@@ -97,7 +97,7 @@ export default function NewSalonForm() {
                 value={ownerName}
                 onChange={(e) => setOwnerName(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-black"
+                className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-stone-900"
                 placeholder={L('مثال: محمد العلي', 'e.g. Mohamed Al Ali')}
               />
             </div>
@@ -109,7 +109,7 @@ export default function NewSalonForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 dir="ltr"
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-black text-left"
+                className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-stone-900 text-left"
                 placeholder="you@example.com"
               />
             </div>
@@ -122,7 +122,7 @@ export default function NewSalonForm() {
                 required
                 minLength={8}
                 dir="ltr"
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-black text-left"
+                className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-stone-900 text-left"
                 placeholder={L('8 أحرف على الأقل', 'At least 8 characters')}
               />
             </div>

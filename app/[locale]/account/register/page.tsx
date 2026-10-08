@@ -66,15 +66,15 @@ export default function AccountRegisterPage() {
           <HoneypotField value={website} onChange={setWebsite} />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('yourName')}</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500" />
+            <input value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('email')}</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required dir="ltr" className="w-full px-3 py-2 border border-gray-200 rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-brand-500" />
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-left focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('password')}</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} dir="ltr" className="w-full px-3 py-2 border border-gray-200 rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-brand-500" />
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-left focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
           </div>
 
           <LegalCheckbox kind="customer" checked={acceptTerms} onChange={setAcceptTerms} />

@@ -72,7 +72,7 @@ export default function PrivacyCard({ initialMarketing }: { initialMarketing: bo
             )}
           </p>
           {msg && <p className="text-sm text-red-700">{msg}</p>}
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
           <div className="flex gap-2">
             <button disabled={!password || busy} onClick={deleteAccount} className="bg-red-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-40">
               {L('تأكيد الحذف', 'Confirm delete')}

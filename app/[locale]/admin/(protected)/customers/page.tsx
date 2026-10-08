@@ -104,8 +104,8 @@ export default function AdminCustomersPage() {
       )}
 
       <form onSubmit={addCustomer} className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-2xl border border-slate-200 bg-white p-4">
-        <input value={newName} onChange={(e) => setNewName(e.target.value)} required placeholder={L('اسم العميل', 'Customer name')} className="px-3 py-2 border rounded-md text-black" />
-        <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} required dir="ltr" placeholder={L('البريد الإلكتروني', 'Email')} className="px-3 py-2 border rounded-md text-black text-left" />
+        <input value={newName} onChange={(e) => setNewName(e.target.value)} required placeholder={L('اسم العميل', 'Customer name')} className="px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
+        <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} required dir="ltr" placeholder={L('البريد الإلكتروني', 'Email')} className="px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
         <button className="bg-slate-900 text-white rounded-md px-4 py-2 text-sm">{L('+ إضافة عميل', '+ Add customer')}</button>
       </form>
 
@@ -159,7 +159,7 @@ export default function AdminCustomersPage() {
           <p className="text-sm text-red-900 mb-3">
             {L('حذف نهائي لحساب', 'Permanently delete account')} <b dir="ltr">{deleting.email}</b>. {L('اكتب البريد للتأكيد:', 'Type the email to confirm:')}
           </p>
-          <input value={confirmEmail} onChange={(e) => setConfirmEmail(e.target.value)} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black mb-3" />
+          <input value={confirmEmail} onChange={(e) => setConfirmEmail(e.target.value)} dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 mb-3" />
           <div className="flex gap-2">
             <button disabled={confirmEmail.trim().toLowerCase() !== deleting.email} onClick={confirmDelete} className="bg-red-600 text-white px-4 py-2 rounded-md text-sm disabled:opacity-40">
               {L('تأكيد الحذف', 'Confirm delete')}

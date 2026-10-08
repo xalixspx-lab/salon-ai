@@ -132,11 +132,11 @@ export default function SettingsPage() {
 
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">{t('salonName')}</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-3 py-2 border rounded-md text-black" />
+          <input value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
         </div>
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">{t('city')}</label>
-          <input value={city} onChange={(e) => setCity(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+          <input value={city} onChange={(e) => setCity(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
         </div>
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">{t('workingHours')}</label>
@@ -144,7 +144,7 @@ export default function SettingsPage() {
             value={workingHoursText}
             onChange={(e) => setWorkingHoursText(e.target.value)}
             placeholder={L('مثال: 01:00 م - 11:00 م', 'e.g. 1:00 PM - 11:00 PM')}
-            className="w-full px-3 py-2 border rounded-md text-black"
+            className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
           />
         </div>
         <div>
@@ -155,11 +155,11 @@ export default function SettingsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">{L('العملة', 'Currency')}</label>
-            <input value={currency} onChange={(e) => setCurrency(e.target.value)} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
+            <input value={currency} onChange={(e) => setCurrency(e.target.value)} dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">{L('المنطقة الزمنية', 'Time zone')}</label>
-            <input value={timezone} onChange={(e) => setTimezone(e.target.value)} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
+            <input value={timezone} onChange={(e) => setTimezone(e.target.value)} dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
           </div>
         </div>
 
@@ -169,35 +169,35 @@ export default function SettingsPage() {
 
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">{t('descriptionAr')}</label>
-          <textarea value={descriptionAr} onChange={(e) => setDescriptionAr(e.target.value)} rows={3} className="w-full px-3 py-2 border rounded-md text-black" />
+          <textarea value={descriptionAr} onChange={(e) => setDescriptionAr(e.target.value)} rows={3} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
         </div>
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">{t('descriptionEn')}</label>
-          <textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} rows={3} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
+          <textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} rows={3} dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
         </div>
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">{t('phone')}</label>
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" className="w-full px-3 py-2 border rounded-md text-black text-left" />
+          <input value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">{t('depositPercentage')}</label>
-            <input type="number" min={0} max={100} value={depositPercentage} onChange={(e) => setDepositPercentage(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+            <input type="number" min={0} max={100} value={depositPercentage} onChange={(e) => setDepositPercentage(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">{t('minBookingNoticeHours')}</label>
-            <input type="number" min={0} value={minBookingNoticeHours} onChange={(e) => setMinBookingNoticeHours(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+            <input type="number" min={0} value={minBookingNoticeHours} onChange={(e) => setMinBookingNoticeHours(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">{t('cancellationHours')}</label>
-          <input type="number" min={0} value={cancellationHours} onChange={(e) => setCancellationHours(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+          <input type="number" min={0} value={cancellationHours} onChange={(e) => setCancellationHours(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
         </div>
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">{t('refundPercentAfterDeadline')}</label>
-          <input type="number" min={0} max={100} value={refundPercentAfterDeadline} onChange={(e) => setRefundPercentAfterDeadline(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" />
+          <input type="number" min={0} max={100} value={refundPercentAfterDeadline} onChange={(e) => setRefundPercentAfterDeadline(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
           <p className="text-xs text-stone-500 mt-1">{t('refundPercentHint')}</p>
         </div>
 

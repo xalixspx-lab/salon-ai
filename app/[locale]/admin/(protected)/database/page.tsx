@@ -180,7 +180,7 @@ export default function AdminDatabasePage() {
     load();
   };
 
-  const input = "px-3 py-2 border rounded-md text-black w-full";
+  const input = "px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 w-full";
 
   return (
     <div>

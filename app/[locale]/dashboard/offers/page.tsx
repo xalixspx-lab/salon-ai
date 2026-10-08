@@ -155,7 +155,7 @@ export default function OffersPage() {
 
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">{t('type')}</label>
-            <select value={type} onChange={(e) => setType(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black">
+            <select value={type} onChange={(e) => setType(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400">
               {TYPES.map((ty) => (
                 <option key={ty} value={ty}>{t(`type_${ty}` as any)}</option>
               ))}
@@ -165,21 +165,21 @@ export default function OffersPage() {
           {['PERCENTAGE', 'FIRST_BOOKING', 'SEASONAL'].includes(type) && (
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('discountPercent')}</label>
-              <input type="number" min={1} max={100} value={discountPercent} onChange={(e) => setDiscountPercent(e.target.value)} required className="w-full px-3 py-2 border rounded-md text-black" />
+              <input type="number" min={1} max={100} value={discountPercent} onChange={(e) => setDiscountPercent(e.target.value)} required className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
             </div>
           )}
 
           {type === 'FIXED_AMOUNT' && (
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('discountAmount')}</label>
-              <input type="number" min={1} step="0.01" value={discountAmount} onChange={(e) => setDiscountAmount(e.target.value)} required className="w-full px-3 py-2 border rounded-md text-black" />
+              <input type="number" min={1} step="0.01" value={discountAmount} onChange={(e) => setDiscountAmount(e.target.value)} required className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
             </div>
           )}
 
           {(type === 'FREE_SERVICE' || type === 'BUY_X_GET_Y') && (
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('freeService')}</label>
-              <select value={freeServiceId} onChange={(e) => setFreeServiceId(e.target.value)} required className="w-full px-3 py-2 border rounded-md text-black">
+              <select value={freeServiceId} onChange={(e) => setFreeServiceId(e.target.value)} required className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400">
                 <option value="">—</option>
                 {services.map((s) => (
                   <option key={s.id} value={s.id}>{serviceName(s)}</option>
@@ -191,7 +191,7 @@ export default function OffersPage() {
           {(type === 'PERCENTAGE' || type === 'FIXED_AMOUNT' || type === 'SEASONAL') && (
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('appliesToService')}</label>
-              <select value={appliesToServiceId} onChange={(e) => setAppliesToServiceId(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black">
+              <select value={appliesToServiceId} onChange={(e) => setAppliesToServiceId(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400">
                 <option value="">{t('allServices')}</option>
                 {services.map((s) => (
                   <option key={s.id} value={s.id}>{serviceName(s)}</option>
@@ -202,7 +202,7 @@ export default function OffersPage() {
 
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">{t('endsAt')}</label>
-            <input type="date" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black" placeholder={t('noEndDate')} />
+            <input type="date" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" placeholder={t('noEndDate')} />
           </div>
 
           <div className="flex gap-2">

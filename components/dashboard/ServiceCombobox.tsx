@@ -53,7 +53,7 @@ export default function ServiceCombobox({
             value={nameAr}
             onChange={(e) => onChange(e.target.value, nameEn)}
             required
-            className="w-full px-3 py-2 border rounded-md text-black"
+            className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
           />
         </div>
         <div>
@@ -63,7 +63,7 @@ export default function ServiceCombobox({
             onChange={(e) => onChange(nameAr, e.target.value)}
             required
             dir="ltr"
-            className="w-full px-3 py-2 border rounded-md text-black"
+            className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
           />
           <button
             type="button"
@@ -85,7 +85,7 @@ export default function ServiceCombobox({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full px-3 py-2 border rounded-md text-black text-right bg-white flex items-center justify-between"
+        className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-right bg-white flex items-center justify-between"
       >
         <span className={currentLabel ? 'text-black' : 'text-stone-400'}>
           {currentLabel || (locale === 'ar' ? 'اختر خدمة...' : 'Select a service...')}

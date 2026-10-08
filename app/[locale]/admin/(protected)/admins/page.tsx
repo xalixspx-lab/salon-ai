@@ -83,8 +83,8 @@ export default function AdminsPage() {
       {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
 
       <form onSubmit={add} className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-2xl border border-slate-200 bg-white p-4">
-        <input value={name} onChange={(e) => setName(e.target.value)} required placeholder={t('adminName')} className="px-3 py-2 border rounded-md text-black" />
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required dir="ltr" placeholder={t('adminEmail')} className="px-3 py-2 border rounded-md text-black text-left" />
+        <input value={name} onChange={(e) => setName(e.target.value)} required placeholder={t('adminName')} className="px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required dir="ltr" placeholder={t('adminEmail')} className="px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left" />
         <button className="bg-slate-900 text-white rounded-md px-4 py-2 text-sm">{t('addAdmin')}</button>
       </form>
 

@@ -148,7 +148,7 @@ export default function BookingsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('service')}</label>
-              <select value={serviceId} onChange={(e) => setServiceId(e.target.value)} required className="w-full px-3 py-2 border rounded-md text-black">
+              <select value={serviceId} onChange={(e) => setServiceId(e.target.value)} required className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400">
                 <option value="">—</option>
                 {services.map((s) => (
                   <option key={s.id} value={s.id}>{serviceName(s)}</option>
@@ -157,7 +157,7 @@ export default function BookingsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('clientName')}</label>
-              <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black">
+              <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400">
                 <option value="">{locale === 'ar' ? 'بدون (ضيف)' : 'None (guest)'}</option>
                 {customers.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -166,7 +166,7 @@ export default function BookingsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{dash('assignedStaff')}</label>
-              <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className="w-full px-3 py-2 border rounded-md text-black">
+              <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400">
                 <option value="">—</option>
                 {staff.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
@@ -175,7 +175,7 @@ export default function BookingsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">{t('time')}</label>
-              <input type="datetime-local" value={startTime} onChange={(e) => setStartTime(e.target.value)} required className="w-full px-3 py-2 border rounded-md text-black" />
+              <input type="datetime-local" value={startTime} onChange={(e) => setStartTime(e.target.value)} required className="w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400" />
             </div>
           </div>
           <div className="flex gap-2">

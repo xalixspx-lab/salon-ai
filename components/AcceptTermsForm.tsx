@@ -44,7 +44,7 @@ export default function AcceptTermsForm({ audience, locale }: { audience: 'owner
         </p>
         {error && <div className="p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
         <LegalCheckbox kind={audience === 'owner' ? 'salon' : 'customer'} checked={accepted} onChange={setAccepted} />
-        <button disabled={!accepted || busy} className="w-full bg-black text-white py-2 rounded-md disabled:opacity-50">
+        <button disabled={!accepted || busy} className="w-full bg-brand-600 text-white py-2 rounded-md disabled:opacity-50">
           {busy ? '...' : ar ? 'أوافق وأتابع' : 'Accept and continue'}
         </button>
       </form>

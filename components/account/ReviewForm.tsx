@@ -53,7 +53,7 @@ export default function ReviewForm({ appointmentId }: { appointmentId: string })
         className="w-full border rounded px-2 py-1 text-xs text-black"
       />
       <div className="flex gap-2">
-        <button disabled={busy || rating === 0} onClick={submit} className="text-xs bg-black text-white px-2 py-1 rounded disabled:opacity-40">
+        <button disabled={busy || rating === 0} onClick={submit} className="text-xs bg-brand-600 text-white px-2 py-1 rounded disabled:opacity-40">
           {t('submitReview')}
         </button>
         <button onClick={() => setOpen(false)} className="text-xs text-gray-500 underline">

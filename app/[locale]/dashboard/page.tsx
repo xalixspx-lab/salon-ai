@@ -3,16 +3,21 @@ import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
+import { CalendarDays, Users, Wallet } from 'lucide-react';
+import Avatar from '@/components/ui/Avatar';
+import Badge from '@/components/ui/Badge';
+import { Card, CardHeader, StatCard } from '@/components/ui/Card';
+import EmptyState from '@/components/ui/EmptyState';
 import { resolveSubscription } from '@/lib/subscription';
 import AnalyticsPanel from '@/components/dashboard/AnalyticsPanel';
 import { formatDateTime } from '@/lib/format';
 import { DEFAULT_TIMEZONE, localParts, zonedToUtc } from '@/lib/schedule';
 
-const STATUS_STYLES: Record<string, string> = {
-  CONFIRMED: 'bg-blue-50 text-blue-700',
-  COMPLETED: 'bg-emerald-50 text-emerald-700',
-  PENDING_DEPOSIT: 'bg-amber-50 text-amber-700',
-  CANCELLED: 'bg-red-50 text-red-700',
+const STATUS_TONE: Record<string, 'blue' | 'green' | 'amber' | 'red' | 'gray'> = {
+  CONFIRMED: 'blue',
+  COMPLETED: 'green',
+  PENDING_DEPOSIT: 'amber',
+  CANCELLED: 'red',
 };
 
 export default async function DashboardOverviewPage({
@@ -78,44 +83,26 @@ export default async function DashboardOverviewPage({
 
   return (
     <div>
-      <header className="flex justify-between items-center mb-8">
+      <header className="flex flex-wrap justify-between items-center gap-3 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-stone-900">{t('welcome')}</h1>
-          <p className="text-sm text-stone-500">{t('subtitle')}</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-stone-900">{t('welcome')}</h1>
+          <p className="text-sm text-stone-500 mt-0.5">{t('subtitle')}</p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-emerald-200">
-            {t('statusOpen')}
-          </span>
-        </div>
+        <Badge tone="green" className="!px-3 !py-1.5 !text-xs">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {t('statusOpen')}
+        </Badge>
       </header>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-          <p className="text-sm font-medium text-stone-500 mb-1">{t('todayBookings')}</p>
-          <h3 className="text-3xl font-extrabold text-stone-900">{todayAppointments.length}</h3>
-        </div>
-        <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-          <p className="text-sm font-medium text-stone-500 mb-1">{t('expectedRevenue')}</p>
-          <h3 className="text-3xl font-extrabold text-stone-900">
-            {expectedRevenue.toLocaleString()} {common('currency')}
-          </h3>
-        </div>
-        <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-          <p className="text-sm font-medium text-stone-500 mb-1">{t('totalCustomers')}</p>
-          <h3 className="text-3xl font-extrabold text-stone-900">{totalCustomers}</h3>
-        </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5 mb-8">
+        <StatCard label={t('todayBookings')} value={todayAppointments.length} icon={<CalendarDays className="h-[18px] w-[18px]" strokeWidth={1.8} />} />
+        <StatCard label={t('expectedRevenue')} value={`${expectedRevenue.toLocaleString()} ${common('currency')}`} icon={<Wallet className="h-[18px] w-[18px]" strokeWidth={1.8} />} />
+        <StatCard label={t('totalCustomers')} value={totalCustomers} icon={<Users className="h-[18px] w-[18px]" strokeWidth={1.8} />} />
       </div>
 
       {tenantInfo && resolveSubscription(tenantInfo).analytics ? (
-      <AnalyticsPanel
-        tenantId={session.tenantId}
-        timezone={tenantInfo?.timezone ?? null}
-        currency={tenantInfo?.currency || 'BHD'}
-        locale={locale}
-      />
+        <AnalyticsPanel tenantId={session.tenantId} timezone={tenantInfo?.timezone ?? null} currency={tenantInfo?.currency || 'BHD'} locale={locale} />
       ) : (
-        <div className="mb-8 rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-sm text-stone-600">
+        <div className="mb-8 rounded-2xl border border-dashed border-brand-200 bg-brand-50/50 p-6 text-sm text-stone-700">
           {t('analyticsLocked')}{' '}
           <Link href={`/${locale}/dashboard/subscription`} className="font-semibold text-brand-700 underline">
             {t('viewPlans')}
@@ -123,35 +110,36 @@ export default async function DashboardOverviewPage({
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6">
-        <h3 className="text-lg font-bold text-stone-900 mb-4">{t('recentBookings')}</h3>
+      <Card>
+        <CardHeader title={t('recentBookings')} />
         {recentAppointments.length === 0 ? (
-          <p className="text-sm text-stone-400 py-6 text-center">{t('noBookingsYet')}</p>
+          <EmptyState icon={<CalendarDays className="h-6 w-6" strokeWidth={1.8} />} title={t('noBookingsYet')} />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-right text-sm text-stone-600">
-              <thead className="bg-stone-50 text-stone-700 uppercase text-xs">
+            <table className="w-full text-start text-sm text-stone-600">
+              <thead className="bg-stone-50/70 text-stone-500 text-xs">
                 <tr>
-                  <th className="p-3 rounded-s-xl">{t('clientName')}</th>
-                  <th className="p-3">{t('service')}</th>
-                  <th className="p-3">{t('time')}</th>
-                  <th className="p-3">{t('assignedStaff')}</th>
-                  <th className="p-3 rounded-e-xl">{t('status')}</th>
+                  <th className="px-5 py-3 text-start font-medium">{t('clientName')}</th>
+                  <th className="px-3 py-3 text-start font-medium">{t('service')}</th>
+                  <th className="px-3 py-3 text-start font-medium">{t('time')}</th>
+                  <th className="px-3 py-3 text-start font-medium">{t('assignedStaff')}</th>
+                  <th className="px-5 py-3 text-start font-medium">{t('status')}</th>
                 </tr>
               </thead>
               <tbody>
                 {recentAppointments.map((a) => (
-                  <tr key={a.id} className="border-b border-stone-100">
-                    <td className="p-3 font-medium text-stone-900">{a.customer?.name || '—'}</td>
-                    <td className="p-3">{serviceName(a.service)}</td>
-                    <td className="p-3">
-                      {a.startTime ? formatDateTime(a.startTime, locale, tenantInfo?.timezone) : '—'}
-                    </td>
-                    <td className="p-3">{a.employee?.name || '—'}</td>
-                    <td className="p-3">
-                      <span className={`text-xs px-2 py-1 rounded-md font-medium ${STATUS_STYLES[a.status || ''] || 'bg-stone-100 text-stone-600'}`}>
-                        {statusLabel(a.status)}
+                  <tr key={a.id} className="border-t border-stone-100 hover:bg-stone-50/50 transition-colors">
+                    <td className="px-5 py-3.5">
+                      <span className="flex items-center gap-2.5 font-medium text-stone-900">
+                        <Avatar name={a.customer?.name || '?'} size={32} />
+                        {a.customer?.name || '—'}
                       </span>
+                    </td>
+                    <td className="px-3 py-3.5">{serviceName(a.service)}</td>
+                    <td className="px-3 py-3.5 whitespace-nowrap tabular-nums">{a.startTime ? formatDateTime(a.startTime, locale, tenantInfo?.timezone) : '—'}</td>
+                    <td className="px-3 py-3.5">{a.employee?.name || '—'}</td>
+                    <td className="px-5 py-3.5">
+                      <Badge tone={STATUS_TONE[a.status || ''] || 'gray'}>{statusLabel(a.status)}</Badge>
                     </td>
                   </tr>
                 ))}
@@ -159,7 +147,7 @@ export default async function DashboardOverviewPage({
             </table>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

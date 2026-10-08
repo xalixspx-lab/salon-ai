@@ -152,56 +152,56 @@ export default function BookingForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-black max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-[2px] flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 animate-[fadeIn_.15s_ease-out]">
+      <div className="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl max-w-md w-full p-6 text-stone-900 max-h-[92vh] overflow-y-auto animate-[popIn_.18s_ease-out]">
         {success ? (
           <div className="text-center py-4">
-            <p className="text-emerald-600 text-2xl mb-3">✓</p>
+            <span className="mx-auto mb-4 h-14 w-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl">✓</span>
             <p className="text-gray-800 font-medium mb-4">{t('bookingSuccess')}</p>
             <button
               onClick={onClose}
-              className="bg-black text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 transition"
+              className="bg-brand-600 text-white h-11 px-6 rounded-xl text-sm font-semibold hover:bg-brand-700 transition"
             >
               {t('close')}
             </button>
           </div>
         ) : (
           <>
-            <h3 className="text-lg font-bold mb-1">{t('bookingFormTitle')}</h3>
-            <p className="text-sm text-gray-500 mb-4">{service.displayName}</p>
+            <h3 className="text-lg font-semibold mb-1">{t('bookingFormTitle')}</h3>
+            <p className="text-sm text-brand-700 font-medium mb-4">{service.displayName}</p>
 
-            {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
+            {error && <div className="mb-4 p-3 bg-red-50 border border-red-100 text-red-700 rounded-xl text-sm">{error}</div>}
 
             <form onSubmit={handleSubmit} className="space-y-3">
               {session.loggedIn ? (
-                <div className="bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-700">
+                <div className="bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-700">
                   {accountT('bookingAs')} <span className="font-medium">{session.name}</span>
                 </div>
               ) : (
                 <>
                   <p className="text-xs text-gray-400">
                     {accountT('signInPrompt')} —{' '}
-                    <a href={`/${locale}/account/login`} className="text-blue-600 hover:underline">
+                    <a href={`/${locale}/account/login`} className="text-brand-600 hover:underline">
                       {accountT('loginLink')}
                     </a>
                   </p>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('yourName')}</label>
+                    <label className="block text-sm font-medium text-stone-700 mb-1.5">{t('yourName')}</label>
                     <input
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
-                      className="w-full px-3 py-2 border rounded-md"
+                      className="w-full h-11 px-3.5 rounded-xl border border-stone-200 bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('yourPhone')}</label>
+                    <label className="block text-sm font-medium text-stone-700 mb-1.5">{t('yourPhone')}</label>
                     <input
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       required
                       dir="ltr"
-                      className="w-full px-3 py-2 border rounded-md text-left"
+                      className="w-full h-11 px-3.5 rounded-xl border border-stone-200 bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left"
                     />
                   </div>
                 </>
@@ -209,8 +209,8 @@ export default function BookingForm({
 
               {staff.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('chooseStaff')}</label>
-                  <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className="w-full px-3 py-2 border rounded-md">
+                  <label className="block text-sm font-medium text-stone-700 mb-1.5">{t('chooseStaff')}</label>
+                  <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className="w-full h-11 px-3.5 rounded-xl border border-stone-200 bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400">
                     <option value="">{t('anyStaff')}</option>
                     {staff.map((s) => (
                       <option key={s.id} value={s.id}>{s.name}</option>
@@ -221,8 +221,8 @@ export default function BookingForm({
 
               {offers.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('applyOffer')}</label>
-                  <select value={offerId} onChange={(e) => setOfferId(e.target.value)} className="w-full px-3 py-2 border rounded-md">
+                  <label className="block text-sm font-medium text-stone-700 mb-1.5">{t('applyOffer')}</label>
+                  <select value={offerId} onChange={(e) => setOfferId(e.target.value)} className="w-full h-11 px-3.5 rounded-xl border border-stone-200 bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400">
                     <option value="">{t('noOffer')}</option>
                     {offers.map((o) => (
                       <option key={o.id} value={o.id}>{describeOffer(o as any, locale === 'en' ? 'en' : 'ar', currency)}</option>
@@ -232,24 +232,24 @@ export default function BookingForm({
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('date')}</label>
+                <label className="block text-sm font-medium text-stone-700 mb-1.5">{t('date')}</label>
                 <input
                   type="date"
                   value={date}
                   min={new Date().toISOString().slice(0, 10)}
                   onChange={(e) => setDate(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border rounded-md"
+                  className="w-full h-11 px-3.5 rounded-xl border border-stone-200 bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
                 />
               </div>
 
               {date && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('availableTimes')}</label>
+                  <label className="block text-sm font-medium text-stone-700 mb-1.5">{t('availableTimes')}</label>
                   {loadingSlots ? (
                     <p className="text-xs text-gray-400">...</p>
                   ) : slots.length === 0 ? (
-                    <p className="text-sm text-gray-500 bg-gray-50 rounded-md px-3 py-2">{t('noSlots')}</p>
+                    <p className="text-sm text-stone-500 bg-stone-50 rounded-xl px-3.5 py-2.5">{t('noSlots')}</p>
                   ) : (
                     <div className="grid grid-cols-4 gap-2">
                       {slots.map((s) => (
@@ -257,8 +257,8 @@ export default function BookingForm({
                           key={s}
                           type="button"
                           onClick={() => setStartTime(s)}
-                          className={`py-1.5 rounded-md text-sm border transition ${
-                            startTime === s ? 'bg-black text-white border-black' : 'bg-white text-gray-700 hover:border-gray-400'
+                          className={`h-10 rounded-xl text-sm font-medium border transition tabular-nums ${
+                            startTime === s ? 'bg-brand-600 text-white border-brand-600 shadow-md shadow-brand-600/25' : 'bg-white text-stone-700 border-stone-200 hover:border-brand-300 hover:bg-brand-50'
                           }`}
                         >
                           {new Date(s).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: timezone })}
@@ -270,12 +270,12 @@ export default function BookingForm({
               )}
 
               {selectedOffer && finalPrice !== null && (
-                <p className="text-sm font-medium text-emerald-700 bg-emerald-50 rounded-md px-3 py-2">
+                <p className="text-sm font-medium text-emerald-700 bg-emerald-50 rounded-xl px-3.5 py-2.5">
                   {t('finalPrice')}: {formatMoney(finalPrice)} {currency}
                 </p>
               )}
 
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-stone-500">
                 {depositPercentage > 0
                   ? `${t('depositNote')} (${depositPercentage}%${
                       finalPrice !== null
@@ -285,7 +285,7 @@ export default function BookingForm({
                   : t('noDepositNote')}
               </p>
 
-              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 space-y-1">
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-xs text-amber-900 space-y-1">
                 <p className="font-semibold">{isAr ? 'سياسة الإلغاء والاسترداد' : 'Cancellation & refund policy'}</p>
                 <p>
                   {isAr
@@ -313,14 +313,14 @@ export default function BookingForm({
                 <button
                   type="submit"
                   disabled={submitting || !startTime}
-                  className="flex-1 bg-black text-white py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition disabled:opacity-50"
+                  className="flex-1 bg-brand-600 text-white h-12 rounded-xl text-sm font-semibold shadow-sm shadow-brand-600/20 hover:bg-brand-700 transition disabled:opacity-50"
                 >
                   {submitting ? t('submitting') : t('confirmBooking')}
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 rounded-md text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+                  className="px-5 h-12 rounded-xl text-sm font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 transition"
                 >
                   {t('close')}
                 </button>

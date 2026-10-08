@@ -99,7 +99,7 @@ export default function ChatThread({
           placeholder={placeholder}
           maxLength={2000}
           enterKeyHint="send"
-          className="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-stone-200 text-base focus:outline-none focus:ring-2 focus:ring-brand-500"
+          className="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-stone-200 text-base focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
         />
         <button
           onClick={submit}

@@ -66,7 +66,7 @@ export default function WhatsAppLinkPanel({ salonId }: { salonId: string }) {
     setMsg(L('تم فك الربط', 'Unlinked'));
   };
 
-  const field = 'w-full px-3 py-2 border rounded-md text-black text-left';
+  const field = 'w-full px-3.5 min-h-11 py-2 border border-stone-200 rounded-xl bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400 text-left';
 
   return (
     <div className="mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-2xl space-y-4">
