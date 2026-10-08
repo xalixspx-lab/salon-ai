@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { CUSTOMER_SIDE_ENABLED, retiredResponse } from '@/lib/retired';
 import { clientIp, limitOrResponse } from '@/lib/rateLimit';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword } from '@/lib/password';
@@ -6,6 +7,7 @@ import { createCustomerSession } from '@/lib/customerSession';
 import { tr } from '@/lib/apiLocale';
 
 export async function POST(request: Request) {
+  if (!CUSTOMER_SIDE_ENABLED) return retiredResponse();
   try {
     const body = await request.json();
     const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';

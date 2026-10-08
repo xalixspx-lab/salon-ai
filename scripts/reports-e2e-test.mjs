@@ -95,11 +95,13 @@ async function main() {
 
   const slots = await pickSlots(A.tenantId, serviceId, 3);
   check('three distinct slots available', slots.length === 3, `got ${slots.length}`);
-  const guest = (i, slot) => ({ tenantId: A.tenantId, serviceId, employeeId: staffId, customerName: `Rp Guest ${i}`, customerPhone: `3300${i}00${i}`, startTime: slot });
-  const pub = new Client();
-  const b1 = await pub.req('POST', '/api/appointments', guest(1, slots[0]));
-  const b2 = await pub.req('POST', '/api/appointments', guest(2, slots[1]));
-  const b3 = await pub.req('POST', '/api/appointments', { ...guest(3, slots[2]), customerName: '=HYPERLINK("http://evil.example")' });
+  // الحجز العام من الموقع متوقف: ننشئ العملاء والحجوزات من لوحة المالك
+  const mkClient = async (name, phone) => (await A.c.req('POST', '/api/dashboard/clients', { name, phone })).json?.data?.id;
+  const [cl1, cl2, cl3] = [await mkClient('Rp Guest 1', '33001001'), await mkClient('Rp Guest 2', '33002002'), await mkClient('=HYPERLINK("http://evil.example")', '33003003')];
+  const book = (customerId, slot) => A.c.req('POST', '/api/dashboard/bookings', { customerId, serviceId, employeeId: staffId, startTime: slot });
+  const b1 = await book(cl1, slots[0]);
+  const b2 = await book(cl2, slots[1]);
+  const b3 = await book(cl3, slots[2]);
   check('three bookings created', [b1, b2, b3].every((b) => b.status === 201), `${b1.status}/${b2.status}/${b3.status}`);
   const [id1, id2, id3] = [b1, b2, b3].map((b) => b.json?.data?.id);
   await A.c.req('PATCH', `/api/dashboard/bookings/${id1}`, { status: 'CONFIRMED' });

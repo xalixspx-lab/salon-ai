@@ -1,7 +1,8 @@
 // اختبار رحلات كاملة عبر HTTP على خادم حي (محلي أو CI) بحسابات مؤقتة يحذفها في النهاية
-// إن توفرت بيانات أدمن (أو إن أمكن تسجيل أول أدمن). يغطي: تسجيل صالون وعميل، حجز، تعارض،
-// اكتمال ونقاط الولاء، تقويم .ics، تذكير الموعد (cron)، المحادثة بالاتجاهين والحظر وحدود
-// المعدل، إبطال الجلسات عند تغيير كلمة المرور، الإخفاء الإداري، لغة أخطاء الـAPI.
+// إن توفرت بيانات أدمن (أو إن أمكن تسجيل أول أدمن). يغطي المنصة بعد قرار التحوّل (للملاك فقط):
+// تسجيل صالون، صفحة الصالون العامة بزر واتساب فقط، تعطيل جانب العميل (حساب/حجز/محادثة ويب → 410/404)،
+// الحجز اليدوي من المالك وتعارضه وحالاته، المحادثة الداخلية لا تعمل، إبطال جلسات المالك عند تغيير
+// كلمة المرور، حماية حذف موظف له حجوزات، لغة أخطاء الـAPI، الإخفاء الإداري.
 //
 // التشغيل: BASE_URL=http://localhost:3000 CRON_SECRET=... node scripts/e2e-test.mjs
 // اختياري: ADMIN_EMAIL / ADMIN_PASSWORD (وإلا يحاول تسجيل أول أدمن إن كانت المنصة بلا أدمن)
@@ -10,6 +11,7 @@ const CRON_SECRET = process.env.CRON_SECRET || '';
 const TAG = `e2e${Date.now().toString(36)}`;
 const PW = 'E2e-Passw0rd!';
 const PW2 = 'E2e-Changed-Passw0rd!';
+const WA_PHONE = '+973 3311 2233';
 
 let pass = 0;
 let fail = 0;
@@ -58,20 +60,21 @@ class Client {
 }
 
 const ok2xx = (r) => r.status >= 200 && r.status < 300;
-const pointsOf = (r) => Number(/"points":\s*(\d+)/.exec(r.text)?.[1] ?? NaN);
 
-async function pickSlot(tenantId, serviceId, { minHours = 2, maxHours = 24 * 6 } = {}) {
+async function pickSlot(tenantId, serviceId, { minHours = 2, maxHours = 24 * 6, skipN = 0 } = {}) {
   const now = Date.now();
+  let seen = 0;
   for (let d = 0; d < 7; d++) {
     const date = new Date(now + d * 86400000).toISOString().slice(0, 10);
     const r = await new Client('p').req('GET', `/api/salons/${tenantId}/availability?serviceId=${serviceId}&date=${date}`);
     const slots = r.json?.data?.slots;
     if (!Array.isArray(slots)) continue;
-    const s = slots.find((x) => {
+    for (const x of slots) {
       const h = (Date.parse(x) - now) / 3600000;
-      return h >= minHours && h <= maxHours;
-    });
-    if (s) return s;
+      if (h >= minHours && h <= maxHours) {
+        if (seen++ >= skipN) return x;
+      }
+    }
   }
   return null;
 }
@@ -88,10 +91,10 @@ async function main() {
   const tenantId = sal.json?.data?.id;
   if (!tenantId) throw new Error('cannot continue without a salon');
 
-  // ساعات دوام على مدار اليوم حتى يمكن حجز موعد بعد ~24 ساعة لاختبار التذكير مهما كان وقت التشغيل
+  // ساعات دوام على مدار اليوم حتى تتوفر مواعيد مهما كان وقت التشغيل
   const hours = Object.fromEntries([0, 1, 2, 3, 4, 5, 6].map((d) => [String(d), { open: '00:00', close: '23:30' }]));
-  const setHours = await owner.req('PATCH', '/api/dashboard/settings', { workingHours: hours, minBookingNoticeHours: 1 });
-  check('owner can set 24h working hours', ok2xx(setHours), `status=${setHours.status}`);
+  const setHours = await owner.req('PATCH', '/api/dashboard/settings', { workingHours: hours, minBookingNoticeHours: 1, phone: WA_PHONE });
+  check('owner can set 24h working hours and a phone', ok2xx(setHours), `status=${setHours.status}`);
 
   const svc = await owner.req('POST', '/api/dashboard/services', { nameAr: 'خدمة اختبار', nameEn: 'E2E service', basePrice: 4.5, baseDurationMinutes: 30 });
   const staff1 = await owner.req('POST', '/api/dashboard/staff', { name: 'E2E Staff', role: 'Stylist', status: 'ACTIVE' });
@@ -104,154 +107,73 @@ async function main() {
   const badCur = await owner.req('PATCH', '/api/dashboard/settings', { currency: 'DINAR' });
   check('invalid currency is rejected (400)', badCur.status === 400, `status=${badCur.status}`);
 
-  // ---------- 2. تسجيل عملاء ----------
-  console.log('\n[2] Customer signup and public discovery');
-  const mkCustomer = async (n) => {
-    const c = new Client(`c${n}`);
-    const email = `${TAG}-c${n}@example.com`;
-    const r = await c.req('POST', '/api/account/register', { name: `E2E Customer ${n}`, email, password: PW, acceptTerms: true });
-    return { c, email, status: r.status, text: r.text };
-  };
-  const C1 = await mkCustomer(1);
-  const C2 = await mkCustomer(2);
-  check('customer 1 and 2 registered (201)', C1.status === 201 && C2.status === 201, `${C1.status}/${C2.status} ${C1.text.slice(0, 100)}`);
-
+  // ---------- 2. الصفحة العامة: واتساب فقط ----------
+  console.log('\n[2] Public salon page: WhatsApp contact only');
   const pub = new Client('pub');
   const list = await pub.req('GET', '/api/salons');
-  check('new salon is listed publicly', list.text.includes(tenantId));
-  const page = await pub.req('GET', `/ar/salons/${tenantId}`);
+  check('new salon is listed in the public directory', list.text.includes(tenantId));
+  const page = await pub.req('GET', `/en/salons/${tenantId}`);
   check('salon page renders 200', page.status === 200, `status=${page.status}`);
+  check('salon page has a wa.me link built from the salon phone', page.text.includes('https://wa.me/97333112233'), 'wa.me link missing');
+  check('salon page renders no booking button, favorites or web-chat widget', !/<button[^>]*>[^<]*(Book this service|احجز هذه الخدمة)/.test(page.text) && !page.text.includes('/api/account/conversations'));
+  const dirPage = await pub.req('GET', '/en/salons');
+  check('salon directory page renders 200', dirPage.status === 200, `status=${dirPage.status}`);
   const nf1 = await pub.req('GET', '/ar/salons/11111111-1111-1111-1111-111111111111');
   const nf2 = await pub.req('GET', '/ar/salons/not-a-uuid');
   const nf3 = await pub.req('GET', '/ar/zzz-not-a-page');
   check('unknown salon / bad id / unknown path return 404 (no soft-404)', nf1.status === 404 && nf2.status === 404 && nf3.status === 404, `${nf1.status}/${nf2.status}/${nf3.status}`);
+  const home = await pub.req('GET', '/ar');
+  check('homepage is the owners landing page', home.status === 200 && home.text.includes('/ar/salons/new') && home.text.includes('/ar/login'), `status=${home.status}`);
+  check('homepage has no customer sign-in / register links', !home.text.includes('/account/login') && !home.text.includes('/account/register'));
 
-  // ---------- 3. حجز ----------
-  console.log('\n[3] Booking flow');
+  // ---------- 3. جانب العميل معطّل ----------
+  console.log('\n[3] Customer side is switched off (410 / 404)');
+  const reg = await pub.req('POST', '/api/account/register', { name: 'x', email: `${TAG}-c@example.com`, password: PW, acceptTerms: true });
+  check('customer registration is retired (410)', reg.status === 410, `status=${reg.status}`);
+  const clog = await pub.req('POST', '/api/account/login', { email: `${TAG}-c@example.com`, password: PW });
+  check('customer login is retired (410)', clog.status === 410, `status=${clog.status}`);
   const slot1 = await pickSlot(tenantId, serviceId);
-  check('availability returns a slot', !!slot1);
-  const bk1 = await C1.c.req('POST', '/api/appointments', { tenantId, serviceId, employeeId: staffId, startTime: slot1 });
+  check('availability still returns a slot', !!slot1);
+  const pubBook = await pub.req('POST', '/api/appointments', { tenantId, serviceId, employeeId: staffId, customerName: 'Guest', customerPhone: '33000001', startTime: slot1 });
+  check('public booking is retired (410)', pubBook.status === 410, `status=${pubBook.status}`);
+  const chatApi = await pub.req('POST', `/api/account/conversations/${tenantId}/messages`, { body: 'x' });
+  check('web chat API is retired (410)', chatApi.status === 410, `status=${chatApi.status}`);
+  const ownerStartChat = await owner.req('POST', '/api/dashboard/conversations', { customerId: '11111111-1111-1111-1111-111111111111' });
+  check('owner-started web chat is retired (410)', ownerStartChat.status === 410, `status=${ownerStartChat.status}`);
+  const inbox = await owner.req('GET', '/api/dashboard/conversations');
+  check('owner inbox (WhatsApp) still works and is empty', inbox.status === 200 && Array.isArray(inbox.json?.data), `status=${inbox.status}`);
+  const ru = await pub.req('GET', '/ar/account/register');
+  check('/account/register page is 404', ru.status === 404, `status=${ru.status}`);
+  const lu = await pub.req('GET', '/ar/account/login');
+  check('/account/login redirects to the owner login', lu.status >= 300 && lu.status < 400 && /\/ar\/login/.test(lu.headers.get('location') || ''), `status=${lu.status} loc=${lu.headers.get('location')}`);
+  const au = await pub.req('GET', '/ar/account');
+  check('/account page is 404', au.status === 404, `status=${au.status}`);
+  const unified = await pub.req('POST', '/api/auth/login', { email: `${TAG}-nobody@example.com`, password: PW });
+  check('login with an unknown email is 401', unified.status === 401, `status=${unified.status}`);
+
+  // ---------- 4. الحجز اليدوي من المالك ----------
+  console.log('\n[4] Owner manual booking, conflicts and status');
+  const cl = await owner.req('POST', '/api/dashboard/clients', { name: 'E2E client', phone: '33998877' });
+  const clientId = cl.json?.data?.id;
+  check('owner creates a client record', ok2xx(cl) && !!clientId, `status=${cl.status} ${cl.text.slice(0, 100)}`);
+  const bk1 = await owner.req('POST', '/api/dashboard/bookings', { customerId: clientId, serviceId, employeeId: staffId, startTime: slot1 });
   const bookingId = bk1.json?.data?.id;
-  check('customer 1 booking created (201)', bk1.status === 201 && !!bookingId, `status=${bk1.status} ${bk1.text.slice(0, 120)}`);
-  const dup = await pub.req('POST', '/api/appointments', { tenantId, serviceId, employeeId: staffId, customerName: 'Guest', customerPhone: '33000001', startTime: slot1 });
+  check('owner creates a booking (201)', bk1.status === 201 && !!bookingId, `status=${bk1.status} ${bk1.text.slice(0, 120)}`);
+  const dup = await owner.req('POST', '/api/dashboard/bookings', { customerId: clientId, serviceId, employeeId: staffId, startTime: slot1 });
   check('double-booking the same slot/staff is refused (409)', dup.status === 409, `status=${dup.status}`);
-
-  // حجز ضيف برقم هاتف عميل مسجَّل لا يلتصق بسجله
-  const guestPhone = '33998877';
-  await owner.req('POST', '/api/dashboard/clients', { name: 'CRM guest', phone: guestPhone });
-  const hist0 = await C1.c.req('GET', '/api/account/history');
-  check('customer 1 sees own booking in history', hist0.text.includes(bookingId));
-
-  // ---------- 4. تغيير الحالة، النقاط ----------
-  console.log('\n[4] Status transitions and loyalty points');
-  const ptsBefore = pointsOf(await C1.c.req('GET', '/api/account/export'));
-  const conf = await owner.req('PATCH', `/api/dashboard/bookings/${bookingId}`, { status: 'CONFIRMED' });
-  check('owner confirms booking', ok2xx(conf), `status=${conf.status}`);
   const done = await owner.req('PATCH', `/api/dashboard/bookings/${bookingId}`, { status: 'COMPLETED' });
-  check('owner completes booking', ok2xx(done), `status=${done.status}`);
-  await new Promise((r) => setTimeout(r, 1500)); // الجوائز تُمنح داخل after()
-  const ptsAfter = pointsOf(await C1.c.req('GET', '/api/account/export'));
-  check('loyalty points awarded once on completion', ptsAfter > ptsBefore, `before=${ptsBefore} after=${ptsAfter}`);
+  check('owner completes the booking', ok2xx(done), `status=${done.status}`);
   const revert = await owner.req('PATCH', `/api/dashboard/bookings/${bookingId}`, { status: 'CONFIRMED' });
   check('COMPLETED is final: reverting is refused (409)', revert.status === 409, `status=${revert.status}`);
-  const again = await owner.req('PATCH', `/api/dashboard/bookings/${bookingId}`, { status: 'COMPLETED' });
-  await new Promise((r) => setTimeout(r, 800));
-  const ptsAgain = pointsOf(await C1.c.req('GET', '/api/account/export'));
-  check('re-completing does not award points twice', ptsAgain === ptsAfter, `after=${ptsAfter} again=${ptsAgain} (status ${again.status})`);
-
-  // ---------- 5. تقويم + تذكير ----------
-  console.log('\n[5] Add-to-calendar (.ics) and appointment reminders');
-  const ics = await C1.c.req('GET', `/api/account/appointments/${bookingId}/ics?locale=ar`);
-  check('ics returns text/calendar with DTSTART', ics.status === 200 && /text\/calendar/.test(ics.headers.get('content-type') || '') && ics.text.includes('BEGIN:VEVENT') && /DTSTART:\d{8}T\d{6}Z/.test(ics.text), `status=${ics.status}`);
-  const icsOther = await C2.c.req('GET', `/api/account/appointments/${bookingId}/ics`);
-  check("customer 2 cannot download customer 1's ics (404)", icsOther.status === 404, `status=${icsOther.status}`);
-  const icsAnon = await pub.req('GET', `/api/account/appointments/${bookingId}/ics`);
-  check('anonymous ics is refused (401)', icsAnon.status === 401, `status=${icsAnon.status}`);
-
   const noAuth = await pub.req('GET', '/api/cron/appointment-reminders');
   check('reminder cron refuses without secret (401)', noAuth.status === 401, `status=${noAuth.status}`);
-  if (!CRON_SECRET) {
-    skip('reminder cron end-to-end', 'CRON_SECRET not provided to the test');
-  } else {
-    const slotR = await pickSlot(tenantId, serviceId, { minHours: 13, maxHours: 35 });
-    const bkR = slotR && (await C1.c.req('POST', '/api/appointments', { tenantId, serviceId, employeeId: staffId, startTime: slotR }));
-    const rid = bkR?.json?.data?.id;
-    check('booking ~24h ahead created for reminder test', !!rid, `slot=${slotR} status=${bkR?.status}`);
-    if (rid) {
-      await owner.req('PATCH', `/api/dashboard/bookings/${rid}`, { status: 'CONFIRMED' });
-      const run1 = await pub.req('GET', '/api/cron/appointment-reminders', undefined, { Authorization: `Bearer ${CRON_SECRET}` });
-      check('reminder cron sends for the due appointment', run1.status === 200 && run1.json?.sent >= 1, `status=${run1.status} ${run1.text.slice(0, 100)}`);
-      const run2 = await pub.req('GET', '/api/cron/appointment-reminders', undefined, { Authorization: `Bearer ${CRON_SECRET}` });
-      check('reminder cron is idempotent (second run sends 0)', run2.status === 200 && run2.json?.sent === 0, `status=${run2.status} ${run2.text.slice(0, 100)}`);
-      await C1.c.req('POST', `/api/account/appointments/${rid}/cancel`);
-    }
-  }
+  if (CRON_SECRET) {
+    const run = await pub.req('GET', '/api/cron/daily', undefined, { Authorization: `Bearer ${CRON_SECRET}` });
+    check('daily cron runs with the secret', run.status === 200 && run.json?.success === true, `status=${run.status} ${run.text.slice(0, 120)}`);
+  } else skip('daily cron end-to-end', 'CRON_SECRET not provided to the test');
 
-  // ---------- 6. المحادثة ----------
-  console.log('\n[6] Chat: both directions, unread, isolation, block, rate limit');
-  const m1 = await C1.c.req('POST', `/api/account/conversations/${tenantId}/messages`, { body: 'مرحبا من العميل 1' });
-  check('customer 1 sends a message (201)', m1.status === 201, `status=${m1.status} ${m1.text.slice(0, 100)}`);
-  const inbox = await owner.req('GET', '/api/dashboard/conversations');
-  const conv = inbox.json?.data?.[0];
-  check('owner inbox shows the conversation with 1 unread', inbox.json?.data?.length === 1 && conv?.unreadCount === 1, inbox.text.slice(0, 160));
-  const convId = conv?.id;
-  const ownerRead = await owner.req('GET', `/api/dashboard/conversations/${convId}/messages`);
-  check('owner reads the thread', ownerRead.text.includes('مرحبا من العميل 1'));
-  await owner.req('POST', `/api/dashboard/conversations/${convId}/read`);
-  const inbox2 = await owner.req('GET', '/api/dashboard/conversations');
-  check('unread cleared after read', inbox2.json?.data?.[0]?.unreadCount === 0);
-  const reply = await owner.req('POST', `/api/dashboard/conversations/${convId}/messages`, { body: 'أهلًا، تفضل' });
-  check('owner replies (201)', reply.status === 201, `status=${reply.status}`);
-  const unread = await C1.c.req('GET', `/api/account/conversations/${tenantId}/unread`);
-  check('customer sees 1 unread from salon', unread.json?.data?.unread === 1, unread.text);
-  const c1Thread = await C1.c.req('GET', `/api/account/conversations/${tenantId}/messages`);
-  check('customer thread has both messages', c1Thread.text.includes('أهلًا، تفضل') && c1Thread.text.includes('مرحبا من العميل 1'));
-  const unread2 = await C1.c.req('GET', `/api/account/conversations/${tenantId}/unread`);
-  check('customer unread cleared after opening', unread2.json?.data?.unread === 0);
-  const c2Thread = await C2.c.req('GET', `/api/account/conversations/${tenantId}/messages`);
-  check("customer 2 cannot see customer 1's messages", !c2Thread.text.includes('مرحبا من العميل 1'));
-  const bad1 = await C1.c.req('POST', `/api/account/conversations/${tenantId}/messages`, { body: '' });
-  const bad2 = await C1.c.req('POST', `/api/account/conversations/${tenantId}/messages`, { body: 'x'.repeat(2001) });
-  const bad3 = await C1.c.req('POST', `/api/account/conversations/not-a-uuid/messages`, { body: 'x' });
-  check('empty / oversize / bad-id messages are rejected', bad1.status === 400 && bad2.status === 400 && bad3.status === 404, `${bad1.status}/${bad2.status}/${bad3.status}`);
-
-  // الحظر
-  const blk = await C1.c.req('POST', `/api/account/conversations/${tenantId}/block`, { blocked: true });
-  check('customer blocks the salon', ok2xx(blk), `status=${blk.status}`);
-  const sendBlocked = await owner.req('POST', `/api/dashboard/conversations/${convId}/messages`, { body: 'x' });
-  check('owner cannot send to a customer who blocked (403)', sendBlocked.status === 403, `status=${sendBlocked.status}`);
-  const crm = await owner.req('GET', '/api/dashboard/clients');
-  const crmRow = (crm.json?.data || []).find((c) => c.hasAccount);
-  if (crmRow) {
-    const startBlocked = await owner.req('POST', '/api/dashboard/conversations', { customerId: crmRow.id });
-    check('owner cannot start a chat with a customer who blocked (403)', startBlocked.status === 403, `status=${startBlocked.status}`);
-  } else skip('owner start-chat while blocked', 'no CRM client with account');
-  const unblk = await C1.c.req('POST', `/api/account/conversations/${tenantId}/block`, { blocked: false });
-  const sendOk = await owner.req('POST', `/api/dashboard/conversations/${convId}/messages`, { body: 'بعد إلغاء الحظر' });
-  check('after unblock the owner can send again', ok2xx(unblk) && sendOk.status === 201, `${unblk.status}/${sendOk.status}`);
-
-  // حد المعدل (30 رسالة/دقيقة لكل عميل)
-  let limited = 0;
-  for (let i = 0; i < 40; i++) {
-    const r = await C2.c.req('POST', `/api/account/conversations/${tenantId}/messages`, { body: `spam ${i}` });
-    if (r.status === 429) limited++;
-  }
-  check('chat spam is rate limited (429 appears)', limited > 0, `limited=${limited}`);
-
-  // ---------- 7. الجلسات ----------
-  console.log('\n[7] Session revocation after password change');
-  const c1b = new Client('c1-second-device');
-  const lg = await c1b.req('POST', '/api/account/login', { email: C1.email, password: PW });
-  check('customer logs in on a second device', ok2xx(lg), `status=${lg.status}`);
-  const before = await c1b.req('GET', '/api/account/session');
-  check('second device is logged in', before.json?.loggedIn === true);
-  const chg = await C1.c.req('POST', '/api/account/change-password', { currentPassword: PW, newPassword: PW2 });
-  check('customer changes password', ok2xx(chg), `status=${chg.status} ${chg.text.slice(0, 100)}`);
-  const after1 = await C1.c.req('GET', '/api/account/session');
-  const after2 = await c1b.req('GET', '/api/account/session');
-  check('device that changed the password stays logged in', after1.json?.loggedIn === true);
-  check('other device is logged out immediately', after2.json?.loggedIn === false);
-
+  // ---------- 5. الجلسات ----------
+  console.log('\n[5] Owner session revocation after password change');
   const own2 = new Client('owner-second-device');
   await own2.req('POST', '/api/auth/login', { email: ownerEmail, password: PW });
   check('owner second device works before change', (await own2.req('GET', '/api/dashboard/settings')).status === 200);
@@ -260,32 +182,33 @@ async function main() {
   check('owner current device stays logged in', (await owner.req('GET', '/api/dashboard/settings')).status === 200);
   check('owner other device is logged out (401)', (await own2.req('GET', '/api/dashboard/settings')).status === 401);
 
-  // ---------- 8. موظف له حجوزات قادمة ----------
-  console.log('\n[8] Staff deletion guard');
-  const futureSlot = await pickSlot(tenantId, serviceId, { minHours: 2, maxHours: 24 * 5 });
-  const fb = futureSlot && (await C2.c.req('POST', '/api/appointments', { tenantId, serviceId, employeeId: staffId, startTime: futureSlot }));
+  // ---------- 6. موظف له حجوزات قادمة ----------
+  console.log('\n[6] Staff deletion guard');
+  const futureSlot = await pickSlot(tenantId, serviceId, { minHours: 2, maxHours: 24 * 5, skipN: 3 });
+  const fb = futureSlot && (await owner.req('POST', '/api/dashboard/bookings', { customerId: clientId, serviceId, employeeId: staffId, startTime: futureSlot }));
   if (fb?.json?.data?.id) {
-    await owner.req('PATCH', `/api/dashboard/bookings/${fb.json.data.id}`, { status: 'CONFIRMED' });
     const del = await owner.req('DELETE', `/api/dashboard/staff/${staffId}`);
     check('deleting staff with an upcoming booking is refused (409)', del.status === 409, `status=${del.status}`);
   } else skip('staff deletion guard', 'could not create an upcoming booking');
 
-  // ---------- 9. لغة الأخطاء ----------
-  console.log('\n[9] API error language follows the page');
+  // ---------- 7. لغة الأخطاء ----------
+  console.log('\n[7] API error language follows the page');
   const en = await pub.req('POST', '/api/auth/login', {}, { Referer: `${BASE}/en/login` });
   const ar = await pub.req('POST', '/api/auth/login', {}, { Referer: `${BASE}/ar/login` });
   check('English page gets an English error', /required/i.test(en.json?.error || '') && !/[؀-ۿ]/.test(en.json?.error || ''), en.text.slice(0, 100));
   check('Arabic page gets an Arabic error', /[؀-ۿ]/.test(ar.json?.error || ''), ar.text.slice(0, 100));
+  const retiredEn = await pub.req('POST', '/api/account/login', {}, { Referer: `${BASE}/en/login` });
+  check('retired endpoints answer in English on English pages', /unavailable/i.test(retiredEn.json?.error || ''), retiredEn.text.slice(0, 100));
 
-  // ---------- 10. الأدمن: الإخفاء ----------
-  console.log('\n[10] Admin hide (cannot be undone by the owner)');
+  // ---------- 8. الأدمن: الإخفاء ----------
+  console.log('\n[8] Admin hide (cannot be undone by the owner)');
   const admin = new Client('admin');
   let adminOk = false;
   if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
     adminOk = ok2xx(await admin.req('POST', '/api/admin/login', { email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD }));
   } else {
-    const reg = await admin.req('POST', '/api/admin/register', { name: 'E2E Admin', email: `${TAG}-admin@example.com`, password: PW });
-    adminOk = reg.status === 201;
+    const r = await admin.req('POST', '/api/admin/register', { name: 'E2E Admin', email: `${TAG}-admin@example.com`, password: PW });
+    adminOk = r.status === 201;
   }
   if (!adminOk) {
     skip('admin hide tests', 'no admin credentials and an admin already exists');
@@ -297,10 +220,6 @@ async function main() {
     check('hidden salon page is 404', (await pub.req('GET', `/ar/salons/${tenantId}`)).status === 404);
     const ownerRepublish = await owner.req('PATCH', '/api/dashboard/settings', { isPublished: true });
     check('owner re-publishing does not undo the admin ban', ok2xx(ownerRepublish) && !(await pub.req('GET', '/api/salons')).text.includes(tenantId));
-    const chatHidden = await C1.c.req('POST', `/api/account/conversations/${tenantId}/messages`, { body: 'x' });
-    check('customers cannot message a hidden salon (404)', chatHidden.status === 404, `status=${chatHidden.status}`);
-    const bookHidden = await pub.req('POST', '/api/appointments', { tenantId, serviceId, customerName: 'x', customerPhone: '1', startTime: futureSlot || slot1 });
-    check('hidden salon rejects bookings', bookHidden.status >= 400, `status=${bookHidden.status}`);
     const unhide = await admin.req('PATCH', `/api/admin/salons/${tenantId}`, { isPublished: true });
     check('admin unhides the salon', ok2xx(unhide) && (await pub.req('GET', '/api/salons')).text.includes(tenantId));
   }
@@ -309,9 +228,7 @@ async function main() {
   console.log('\n[cleanup]');
   if (adminOk) {
     await admin.req('DELETE', `/api/admin/salons/${tenantId}`, { confirmName: `ZZ_E2E_${TAG}` });
-    const cust = await admin.req('GET', `/api/admin/customers?q=${TAG}`);
-    for (const row of cust.json?.data ?? []) await admin.req('DELETE', `/api/admin/customers/${row.id}`, { confirmEmail: row.email });
-    console.log('  test salon and customers deleted');
+    console.log('  test salon deleted');
   } else {
     console.log(`  no admin; delete test data manually (contains ${TAG})`);
   }

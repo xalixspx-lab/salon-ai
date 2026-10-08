@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { WEB_CHAT_ENABLED, retiredResponse } from '@/lib/retired';
 import { prisma } from '@/lib/prisma';
 import { getCustomerSession } from '@/lib/customerSession';
 import { isUuid, readJsonObject } from '@/lib/chat';
@@ -13,6 +14,7 @@ async function find(tenantId: string, accountId: string) {
 }
 
 export async function GET(_request: Request, { params }: { params: Promise<{ tenantId: string }> }) {
+  if (!WEB_CHAT_ENABLED) return retiredResponse();
   const session = await getCustomerSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   const { tenantId } = await params;
@@ -23,6 +25,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ ten
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ tenantId: string }> }) {
+  if (!WEB_CHAT_ENABLED) return retiredResponse();
   const session = await getCustomerSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   const { tenantId } = await params;

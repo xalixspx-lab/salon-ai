@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { CUSTOMER_SIDE_ENABLED, retiredResponse } from '@/lib/retired';
 import { prisma } from '@/lib/prisma';
 import { getCustomerSession, createCustomerSession } from '@/lib/customerSession';
 import { hashPassword, verifyPassword } from '@/lib/password';
@@ -6,6 +7,7 @@ import { limitOrResponse } from '@/lib/rateLimit';
 import { tr } from '@/lib/apiLocale';
 
 export async function POST(request: Request) {
+  if (!CUSTOMER_SIDE_ENABLED) return retiredResponse();
   const session = await getCustomerSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 

@@ -3,7 +3,15 @@
 import { useEffect, useMemo, useState, FormEvent } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { describeOffer } from '@/lib/offers';
-import type { ApplicableOffer } from './ServicesList';
+// (الحجز من الموقع متوقف حاليًا — الملف محفوظ لإمكانية إعادته؛ راجع lib/retired.ts)
+export interface ApplicableOffer {
+  id: string;
+  type: string;
+  discountPercent: number | null;
+  discountAmount: number | null;
+  appliesToServiceId: string | null;
+  freeServiceId: string | null;
+}
 
 // الدينار البحريني بثلاث خانات عشرية: 4.5 تظهر "4.5" لا "5" (toFixed(0) كان يقرّب)
 const formatMoney = (n: number) =>

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { CUSTOMER_SIDE_ENABLED, retiredResponse } from '@/lib/retired';
 import { prisma } from '@/lib/prisma';
 import { getCustomerSession } from '@/lib/customerSession';
 import { limitOrResponse } from '@/lib/rateLimit';
@@ -7,6 +8,7 @@ import { tr } from '@/lib/apiLocale';
 // تقييم موعد مكتمل. الشروط: الموعد يخص حساب العميل الحالي، حالته COMPLETED،
 // ولم يُقيَّم من قبل (قيد فريد على appointment_id).
 export async function POST(request: Request) {
+  if (!CUSTOMER_SIDE_ENABLED) return retiredResponse();
   const session = await getCustomerSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 

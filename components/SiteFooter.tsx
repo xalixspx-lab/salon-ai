@@ -14,16 +14,15 @@ export default function SiteFooter() {
   if (HIDE_ON.test(pathname)) return null;
   const ar = locale === 'ar';
   const legal: Array<[string, string, string]> = [
-    ['terms', 'شروط استخدام العملاء', 'Customer terms'],
     ['tenant-agreement', 'اتفاقية الصالون', 'Salon agreement'],
+    ['terms', 'شروط الاستخدام', 'Terms of use'],
     ['privacy', 'سياسة الخصوصية', 'Privacy policy'],
     ['refund', 'سياسة العربون والاسترداد', 'Deposit & refund policy'],
   ];
   const platform: Array<[string, string, string]> = [
-    ['salons', 'اكتشف الصالونات', 'Discover salons'],
     ['salons/new', 'سجّل صالونك', 'List your salon'],
-    ['account/login', 'تسجيل الدخول', 'Sign in'],
-    ['account/register', 'إنشاء حساب', 'Create account'],
+    ['login', 'دخول المالك', 'Owner login'],
+    ['salons', 'دليل الصالونات', 'Salon directory'],
   ];
   const head = 'text-xs font-semibold uppercase tracking-wide text-stone-400 mb-3';
   const link = 'text-sm text-stone-600 hover:text-brand-700 transition-colors';
@@ -38,7 +37,7 @@ export default function SiteFooter() {
             <span className="font-bold text-lg text-stone-900">Salon AI</span>
           </div>
           <p className="text-sm text-stone-500 max-w-sm leading-relaxed">
-            {ar ? 'منصة ذكية لحجز مواعيد الصالونات في دول الخليج: اكتشف، قارن، واحجز في ثوانٍ.' : 'A smart salon-booking platform for the GCC: discover, compare and book in seconds.'}
+            {ar ? 'منصة لأصحاب الصالونات في الخليج: واتساب صالونك في صندوق واحد، مع حجوزات وتقارير ووكيل ذكي.' : "A platform for GCC salon owners: your salon's WhatsApp in one inbox, with bookings, reports and a smart agent."}
           </p>
         </div>
         <div>

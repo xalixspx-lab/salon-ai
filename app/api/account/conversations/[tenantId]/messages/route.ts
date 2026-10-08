@@ -1,4 +1,5 @@
 import { NextResponse, after } from 'next/server';
+import { WEB_CHAT_ENABLED, retiredResponse } from '@/lib/retired';
 import { prisma } from '@/lib/prisma';
 import { getCustomerSession } from '@/lib/customerSession';
 import { sendMessage, notifyChatMessage, loadThread, readJsonObject, isUuid, SENDER_ROLE, MESSAGE_MAX_LENGTH } from '@/lib/chat';
@@ -17,6 +18,7 @@ async function findOrCreateConversation(tenantId: string, accountId: string) {
 }
 
 async function GETHandler(_request: Request, { params }: { params: Promise<{ tenantId: string }> }) {
+  if (!WEB_CHAT_ENABLED) return retiredResponse();
   const session = await getCustomerSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   const { tenantId } = await params;
@@ -31,6 +33,7 @@ async function GETHandler(_request: Request, { params }: { params: Promise<{ ten
 }
 
 async function POSTHandler(request: Request, { params }: { params: Promise<{ tenantId: string }> }) {
+  if (!WEB_CHAT_ENABLED) return retiredResponse();
   const session = await getCustomerSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   const { tenantId } = await params;

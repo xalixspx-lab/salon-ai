@@ -52,7 +52,7 @@ class Client {
 }
 
 // حالات الرفض المقبولة: لا 200/201 ولا كشف بيانات
-const denied = (r) => [400, 401, 403, 404].includes(r.status);
+const denied = (r) => [400, 401, 403, 404, 410].includes(r.status);
 const idsOf = (r) => JSON.stringify(r.json?.data ?? r.json ?? '');
 
 async function registerSalon(label) {
@@ -68,14 +68,6 @@ async function registerSalon(label) {
   });
   if (r.status !== 201) throw new Error(`register salon ${label} failed: ${r.status} ${JSON.stringify(r.json)}`);
   return { c, tenantId: r.json.data.id, email, name: `ZZ_ISO_${TAG}_${label}` };
-}
-
-async function registerCustomer(label) {
-  const c = new Client(label);
-  const email = `${TAG}-cust-${label}@example.com`;
-  const r = await c.req('POST', '/api/account/register', { name: `Cust ${label}`, email, password: PASSWORD, acceptTerms: true });
-  if (r.status !== 201) throw new Error(`register customer ${label} failed: ${r.status} ${JSON.stringify(r.json)}`);
-  return { c, email };
 }
 
 async function seedSalon(s, label) {
@@ -110,14 +102,13 @@ async function main() {
   await seedSalon(A, 'A');
   await seedSalon(B, 'B');
 
-  // حجز عام في صالون B (ضيف)
+  // حجز في صالون B ينشئه مالكه (الحجز العام من الموقع متوقف)
   const slotB = await pickSlot(B.tenantId, B.serviceId);
-  const guest = new Client('guest');
-  const bookB = await guest.req('POST', '/api/appointments', {
-    tenantId: B.tenantId, serviceId: B.serviceId, customerName: 'Guest B', customerPhone: '33111111', startTime: slotB,
+  const bookB = await B.c.req('POST', '/api/dashboard/bookings', {
+    customerId: B.clientId, serviceId: B.serviceId, employeeId: B.staffId, startTime: slotB,
   });
   B.bookingId = bookB.json?.data?.id;
-  check('setup: guest booking created at salon B', bookB.status === 201 && !!B.bookingId, `status=${bookB.status} ${JSON.stringify(bookB.json)}`);
+  check('setup: booking created by owner B', bookB.status === 201 && !!B.bookingId, `status=${bookB.status} ${JSON.stringify(bookB.json)}`);
 
   console.log('\n[1] Owner A cannot read B\'s data through list endpoints');
   for (const [name, path, idB] of [
@@ -195,48 +186,30 @@ async function main() {
   const unpubBook = await pub.req('POST', '/api/appointments', { tenantId: A.tenantId, serviceId: A.serviceId, customerName: 'x', customerPhone: '1', startTime: slotB });
   check('unpublished salon rejects public booking', denied(unpubBook), `status=${unpubBook.status}`);
 
-  console.log('\n[6] Customer accounts are isolated from each other');
-  const C1 = await registerCustomer('1');
-  const C2 = await registerCustomer('2');
-  const slot2 = (await pickSlot(B.tenantId, B.serviceId)) === slotB ? slotB : slotB;
-  const cb = await C1.c.req('POST', '/api/appointments', { tenantId: B.tenantId, serviceId: B.serviceId, startTime: slotB, employeeId: B.staffId });
-  // قد يتعارض مع حجز الضيف على نفس الموظف؛ نبحث عن وقت آخر إن لزم
-  let c1Booking = cb.json?.data?.id;
-  if (!c1Booking) {
-    const date = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
-    const s2 = (await pub.req('GET', `/api/salons/${B.tenantId}/availability?serviceId=${B.serviceId}&date=${date}`)).json?.data?.slots?.[1];
-    const cb2 = await C1.c.req('POST', '/api/appointments', { tenantId: B.tenantId, serviceId: B.serviceId, startTime: s2 || slot2 });
-    c1Booking = cb2.json?.data?.id;
+  console.log('\n[6] Customer-side endpoints are retired for everyone');
+  const retired = new Client('retired');
+  for (const [name, r] of [
+    ['customer register', await retired.req('POST', '/api/account/register', { name: 'x', email: `${TAG}-x@example.com`, password: PASSWORD, acceptTerms: true })],
+    ['customer history', await A.c.req('GET', '/api/account/history')],
+    ['customer cancel', await retired.req('POST', '/api/account/appointments/' + B.bookingId + '/cancel')],
+    ['customer review', await retired.req('POST', '/api/account/reviews', { appointmentId: B.bookingId, rating: 1 })],
+    ['web chat send', await retired.req('POST', `/api/account/conversations/${B.tenantId}/messages`, { body: 'x' })],
+  ]) {
+    check(name + ' is refused (410/401)', r.status === 410 || r.status === 401, `status=${r.status}`);
   }
-  check('setup: customer 1 booking created', !!c1Booking);
-  if (c1Booking) {
-    const h1 = await C1.c.req('GET', '/api/account/history');
-    const h2 = await C2.c.req('GET', '/api/account/history');
-    check('customer 1 sees own booking in history', idsOf(h1).includes(c1Booking));
-    check('customer 2 does not see customer 1\'s booking', !idsOf(h2).includes(c1Booking));
-    const cx = await C2.c.req('POST', `/api/account/appointments/${c1Booking}/cancel`);
-    check('customer 2 cannot cancel customer 1\'s booking', denied(cx), `status=${cx.status}`);
-    const rs = await C2.c.req('POST', `/api/account/appointments/${c1Booking}/reschedule`, { startTime: slotB });
-    check('customer 2 cannot reschedule customer 1\'s booking', denied(rs), `status=${rs.status}`);
-    const rv = await C2.c.req('POST', '/api/account/reviews', { appointmentId: c1Booking, rating: 1, comment: 'x' });
-    check('customer 2 cannot review customer 1\'s booking', denied(rv), `status=${rv.status}`);
-    const ex2 = await C2.c.req('GET', '/api/account/export');
-    check('customer 2 data export excludes customer 1', !JSON.stringify(ex2.json ?? '').includes(C1.email));
-  }
+  const bAfter = await B.c.req('GET', '/api/dashboard/bookings');
+  check('B booking untouched by the retired endpoints', idsOf(bAfter).includes(B.bookingId) && !idsOf(bAfter).includes('CANCELLED'));
 
   console.log('\n[7] Sessions of one audience do not work for another');
   const noCookie = new Client('none');
   for (const [name, r] of [
     ['no cookie -> dashboard', await noCookie.req('GET', '/api/dashboard/services')],
-    ['no cookie -> account', await noCookie.req('GET', '/api/account/history')],
     ['no cookie -> admin', await noCookie.req('GET', '/api/admin/salons')],
     ['owner cookie -> admin', await A.c.req('GET', '/api/admin/salons')],
     ['owner cookie -> admin database', await A.c.req('GET', '/api/admin/database?model=services')],
     ['owner cookie -> account', await A.c.req('GET', '/api/account/history')],
-    ['customer cookie -> dashboard', await C1.c.req('GET', '/api/dashboard/services')],
-    ['customer cookie -> admin', await C1.c.req('GET', '/api/admin/customers')],
   ]) {
-    check(name + ' is refused', r.status === 401 || r.status === 403, `status=${r.status}`);
+    check(name + ' is refused', r.status === 401 || r.status === 403 || r.status === 410, `status=${r.status}`);
   }
 
   console.log('\n[8] Forged or tampered session cookies are rejected');

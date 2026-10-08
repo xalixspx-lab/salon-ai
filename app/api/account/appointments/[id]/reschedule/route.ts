@@ -1,10 +1,12 @@
 import { NextResponse, after } from 'next/server';
+import { CUSTOMER_SIDE_ENABLED, retiredResponse } from '@/lib/retired';
 import { loadOwnedAppointment } from '@/lib/customerAppointments';
 import { isOutsideHours, isSlotConflict, rescheduleAppointmentGuarded } from '@/lib/availability';
 import { notifyBooking } from '@/lib/notify';
 import { tr } from '@/lib/apiLocale';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (!CUSTOMER_SIDE_ENABLED) return retiredResponse();
   const { id } = await params;
   const loaded = await loadOwnedAppointment(id);
   if ('error' in loaded) {

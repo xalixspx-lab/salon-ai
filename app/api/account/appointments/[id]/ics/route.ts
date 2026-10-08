@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { CUSTOMER_SIDE_ENABLED, retiredResponse } from '@/lib/retired';
 import { prisma } from '@/lib/prisma';
 import { getCustomerSession } from '@/lib/customerSession';
 import { isUuid } from '@/lib/chat';
@@ -6,6 +7,7 @@ import { buildIcs } from '@/lib/ics';
 
 // "أضف للتقويم": ملف .ics لموعد يخص العميل المسجّل نفسه فقط
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (!CUSTOMER_SIDE_ENABLED) return retiredResponse();
   const session = await getCustomerSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   const { id } = await params;

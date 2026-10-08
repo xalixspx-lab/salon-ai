@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { MapPin, Phone, Star, Tag } from 'lucide-react';
+import { MapPin, MessageCircle, Phone, Star, Tag } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { prisma } from '@/lib/prisma';
@@ -7,9 +7,8 @@ import SalonMap from '@/components/SalonMap';
 import ServicesList from '@/components/ServicesList';
 import { DIRECT_OFFER_TYPES, describeOffer } from '@/lib/offers';
 import { getRatings } from '@/lib/ratings';
-import FavoriteButton from '@/components/FavoriteButton';
 import PublicHeader from '@/components/PublicHeader';
-import SalonChatWidget from '@/components/salons/SalonChatWidget';
+import { getSalonWhatsappNumber, waMeLink } from '@/lib/salonWhatsapp';
 import { isPubliclyVisible } from '@/lib/visibility';
 
 export async function generateMetadata({
@@ -31,8 +30,8 @@ export async function generateMetadata({
     desc.ar ||
     desc.en ||
     (locale === 'ar'
-      ? `احجز موعدك في ${tenant.name}${tenant.city ? ` — ${tenant.city}` : ''}`
-      : `Book an appointment at ${tenant.name}${tenant.city ? ` — ${tenant.city}` : ''}`);
+      ? `تواصل مع ${tenant.name}${tenant.city ? ` — ${tenant.city}` : ''} عبر واتساب`
+      : `Contact ${tenant.name}${tenant.city ? ` — ${tenant.city}` : ''} on WhatsApp`);
 
   return {
     title: tenant.name,
@@ -75,6 +74,9 @@ export default async function SalonDetailPage({
   });
 
   const t = await getTranslations('SalonDetail');
+  const waNumber = await getSalonWhatsappNumber(tenant.id, tenant.phone);
+  const waText = locale === 'ar' ? `مرحبًا ${tenant.name}، أود الاستفسار عن خدماتكم` : `Hello ${tenant.name}, I would like to ask about your services`;
+  const waHref = waNumber ? waMeLink(waNumber, waText) : null;
 
   const [ratingMap, reviews] = await Promise.all([
     getRatings([tenant.id]),
@@ -150,7 +152,6 @@ export default async function SalonDetailPage({
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-3">
                   <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">{tenant.name}</h1>
-                  <FavoriteButton tenantId={tenant.id} />
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-stone-600">
                   {rating && (
@@ -171,10 +172,15 @@ export default async function SalonDetailPage({
               </div>
             </div>
             {aboutText && <p className="text-stone-700 mt-5 leading-relaxed max-w-2xl">{aboutText}</p>}
+            {waHref && (
+              <a href={waHref} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 font-semibold text-white shadow-sm shadow-emerald-600/20 transition-colors hover:bg-[#1ebe5a]">
+                <MessageCircle className="h-5 w-5" /> {ar ? 'تواصل عبر واتساب' : 'Chat on WhatsApp'}
+              </a>
+            )}
           </div>
         </div>
 
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 pb-28 md:pb-8 space-y-6">
           {offers.length > 0 && (
             <div className="space-y-2">
               {offers.map((offer) => (
@@ -204,24 +210,7 @@ export default async function SalonDetailPage({
 
           <section className="bg-white rounded-2xl border border-stone-200/80 p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-stone-900 mb-4">{t('services')}</h2>
-            <ServicesList
-              tenantId={tenant.id}
-              services={serviceRows}
-              currency={tenant.currency || 'BHD'}
-              depositPercentage={tenant.depositPercentage}
-              cancellationHours={tenant.cancellationHours}
-              refundPercentAfterDeadline={tenant.refundPercentAfterDeadline}
-              offers={offers
-                .filter((o) => DIRECT_OFFER_TYPES.includes(o.type))
-                .map((o) => ({
-                  id: o.id,
-                  type: o.type,
-                  discountPercent: o.discountPercent,
-                  discountAmount: o.discountAmount ? Number(o.discountAmount) : null,
-                  appliesToServiceId: o.appliesToServiceId,
-                  freeServiceId: o.freeServiceId,
-                }))}
-            />
+            <ServicesList services={serviceRows} currency={tenant.currency || 'BHD'} emptyText={t('noServices')} minutesLabel={t('durationLabel')} />
           </section>
 
           {photos.length > 0 && (
@@ -265,8 +254,14 @@ export default async function SalonDetailPage({
             )}
           </section>
         </div>
+        {waHref && (
+          <div className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t border-stone-200 bg-white/95 backdrop-blur p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+            <a href={waHref} target="_blank" rel="noopener noreferrer" className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] font-semibold text-white">
+              <MessageCircle className="h-5 w-5" /> {ar ? 'تواصل عبر واتساب' : 'Chat on WhatsApp'}
+            </a>
+          </div>
+        )}
       </main>
-      <SalonChatWidget tenantId={tenant.id} />
     </>
   );
 }

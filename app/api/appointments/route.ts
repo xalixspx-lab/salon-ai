@@ -1,4 +1,5 @@
 import { NextResponse, after } from 'next/server';
+import { CUSTOMER_SIDE_ENABLED, retiredResponse } from '@/lib/retired';
 import { clientIp, limitOrResponse } from '@/lib/rateLimit';
 import { prisma } from '@/lib/prisma';
 import { getCustomerSession } from '@/lib/customerSession';
@@ -17,6 +18,7 @@ import { tr } from '@/lib/apiLocale';
 // لو فيه عميل مسجّل دخوله (حساب)، نربط سجل Customer بحسابه بدل الاعتماد على
 // الاسم/الجوال فقط، حتى يظهر الحجز بسجل حجوزاته لاحقًا مهما كان الصالون.
 export async function POST(request: Request) {
+  if (!CUSTOMER_SIDE_ENABLED) return retiredResponse();
   try {
     const limited = await limitOrResponse(`book:${clientIp(request)}`, 20, 60 * 60 * 1000);
     if (limited) return limited;

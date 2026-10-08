@@ -15,6 +15,7 @@ export async function apiLang(): Promise<'ar' | 'en'> {
 }
 
 const EN: Record<string, string> = {
+  'هذه الخدمة متوقفة حاليًا': 'This service is currently unavailable',
   'الوقت المختار خارج ساعات الدوام': 'The selected time is outside working hours',
   'هذا الوقت غير متاح، اختر وقتًا آخر': 'This time is not available, please choose another',
   'فشل تغيير الموعد': 'Could not change the appointment',

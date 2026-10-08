@@ -5,6 +5,7 @@ import { verifyPassword } from '@/lib/password';
 import { createSession } from '@/lib/session';
 import { createCustomerSession } from '@/lib/customerSession';
 import { tr } from '@/lib/apiLocale';
+import { CUSTOMER_SIDE_ENABLED } from '@/lib/retired';
 
 // دخول موحّد لصاحب الصالون والعميل: يتعرّف على نوع الحساب من البريد نفسه
 // فلا يحتاج الزائر معرفة أي رابط يستخدم. الأدمن مستثنى عمدًا (يبقى منفصلاً
@@ -43,7 +44,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, role: 'owner' }, { status: 200 });
     }
 
-    const account = await prisma.customerAccount.findUnique({ where: { email } });
+    // دخول العملاء متوقف (المنصة لأصحاب الصالونات فقط)؛ يعود المفتاح في lib/retired.ts
+    const account = CUSTOMER_SIDE_ENABLED ? await prisma.customerAccount.findUnique({ where: { email } }) : null;
     if (account) {
       if (account.suspendedAt) {
         return NextResponse.json({ success: false, error: await tr('هذا الحساب موقوف، تواصل مع إدارة المنصة') }, { status: 403 });

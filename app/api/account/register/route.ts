@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { CUSTOMER_SIDE_ENABLED, retiredResponse } from '@/lib/retired';
 import { clientIp, limitOrResponse } from '@/lib/rateLimit';
 import { sendVerificationEmail } from '@/lib/verification';
 import { prisma } from '@/lib/prisma';
@@ -11,6 +12,7 @@ import { generateUniqueReferralCode } from '@/lib/referral';
 import { tr } from '@/lib/apiLocale';
 
 export async function POST(request: Request) {
+  if (!CUSTOMER_SIDE_ENABLED) return retiredResponse();
   try {
     const limited = await limitOrResponse(`register-customer:${clientIp(request)}`, 10, 60 * 60 * 1000);
     if (limited) return limited;

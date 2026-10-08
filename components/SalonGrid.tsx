@@ -181,7 +181,7 @@ export default function SalonGrid({ locale, salons, initialQuery = '' }: { local
                       </a>
                     )}
                     <span className={buttonClass('primary', 'sm')}>
-                      {ar ? 'احجز الآن' : 'Book now'} <ArrowUpRight className="h-4 w-4 rtl:-scale-x-100" />
+                      {ar ? 'تواصل واتساب' : 'WhatsApp'} <ArrowUpRight className="h-4 w-4 rtl:-scale-x-100" />
                     </span>
                   </div>
                 </div>

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { WEB_CHAT_ENABLED, retiredResponse } from '@/lib/retired';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { withTenantScope } from '@/lib/tenantScope';
@@ -14,7 +15,7 @@ async function GETHandler() {
 
   const conversations = await prisma.conversation.findMany({
     // محادثة حظرها العميل قبل أن يراسل (فارغة) لا تظهر في بريد المالك
-    where: { tenantId: session.tenantId, NOT: { blockedByCustomerAt: { not: null }, messages: { none: {} } } },
+    where: { tenantId: session.tenantId, ...(WEB_CHAT_ENABLED ? {} : { contactId: { not: null } }), NOT: { blockedByCustomerAt: { not: null }, messages: { none: {} } } },
     orderBy: { lastMessageAt: 'desc' },
     take: 100,
     include: {
@@ -52,6 +53,7 @@ async function GETHandler() {
 // يتطلب أن يكون لهذا العميل حساب دخول مرتبط (accountId)، وإلا فلا وجهة
 // لإرسال المحادثة إليها. إن كانت المحادثة موجودة مسبقًا تُعاد كما هي
 async function POSTHandler(request: Request) {
+  if (!WEB_CHAT_ENABLED) return retiredResponse();
   const session = await getSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 

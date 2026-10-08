@@ -1,4 +1,5 @@
 import { NextResponse, after } from 'next/server';
+import { WEB_CHAT_ENABLED, retiredResponse } from '@/lib/retired';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { withTenantScope } from '@/lib/tenantScope';
@@ -42,6 +43,8 @@ async function POSTHandler(request: Request, { params }: { params: Promise<{ id:
     const status = r.code === 'WINDOW_CLOSED' || r.code === 'NOT_CONNECTED' ? 409 : 502;
     return NextResponse.json({ success: false, error: r.code, code: r.code }, { status });
   }
+
+  if (!WEB_CHAT_ENABLED) return retiredResponse();
 
   if (conversation.blockedByCustomerAt) {
     return NextResponse.json({ success: false, error: 'blocked', blocked: true }, { status: 403 });

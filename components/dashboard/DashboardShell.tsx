@@ -24,7 +24,6 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
-import ChatWidget from '@/components/dashboard/ChatWidget';
 
 type NavLink = { href: string; label: string; icon: LucideIcon };
 
@@ -231,8 +230,6 @@ export default function DashboardShell({
         )}
       </div>
 
-      {/* صفحة الرسائل الكاملة تغني عن الويدجت العائم (وإلا تراكبا) */}
-      {!pathname.endsWith('/inbox') && <ChatWidget />}
     </div>
   );
 }

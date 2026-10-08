@@ -1,5 +1,7 @@
-import UnifiedLoginForm from '@/components/UnifiedLoginForm';
+import { redirect } from 'next/navigation';
 
-export default function AccountLoginPage() {
-  return <UnifiedLoginForm />;
+// دخول العملاء متوقف؛ صفحة الدخول الموحّدة لأصحاب الصالونات فقط
+export default async function AccountLoginPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  redirect(`/${locale}/login`);
 }

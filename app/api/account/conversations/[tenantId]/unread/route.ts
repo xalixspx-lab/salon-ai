@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { WEB_CHAT_ENABLED, retiredResponse } from '@/lib/retired';
 import { prisma } from '@/lib/prisma';
 import { getCustomerSession } from '@/lib/customerSession';
 import { isUuid, SENDER_ROLE } from '@/lib/chat';
@@ -6,6 +7,7 @@ import { isUuid, SENDER_ROLE } from '@/lib/chat';
 // عدد رسائل الصالون غير المقروءة في محادثة هذا العميل معه — خفيف، لشارة
 // الويدجت المغلق (لا يغيّر حالة القراءة)
 export async function GET(_request: Request, { params }: { params: Promise<{ tenantId: string }> }) {
+  if (!WEB_CHAT_ENABLED) return retiredResponse();
   const session = await getCustomerSession();
   if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   const { tenantId } = await params;
